@@ -1,0 +1,30 @@
+{
+  "model_name": "distilbert-base-uncased",
+  "tokenizer_name": "distilbert-base-uncased",
+  "max_length": 64,
+  "conf_threshold": 0.55,
+  "temporal_labels": [
+    "current",
+    "historical",
+    "timeless"
+  ],
+  "history": [
+    {
+      "necessity_f1": 0.8888888837311386,
+      "necessity_acc": 0.8125,
+      "necessity_precision": 0.7999999998222223,
+      "necessity_recall": 0.9999999997222222,
+      "temporal_acc": 0.8125,
+      "temporal_macro_f1": 0.7824335154704875,
+      "train_loss": 1.8240617270659034,
+      "epoch": 1
+    }
+  ],
+  "best_val_score": 0.8090473575356503,
+  "augment_factor": 1,
+  "train_examples": 240,
+  "epochs": 1,
+  "batch_size": 8,
+  "temperature": 2.8,
+  "blend_confidence": false
+}

@@ -1,0 +1,9 @@
+flowchart LR
+    A[Analyzer output] --> T{trivial and<br/>no retrieve?}
+    T -->|yes| SKIP[Skip retrieval]
+    T -->|no| C{confidence low<br/>OR timeless<br/>OR soft no-retrieve?}
+    C -->|yes| SEM[semantic]
+    C -->|no| TC{temporal_class}
+    TC -->|current| CUR[current]
+    TC -->|historical| HIS[historical +<br/>adaptive window]
+    TC -->|else| SEM2[semantic]

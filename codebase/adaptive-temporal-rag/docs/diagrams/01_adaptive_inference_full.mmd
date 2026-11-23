@@ -1,0 +1,46 @@
+flowchart TB
+    Q[User query]
+
+    Q --> AN[Trained query analyzer<br/>DistilBERT / DeBERTa multitask]
+    AN --> OUT1["needs_retrieval<br/>temporal_class<br/>confidence"]
+
+    OUT1 --> TRIV{needs_retrieval = 0<br/>AND trivial query?}
+    TRIV -->|yes| G0[Generator<br/>no docs]
+    G0 --> R0[Answer + meta<br/>no retrieval]
+
+    TRIV -->|no| POL[Policy router]
+
+    POL --> M{retrieve_mode}
+    M -->|current| P1[current path]
+    M -->|historical| P2[historical path]
+    M -->|semantic| P3[semantic path<br/>soft timeless / low conf / timeless]
+
+    subgraph RET["Temporal retriever each path"]
+        FAISS[BGE embed + FAISS<br/>candidate_k neighbors]
+        CE[Cross-encoder rerank<br/>ms-marco-MiniLM]
+        FAISS --> CE
+        CE --> BR{mode}
+        BR -->|current| RR[Temporal rerank<br/>recency + alpha blend]
+        BR -->|historical| AW[Adaptive date window<br/>expand until enough docs<br/>+ alpha blend]
+        BR -->|semantic| SEM[Semantic rerank<br/>alpha blend]
+    end
+
+    P1 --> RET
+    P2 --> RET
+    P3 --> RET
+
+    RR --> SUF
+    AW --> SUF
+    SEM --> SUF
+
+    SUF[Evidence sufficiency judge]
+    SUF -->|sufficient or max rounds| GEN[Generator<br/>extractive or API chain]
+    SUF -->|insufficient| REP["Repairs:<br/>widen_window, expand_candidates<br/>raise_topk, relax_to_semantic<br/>boost_recency"]
+    REP --> RET
+
+    GEN --> POST{Post-answer weak?}
+    POST -->|yes once| RET2[One wider semantic re-retrieve]
+    RET2 --> GEN2[Regenerate if better]
+    POST -->|no| DONE[Answer + retrieved passages<br/>policy, window, sufficiency meta]
+    GEN2 --> DONE
+    GEN --> POST

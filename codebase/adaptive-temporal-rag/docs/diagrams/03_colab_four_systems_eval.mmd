@@ -1,0 +1,10 @@
+flowchart TB
+    Q[Same test query text]
+    Q --> B1[B1: Generator only]
+    Q --> B2[B2: FAISS then CE then Generator]
+    Q --> B3[B3: FAISS then CE then fixed window then Generator]
+    Q --> B4[B4 Adaptive: analyzer + temporal retriever + sufficiency]
+    B1 --> M[Metrics vs gold<br/>not used at run time]
+    B2 --> M
+    B3 --> M
+    B4 --> M

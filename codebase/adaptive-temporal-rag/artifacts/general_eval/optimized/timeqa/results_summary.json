@@ -1,0 +1,58 @@
+{
+  "B2_standard_rag": {
+    "n": 16.0,
+    "em": 0.0,
+    "token_f1": 0.14820856186675738,
+    "contains": 0.75,
+    "precision_at_k": 0.26666666666666666,
+    "recall_at_k": 0.4990476190476191,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.9375,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 3.190915250001126,
+    "retrieval_rate": 1.0
+  },
+  "B3_fixed_temporal": {
+    "n": 16.0,
+    "em": 0.0,
+    "token_f1": 0.07797729418263066,
+    "contains": 0.4375,
+    "precision_at_k": 0.1288888888888889,
+    "recall_at_k": 0.19015873015873014,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.9375,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 3.106738550006412,
+    "retrieval_rate": 1.0
+  },
+  "adaptive": {
+    "n": 16.0,
+    "em": 0.0,
+    "token_f1": 0.1624667787404634,
+    "contains": 0.8125,
+    "precision_at_k": 0.32000000000000006,
+    "recall_at_k": 0.5734920634920634,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.9375,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 3.982714300014777,
+    "retrieval_rate": 1.0
+  },
+  "adaptive_learned": {
+    "n": 16.0,
+    "em": 0.1875,
+    "token_f1": 0.1875,
+    "contains": 0.1875,
+    "precision_at_k": 0.34666666666666673,
+    "recall_at_k": 0.6012698412698413,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.25,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 4.835059168748558,
+    "retrieval_rate": 1.0
+  }
+}

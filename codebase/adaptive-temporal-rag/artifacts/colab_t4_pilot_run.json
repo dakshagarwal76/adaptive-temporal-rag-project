@@ -1,0 +1,61 @@
+{
+  "source": "Colab T4 pilot — metrics copied from user chat (only run reported there)",
+  "run_stage": "t4_pilot",
+  "stack_at_run_time": {
+    "note": "Pre-upgrade Colab copy on Drive: DistilBERT multitask, paraphrase-heavy train, augment x8"
+  },
+  "training": {
+    "raw_train": 2850,
+    "val_queries": 75,
+    "augment_factor": 8,
+    "epochs_planned": 12,
+    "batch_size": 8,
+    "train_examples_after_augment": 22800,
+    "wall_time_minutes": 32.5,
+    "best_val_score": 0.4762,
+    "epoch_log": [
+      {"epoch": 1, "train_loss": 1.7962, "val_nec_f1": 0.366, "val_temp_acc": 0.333},
+      {"epoch": 2, "train_loss": 1.7365, "val_nec_f1": 0.619, "val_temp_acc": 0.333},
+      {"epoch": 3, "train_loss": 1.7189, "val_nec_f1": 0.628, "val_temp_acc": 0.32},
+      {"epoch": 4, "train_loss": 1.7135, "val_nec_f1": 0.628, "val_temp_acc": 0.32},
+      {"epoch": 5, "train_loss": 1.7101, "val_nec_f1": 0.366, "val_temp_acc": 0.333},
+      {"epoch": 6, "train_loss": 1.709, "val_nec_f1": 0.628, "val_temp_acc": 0.32},
+      {"epoch": 7, "train_loss": 1.7042, "val_nec_f1": 0.432, "val_temp_acc": 0.28},
+      {"epoch": 8, "train_loss": 1.7038, "val_nec_f1": 0.619, "val_temp_acc": 0.32},
+      {"epoch": 9, "train_loss": 1.7001, "val_nec_f1": 0.619, "val_temp_acc": 0.28},
+      {"epoch": 10, "train_loss": 1.6963, "val_nec_f1": 0.619, "val_temp_acc": 0.28},
+      {"epoch": 11, "train_loss": 1.6955, "val_nec_f1": 0.619, "val_temp_acc": 0.32},
+      {"epoch": 12, "train_loss": 1.6975, "val_nec_f1": 0.432, "val_temp_acc": 0.32}
+    ]
+  },
+  "post_train_sanity_queries": [
+    {
+      "query": "Who is the current Prime Minister of India?",
+      "temporal_class": "timeless",
+      "needs_retrieval": 0,
+      "confidence": 0.88
+    },
+    {
+      "query": "Who was the President of the United States in 2018?",
+      "temporal_class": "timeless",
+      "needs_retrieval": 1,
+      "confidence": 0.41
+    },
+    {
+      "query": "Define photosynthesis.",
+      "temporal_class": "timeless",
+      "needs_retrieval": 0,
+      "confidence": 0.88
+    },
+    {
+      "query": "What is 2 + 2?",
+      "temporal_class": "timeless",
+      "needs_retrieval": 0,
+      "confidence": 0.88
+    }
+  ],
+  "full_system_eval_b1_b2_b3_adaptive": {
+    "status": "not_provided",
+    "note": "User did not paste section 4/5 evaluate output for this Colab session in chat."
+  }
+}

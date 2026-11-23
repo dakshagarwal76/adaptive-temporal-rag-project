@@ -1,0 +1,58 @@
+{
+  "B1_llm_only": {
+    "n": 193.0,
+    "em": 0.0,
+    "token_f1": 0.0019288161596541088,
+    "contains": 0.0,
+    "precision_at_k": 0.0,
+    "recall_at_k": 0.0,
+    "temporal_acc": 0.0,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 2.6299475832152245e-05,
+    "retrieval_rate": 0.0
+  },
+  "B2_standard_rag": {
+    "n": 193.0,
+    "em": 0.19689119170984457,
+    "token_f1": 0.2865195101555967,
+    "contains": 0.40932642487046633,
+    "precision_at_k": 0.34300518134715036,
+    "recall_at_k": 0.5716753022452506,
+    "temporal_acc": 0.5958549222797928,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 0.7189767409334384,
+    "retrieval_rate": 1.0
+  },
+  "B3_fixed_temporal": {
+    "n": 193.0,
+    "em": 0.2538860103626943,
+    "token_f1": 0.4685966070909683,
+    "contains": 0.7098445595854922,
+    "precision_at_k": 0.5419689119170977,
+    "recall_at_k": 0.9032815198618307,
+    "temporal_acc": 1.0,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 0.708510553885922,
+    "retrieval_rate": 1.0
+  },
+  "adaptive": {
+    "n": 193.0,
+    "em": 0.7616580310880829,
+    "token_f1": 0.7655440414507773,
+    "contains": 0.7616580310880829,
+    "precision_at_k": 0.6753886010362681,
+    "recall_at_k": 0.9015544041450777,
+    "temporal_acc": 0.9844559585492227,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 0.9049432305661343,
+    "retrieval_rate": 1.0
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "B1_llm_only": {
+    "n": 77.0,
+    "em": 0.11688311688311688,
+    "token_f1": 0.15831198820772313,
+    "contains": 0.12987012987012986,
+    "precision_at_k": 0.0,
+    "recall_at_k": 0.0,
+    "temporal_acc": 0.24675324675324675,
+    "latency_s": 2.181557212750633e-05,
+    "retrieval_rate": 0.0
+  },
+  "B2_standard_rag": {
+    "n": 77.0,
+    "em": 0.38961038961038963,
+    "token_f1": 0.5294389084305051,
+    "contains": 0.7142857142857143,
+    "precision_at_k": 0.39310344827586224,
+    "recall_at_k": 0.6551724137931035,
+    "temporal_acc": 0.6623376623376623,
+    "latency_s": 0.5943728844127194,
+    "retrieval_rate": 1.0
+  },
+  "B3_fixed_temporal": {
+    "n": 77.0,
+    "em": 0.4675324675324675,
+    "token_f1": 0.6743592573153105,
+    "contains": 0.987012987012987,
+    "precision_at_k": 0.6120689655172418,
+    "recall_at_k": 0.954022988505747,
+    "temporal_acc": 1.0,
+    "latency_s": 0.5614362896008829,
+    "retrieval_rate": 1.0
+  },
+  "adaptive": {
+    "n": 77.0,
+    "em": 0.4675324675324675,
+    "token_f1": 0.6756579586140119,
+    "contains": 1.0,
+    "precision_at_k": 0.6732758620689658,
+    "recall_at_k": 0.9540229885057471,
+    "temporal_acc": 1.0,
+    "latency_s": 0.5599460571357231,
+    "retrieval_rate": 0.8701298701298701
+  }
+}

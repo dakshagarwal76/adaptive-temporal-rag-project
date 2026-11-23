@@ -1,0 +1,44 @@
+{
+  "B2_standard_rag": {
+    "n": 2.0,
+    "em": 0.0,
+    "token_f1": 0.0,
+    "contains": 0.0,
+    "precision_at_k": 0.0,
+    "recall_at_k": 0.0,
+    "temporal_acc": 0.0,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 2.0827951999381185,
+    "retrieval_rate": 1.0
+  },
+  "B3_fixed_temporal": {
+    "n": 2.0,
+    "em": 0.0,
+    "token_f1": 0.45454545454545453,
+    "contains": 1.0,
+    "precision_at_k": 0.6,
+    "recall_at_k": 1.0,
+    "temporal_acc": 1.0,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 1.0136733000399545,
+    "retrieval_rate": 1.0
+  },
+  "adaptive": {
+    "n": 2.0,
+    "em": 0.0,
+    "token_f1": 0.45454545454545453,
+    "contains": 1.0,
+    "precision_at_k": 0.6,
+    "recall_at_k": 1.0,
+    "temporal_acc": 1.0,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 0.9967186499852687,
+    "retrieval_rate": 1.0
+  }
+}

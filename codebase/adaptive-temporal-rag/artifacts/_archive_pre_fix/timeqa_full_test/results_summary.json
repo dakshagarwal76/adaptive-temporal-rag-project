@@ -1,0 +1,58 @@
+{
+  "B1_llm_only": {
+    "n": 500.0,
+    "em": 0.0,
+    "token_f1": 0.013597054383020828,
+    "contains": 0.014,
+    "precision_at_k": 0.0,
+    "recall_at_k": 0.0,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.82,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 2.6046199956908823e-05,
+    "retrieval_rate": 0.0
+  },
+  "B2_standard_rag": {
+    "n": 500.0,
+    "em": 0.0,
+    "token_f1": 0.07197474460121572,
+    "contains": 0.258,
+    "precision_at_k": 0.23463414634146443,
+    "recall_at_k": 0.4670034843205574,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.82,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 3.725753986397525,
+    "retrieval_rate": 1.0
+  },
+  "B3_fixed_temporal": {
+    "n": 500.0,
+    "em": 0.0,
+    "token_f1": 0.06080621809234242,
+    "contains": 0.192,
+    "precision_at_k": 0.15394308943089452,
+    "recall_at_k": 0.2810627177700348,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.82,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 3.745954536198638,
+    "retrieval_rate": 1.0
+  },
+  "adaptive": {
+    "n": 500.0,
+    "em": 0.0,
+    "token_f1": 0.078736028112572,
+    "contains": 0.296,
+    "precision_at_k": 0.24146341463414742,
+    "recall_at_k": 0.4882810685249711,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.82,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 47.48585498419753,
+    "retrieval_rate": 1.0
+  }
+}

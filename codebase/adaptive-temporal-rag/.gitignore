@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+.env
+.env.*
+!.env.example
+artifacts/*.npy
+artifacts/*.index
+artifacts/*.pt
+artifacts/corpus_snapshot.jsonl
+artifacts/results.csv
+artifacts/results_summary.json
+artifacts/results_charts.png
+artifacts/index_meta.json
+artifacts/analyzer_meta.json
+# Keep directory
+!artifacts/.gitkeep
+*.log
+.cache/

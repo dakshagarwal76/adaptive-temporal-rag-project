@@ -1,0 +1,16 @@
+{
+  "adaptive_learned_ranker_off": {
+    "n": 16.0,
+    "em": 0.0625,
+    "token_f1": 0.0625,
+    "contains": 0.0625,
+    "precision_at_k": 0.24000000000000002,
+    "recall_at_k": 0.46015873015873016,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.0625,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 0.5,
+    "latency_s": 6.006104743748438,
+    "retrieval_rate": 1.0
+  }
+}
