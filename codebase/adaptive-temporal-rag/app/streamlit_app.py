@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
@@ -25,7 +24,8 @@ from src.embed_index import EmbeddingIndex
 from src.env_loader import load_dotenv
 from src.generate import Generator
 from src.hf_utils import prefer_local_hf_cache
-from src.pipelines import AdaptiveTemporalRAGPipeline, FixedTemporalRAGPipeline, LLMOnlyPipeline, StandardRAGPipeline
+from src.config import load_eval_config
+from src.pipelines import build_all_pipelines
 from src.query_analyzer import load_query_analyzer
 
 load_dotenv(ROOT / ".env")
@@ -77,25 +77,35 @@ def _style_fig(fig):
 
 
 def render_live_demo(artifacts: str) -> None:
-    default_backend = os.environ.get("GENERATOR_BACKEND", "extractive")
-    if default_backend not in ("api", "extractive", "hf"):
-        default_backend = "extractive"
+    cfg = load_eval_config(ROOT / "configs" / "final.yaml")
+    default_backend = cfg.generator if cfg.generator in ("api", "extractive", "hf") else "extractive"
     backend = st.sidebar.selectbox(
         "Answer generator",
         ["extractive", "api", "hf"],
         index=["extractive", "api", "hf"].index(default_backend),
-        help="extractive = offline from docs. api = Groq→OpenRouter→OpenCode failover. hf = local Phi-3.",
+        help="Frozen default is configs/final.yaml. extractive = offline from docs.",
     )
     system = st.sidebar.selectbox(
         "System",
-        ["adaptive", "B1_llm_only", "B2_standard_rag", "B3_fixed_temporal"],
+        [
+            "adaptive",
+            "adaptive_fast",
+            "B1_llm_only",
+            "B2_standard_rag",
+            "B3_fixed_temporal",
+            "tempralm_decay",
+        ],
     )
-    top_k = st.sidebar.slider("top_k", 1, 10, 5)
-    alpha = st.sidebar.slider("alpha (semantic weight)", 0.0, 1.0, 0.6, 0.05)
-    conf_threshold = st.sidebar.slider("confidence threshold", 0.0, 1.0, 0.55, 0.05)
+    st.sidebar.caption(
+        f"Frozen config {cfg.name}: top_k={cfg.top_k}, alpha={cfg.alpha}, "
+        f"conf={cfg.conf_threshold}, sufficiency={cfg.enable_sufficiency_loop}, "
+        f"window={cfg.enable_adaptive_window}, entity cut={cfg.enable_entity_cut}, "
+        f"sentence selector={cfg.enable_sentence_selector}, projection={cfg.enable_answer_projection}."
+    )
 
     try:
         index, analyzer, analyzer_name, generator = load_stack(artifacts, backend)
+        generator.use_sentence_selector = cfg.enable_sentence_selector
         st.sidebar.success(f"Index ready ({len(index.docs)} docs)")
         st.sidebar.info(f"Analyzer: {analyzer_name}")
         if backend == "api":
@@ -132,21 +142,14 @@ def render_live_demo(artifacts: str) -> None:
         )
         return
 
-    if system == "B1_llm_only":
-        pipe = LLMOnlyPipeline(generator=generator)
-    elif system == "B2_standard_rag":
-        pipe = StandardRAGPipeline(index=index, generator=generator, top_k=top_k)
-    elif system == "B3_fixed_temporal":
-        pipe = FixedTemporalRAGPipeline(index=index, generator=generator, top_k=top_k, alpha=alpha)
-    else:
-        pipe = AdaptiveTemporalRAGPipeline(
-            analyzer=analyzer,
-            index=index,
-            generator=generator,
-            top_k=top_k,
-            alpha=alpha,
-            conf_threshold=conf_threshold,
-        )
+    live_cfg = cfg
+    if system == "adaptive_fast":
+        from dataclasses import replace
+
+        live_cfg = replace(cfg, enable_sufficiency_loop=False)
+    pipes = build_all_pipelines(index=index, generator=generator, analyzer=analyzer, config=live_cfg)
+    pipe_name = "adaptive" if system == "adaptive_fast" else system
+    pipe = pipes[pipe_name]
 
     result = pipe.run(query)
 

@@ -14,12 +14,21 @@ OUT_MD = ROOT / "artifacts" / "final_results.md"
 OUT_JSON = ROOT / "artifacts" / "final_results.json"
 OUT_TEX = ROOT / "docs" / "paper" / "final_tables.tex"
 DATASETS = ("synthetic", "heldout", "timeqa")
-SYSTEMS = ("B1_llm_only", "B2_standard_rag", "B3_fixed_temporal", "adaptive")
+SYSTEMS = (
+    "B1_llm_only",
+    "B2_standard_rag",
+    "B3_fixed_temporal",
+    "tempralm_decay",
+    "adaptive",
+    "adaptive_fast",
+)
 LABELS = {
     "B1_llm_only": "B1 no retrieval",
     "B2_standard_rag": "B2 standard",
     "B3_fixed_temporal": "B3 fixed ±2y",
+    "tempralm_decay": "B4 TempRALM decay",
     "adaptive": "Adaptive",
+    "adaptive_fast": "Adaptive-Fast (sufficiency off)",
 }
 ABLATION_LABELS = {
     "adaptive_router_off": "router off (always retrieve)",
@@ -71,7 +80,11 @@ def _tex_cell(value, key: str) -> str:
 
 
 def _tex_label(label: str) -> str:
-    return label.replace("±", r"$\pm$")
+    short = {
+        "B4 TempRALM decay": "B4 decay",
+        "Adaptive-Fast (sufficiency off)": "Adaptive-Fast",
+    }
+    return short.get(label, label).replace("±", r"$\pm$")
 
 
 def _tex_tables(payload: dict) -> str:
@@ -90,7 +103,7 @@ def _tex_tables(payload: dict) -> str:
             "heldout": f"Frozen Checkpoint B. Questions naming six entities, $n{{=}}{n}$. Columns match Table~\\ref{{tab:syn77}}.",
             "timeqa": f"Frozen Checkpoint B. TimeQA test, $n{{=}}{n}$. EM and F1 use a span extracted from the selected sentence; Cont uses the sentence. Temp is omitted.",
         }[dataset]
-        chunks.append("\\begin{table}[t]")
+        chunks.append("\\begin{table*}[t]")
         chunks.append("\\centering")
         chunks.append(f"\\caption{{{title}}}")
         chunks.append(f"\\label{{{label}}}")
@@ -104,7 +117,7 @@ def _tex_tables(payload: dict) -> str:
                 continue
             m = summary[system]
             cells = [
-                LABELS.get(system, system).replace("±", "$\\pm$"),
+                _tex_label(LABELS.get(system, system)),
                 _tex_cell(m.get("em"), "em"),
                 _tex_cell(m.get("token_f1"), "token_f1"),
                 _tex_cell(m.get("contains"), "contains"),
@@ -118,9 +131,9 @@ def _tex_tables(payload: dict) -> str:
             chunks.append(" & ".join(cells) + " \\\\")
         chunks.append("\\bottomrule")
         chunks.append("\\end{tabular}")
-        chunks.append("\\end{table}")
+        chunks.append("\\end{table*}")
         chunks.append("")
-    chunks.append("\\begin{table}[t]")
+    chunks.append("\\begin{table*}[t]")
     chunks.append("\\centering")
     chunks.append(
         "\\caption{Ablations of Adaptive on the frozen configuration. Each row turns off one component.}"
@@ -162,7 +175,7 @@ def _tex_tables(payload: dict) -> str:
             )
     chunks.append("\\bottomrule")
     chunks.append("\\end{tabular}")
-    chunks.append("\\end{table}")
+    chunks.append("\\end{table*}")
     chunks.append("")
     return "\n".join(chunks)
 
@@ -173,8 +186,10 @@ def main() -> None:
         "# Frozen Checkpoint B results",
         "",
         "Source: `artifacts/general_eval/final/`. Config: `configs/final.yaml`.",
-        "B1/B2/B3/Adaptive share the extractive reader, answer projection, and entity/surname cut.",
-        "They differ on retrieval decision, the time window, and the sufficiency loop.",
+        "B1/B2/B3/B4/Adaptive share the extractive reader, answer projection, entity/surname cut, and sentence selector.",
+        "B1–B3 and Adaptive differ on retrieval decision, the time window, and the sufficiency loop.",
+        "B4 is dense+BM25 with exponential year-distance decay (lambda 2 years), no hard window and no sufficiency loop.",
+        "Adaptive-Fast is the saved sufficiency-off ablation, not a new four-system run. Its latency is from that later Adaptive-only run.",
         "Learned path is experimental and is not in these tables.",
         "TimeQA EM/F1 use span extraction on the selected sentence; Contains still uses the sentence.",
         "Temporal accuracy is omitted for TimeQA (index timestamps are not fact dates).",
@@ -192,6 +207,18 @@ def main() -> None:
             dataset_blocks.append("")
             continue
         summary = _load(summary_path)
+        b4_path = FINAL / dataset / "b4_tempralm_decay" / "results_summary.json"
+        if b4_path.exists():
+            b4 = _load(b4_path)
+            summary["tempralm_decay"] = b4.get("tempralm_decay") or next(iter(b4.values()))
+        fast_path = FINAL / "ablations" / dataset / "results_sufficiency_off_summary.json"
+        if fast_path.exists():
+            fast = _load(fast_path)
+            summary["adaptive_fast"] = fast.get("adaptive_sufficiency_off") or next(iter(fast.values()))
+            summary["adaptive_fast"] = dict(summary["adaptive_fast"])
+            summary["adaptive_fast"]["note"] = (
+                "ablation-derived variant: sufficiency loop off; latency is from the ablation run"
+            )
         payload["datasets"][dataset] = summary
         n = int(next(iter(summary.values())).get("n", 0)) if summary else 0
         dataset_blocks.append(f"## {dataset} (n={n})")
@@ -255,6 +282,12 @@ def main() -> None:
     print("Wrote", OUT_MD)
     print("Wrote", OUT_JSON)
     print("Wrote", OUT_TEX)
+    sig_path = ROOT / "artifacts" / "significance.json"
+    if sig_path.exists():
+        from scripts.compute_significance import _append_md, _markdown
+
+        _append_md(_markdown(json.loads(sig_path.read_text(encoding="utf-8"))))
+        print("Appended significance section")
 
 
 if __name__ == "__main__":

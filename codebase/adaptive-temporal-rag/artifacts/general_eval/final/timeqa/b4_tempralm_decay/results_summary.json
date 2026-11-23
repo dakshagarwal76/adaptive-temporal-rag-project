@@ -1,0 +1,17 @@
+{
+  "tempralm_decay": {
+    "n": 500.0,
+    "em": 0.01,
+    "token_f1": 0.0837153534485566,
+    "contains": 0.234,
+    "precision_at_k": 0.17365853658536637,
+    "recall_at_k": 0.358060394889663,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.82,
+    "router_temporal_acc": NaN,
+    "router_needs_acc": NaN,
+    "latency_s": 0.06169744459912181,
+    "latency_s_median": 0.05941350001376122,
+    "retrieval_rate": 1.0
+  }
+}

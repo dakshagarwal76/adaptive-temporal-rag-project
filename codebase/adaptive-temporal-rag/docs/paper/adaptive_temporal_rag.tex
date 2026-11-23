@@ -46,7 +46,8 @@ The extra work shows up as mean latency ($2.584$\,s against $1.546$\,s).
 On the full 500-question TimeQA test, Adaptive containment is $0.296$, against $0.270$ for the fixed window and $0.260$ for standard retrieval.
 Exact match stays near zero for every system ($0.008$, $0.010$, $0.006$) even after span extraction.
 Recall at 5 is higher for Adaptive ($0.488$) than for B3 ($0.392$), which is the cost of filtering on stored timestamps that are often not fact dates.
-There is still no comparison with a published temporal retriever.
+B4, a TempRALM-style dense+BM25 ranker with exponential year decay and no hard cutoff, scores exact match $0.662$ and containment $0.727$ on that templated test, well behind Adaptive.
+The sufficiency loop does not raise answers: turning it off leaves exact match unchanged and, on TimeQA, containment moves from $0.296$ to $0.298$.
 \end{abstract}
 
 \section{Introduction}
@@ -455,14 +456,15 @@ This path retrieves 40 candidates and keeps 20, against 80 and 40 for the heuris
 
 \subsection{Systems, and what they do not share}
 
-Four systems appear in the frozen tables.
-They share the extractive reader, answer projection, sentence selector, and entity or surname cut.
-They differ on the retrieval decision, the time window, and the sufficiency loop.
+The frozen tables share the extractive reader, answer projection, sentence selector, and entity or surname cut.
+B1--B3 and Adaptive differ on the retrieval decision, the time window, and the sufficiency loop.
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{B1.} The extractive reader with no documents. Hardcoded trivia replies still fire. This is not a closed-book language model.
   \item \textbf{B2.} Always retrieve. Rank by \eqref{eq:blend}. No date window and no sufficiency loop.
   \item \textbf{B3.} Always retrieve. If a year is found, keep candidates whose stored year is within $\pm 2$, and if that set is empty keep the unfiltered pool. Then call the shared ranker without the time-first flag. No sufficiency loop.
+  \item \textbf{B4.} Dense candidates union BM25 candidates, scored by an equal blend and then multiplied by $\exp(-|\Delta y|/2)$. No hard cutoff and no sufficiency loop. This is a TempRALM-style decay, not the published TempRALM system.
   \item \textbf{Adaptive.} Router, whitelist skip, adaptive window, and sufficiency loop, under the same reader.
+  \item \textbf{Adaptive-Fast.} The saved sufficiency-off ablation. Same answers as Adaptive on the templated and held-out files. Labeled as an ablation-derived variant so the negative loop result stays visible. Its latency is from that later run.
 \end{itemize}
 The learned path of Section~\ref{sec:learned} stays in the code, flagged experimental.
 It is not a row in the frozen comparison.
@@ -544,13 +546,16 @@ The other 10 are the whitelist.
 Mean latency is $1.690$\,s for Adaptive and $1.555$\,s for B3; medians are $1.573$\,s and $1.452$\,s.
 Skipping those 10 questions does not make Adaptive faster.
 B2, which has no date logic, is worse on every answer metric (containment $0.727$, exact match $0.649$).
+B4, dense plus BM25 with exponential decay and no hard window, lands next to B2: exact match $0.662$, containment $0.727$.
 That gap is the comparison a date filter is supposed to win.
 It does not separate the adaptive window from the fixed two-year filter.
+Adaptive-Fast, the saved sufficiency-off ablation, matches Adaptive on every answer metric here (exact match $0.948$, containment $0.987$).
+Its mean latency in that later run is $1.179$\,s, against $1.690$\,s for the four-system Adaptive row.
 
 Temporal accuracy is $1.000$ for both Adaptive and B3.
 For B3 that is the circular reading in Section~\ref{sec:setup}.
-No confidence interval is reported.
-The pipeline is close to deterministic given the index, and the exact-match difference is one question.
+Paired McNemar tests and 10{,}000-resample bootstrap intervals are in Section~\ref{sec:sig}.
+The exact-match difference versus B3 is one question, and the test does not call it a difference ($p=1.000$).
 
 \subsection{Six entity names}
 
@@ -561,6 +566,11 @@ Token F1 follows: $0.766$, $0.696$, $0.361$.
 Precision at 5 is $0.682$ against $0.591$ and $0.346$.
 Recall at 5 is $0.912$ against $0.879$ and $0.577$.
 Here Adaptive does help relative to a fair fixed window.
+The paired exact-match difference versus B3 is $+0.078$ with 95\% interval $[+0.041, +0.119]$ and McNemar $p=6.10\times 10^{-5}$ (15 questions only Adaptive, none only B3).
+Containment is $+0.052$ $[+0.021, +0.083]$, $p=0.002$.
+B4 is not close: exact match $0.358$, containment $0.383$.
+Versus B4, exact match differs by $+0.404$ $[+0.316, +0.492]$, $p=3.06\times 10^{-15}$.
+Adaptive-Fast matches the full answer scores (exact match $0.762$) with ablation-run mean latency $0.663$\,s against $2.584$\,s for the four-system Adaptive row.
 Retrieval rate is $1$.
 The ``when'' decision does nothing on this split.
 Mean latency is $2.584$\,s against $1.546$\,s for B3; medians are $1.715$\,s and $1.410$\,s.
@@ -584,7 +594,28 @@ Precision at 5 is $0.241$, $0.237$, and $0.235$.
 Retrieval rate is $1$.
 Mean latency is $8.736$\,s against about $6.06$\,s; medians are $6.492$\,s against $6.116$\,s.
 B3 remains a weak control on this corpus: stored timestamps are often a birth year or 1 January 1970, so a $\pm 2$ year filter can drop the paragraph that names the asked year.
+B4 containment is $0.234$ and exact match is $0.010$, the same exact-match count as B3 (five questions) and one ahead of Adaptive.
+The containment difference versus B4 is $+0.062$ $[+0.028, +0.096]$, $p=5.39\times 10^{-4}$.
+Versus B3 the containment difference is $+0.026$ $[ -0.004, +0.056 ]$, $p=0.117$, so that gain is not a stable finding.
+Exact match versus B3 is $-0.002$, $p=1.000$.
+Adaptive-Fast containment is $0.298$ against $0.296$, exact match unchanged at $0.008$, and the ablation-run mean is $3.184$\,s against $8.736$\,s.
 The learned path is not in this table.
+
+\subsection{Paired tests}
+\label{sec:sig}
+
+Every interval below is a paired bootstrap of Adaptive minus the named system, 10{,}000 resamples, seed 0.
+Every $p$-value is an exact two-sided McNemar test on discordant questions.
+The full grid, including B2, is \texttt{artifacts/significance.json}.
+
+On the templated test, Adaptive versus B3 containment is a tie ($p=1.000$) and exact match is one question ($p=1.000$).
+Versus B4, exact match is $+0.286$ $[+0.182, +0.390]$, $p=2.98\times 10^{-6}$.
+On the held-out file the entity-cut ablation is the answer change that survives a paired test: exact match $+0.062$ $[+0.031, +0.098]$, $p=4.88\times 10^{-4}$, 12 questions only the full system.
+On TimeQA, sentence-selector off drops containment by $0.128$ $[+0.084, +0.172]$, $p=2.89\times 10^{-8}$.
+Entity-cut off drops containment by $0.044$ $[+0.024, +0.066]$, $p=1.13\times 10^{-4}$.
+Window off is $+0.024$ $[ -0.004, +0.052 ]$, $p=0.134$.
+Sufficiency off is a tie on exact match and one extra contained answer for the ablated system ($0.298$ against $0.296$, $p=1.000$).
+The loop is a negative result: it does not buy answers, and the full Adaptive row is the slow one.
 
 \subsection{Ablations}
 
@@ -612,7 +643,8 @@ They are not future work written as a compliment to the method.
 The frozen comparison shares the reader, the projection, and the entity cut.
 What remains different is skip versus always-retrieve, the window, and the sufficiency loop.
 Ablations in Table~\ref{tab:ablations} turn those pieces off one at a time.
-They do not add Adaptive-RAG, TempRALM, or a date-aware re-ranker on top of B2.
+B4 is a TempRALM-style decay ranker written for this comparison.
+It is not the authors' TempRALM system, and Adaptive-RAG is still not reimplemented.
 
 B3 is a reasonable control when the stored timestamp is the fact date.
 It is a weak control on TimeQA, and its perfect temporal accuracy is largely the filter scoring itself.
@@ -648,8 +680,9 @@ On the templated test, with a shared reader, that is worth one extra exact match
 Precision at 5 is higher.
 Skipping retrieval is a trivia whitelist, used on 10 of 77 questions, unused on the 193-question split, and invisible in the latency.
 On the six-entity split the same frozen system is ahead of the fair fixed window on exact match, containment, and precision at 5, and it is slower.
-On 500 TimeQA questions it is ahead on containment and recall at 5, behind by one exact match, and slower.
-A published temporal retriever is still not in the table.
+On 500 TimeQA questions the containment edge over B3 is not significant ($p=0.117$), the edge over B4 is ($p=5.39\times 10^{-4}$), and exact match is not an Adaptive win.
+Turning the sufficiency loop off does not hurt those scores and it removes the slow tail.
+That negative result is part of the finding, not a footnote to hide.
 
 \begin{thebibliography}{99}
 

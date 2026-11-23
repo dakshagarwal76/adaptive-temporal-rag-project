@@ -61,6 +61,37 @@
         "latency_s": 1.6902304194873659,
         "latency_s_median": 1.5731983000878245,
         "retrieval_rate": 0.8701298701298701
+      },
+      "tempralm_decay": {
+        "n": 77.0,
+        "em": 0.6623376623376623,
+        "token_f1": 0.6837662337662337,
+        "contains": 0.7272727272727273,
+        "precision_at_k": 0.4353448275862069,
+        "recall_at_k": 0.6954022988505746,
+        "temporal_acc": 0.6753246753246753,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 0.031140822073589865,
+        "latency_s_median": 0.02959370007738471,
+        "retrieval_rate": 1.0
+      },
+      "adaptive_fast": {
+        "n": 77.0,
+        "em": 0.948051948051948,
+        "token_f1": 0.9603502558048014,
+        "contains": 0.987012987012987,
+        "precision_at_k": 0.6681034482758624,
+        "recall_at_k": 0.9540229885057471,
+        "temporal_acc": 1.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 0.987012987012987,
+        "latency_s": 1.1788182117093307,
+        "latency_s_median": 1.2902329000644386,
+        "retrieval_rate": 0.8701298701298701,
+        "note": "ablation-derived variant: sufficiency loop off; latency is from the ablation run"
       }
     },
     "heldout": {
@@ -123,6 +154,37 @@
         "latency_s": 2.5840997046602823,
         "latency_s_median": 1.7152803998906165,
         "retrieval_rate": 1.0
+      },
+      "tempralm_decay": {
+        "n": 193.0,
+        "em": 0.35751295336787564,
+        "token_f1": 0.3692041982197422,
+        "contains": 0.38341968911917096,
+        "precision_at_k": 0.38341968911917107,
+        "recall_at_k": 0.6390328151986183,
+        "temporal_acc": 0.49740932642487046,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 0.040225279271371005,
+        "latency_s_median": 0.03801469993777573,
+        "retrieval_rate": 1.0
+      },
+      "adaptive_fast": {
+        "n": 193.0,
+        "em": 0.7616580310880829,
+        "token_f1": 0.7655440414507773,
+        "contains": 0.7616580310880829,
+        "precision_at_k": 0.6816062176165788,
+        "recall_at_k": 0.9119170984455959,
+        "temporal_acc": 1.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "latency_s": 0.6626237823719574,
+        "latency_s_median": 0.6488509001210332,
+        "retrieval_rate": 1.0,
+        "note": "ablation-derived variant: sufficiency loop off; latency is from the ablation run"
       }
     },
     "timeqa": {
@@ -185,6 +247,37 @@
         "latency_s": 8.735863220798317,
         "latency_s_median": 6.491634199977852,
         "retrieval_rate": 1.0
+      },
+      "tempralm_decay": {
+        "n": 500.0,
+        "em": 0.01,
+        "token_f1": 0.0837153534485566,
+        "contains": 0.234,
+        "precision_at_k": 0.17365853658536637,
+        "recall_at_k": 0.358060394889663,
+        "temporal_acc": NaN,
+        "abstain_acc": 0.82,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 0.06169744459912181,
+        "latency_s_median": 0.05941350001376122,
+        "retrieval_rate": 1.0
+      },
+      "adaptive_fast": {
+        "n": 500.0,
+        "em": 0.008,
+        "token_f1": 0.08758704796030338,
+        "contains": 0.298,
+        "precision_at_k": 0.2429268292682938,
+        "recall_at_k": 0.491329849012776,
+        "temporal_acc": NaN,
+        "abstain_acc": 0.82,
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "latency_s": 3.1844112888057716,
+        "latency_s_median": 3.1597396499710158,
+        "retrieval_rate": 1.0,
+        "note": "ablation-derived variant: sufficiency loop off; latency is from the ablation run"
       }
     }
   },

@@ -461,18 +461,19 @@ def build_progress_report() -> Path:
     )
     add_table(
         doc,
-        ["Split", "Adaptive EM / Cont", "B3 EM / Cont", "Adaptive ret", "Adaptive mean s"],
+        ["Split", "Adaptive EM / Cont", "B3 EM / Cont", "B4 EM / Cont", "Adaptive mean s"],
         [
-            ["synthetic n=77", "0.948 / 0.987", "0.935 / 0.987", "0.870", "1.690"],
-            ["held-out n=193", "0.762 / 0.762", "0.684 / 0.710", "1.000", "2.584"],
-            ["TimeQA n=500", "0.008 / 0.296", "0.010 / 0.270", "1.000", "8.736"],
+            ["synthetic n=77", "0.948 / 0.987", "0.935 / 0.987", "0.662 / 0.727", "1.690"],
+            ["held-out n=193", "0.762 / 0.762", "0.684 / 0.710", "0.358 / 0.383", "2.584"],
+            ["TimeQA n=500", "0.008 / 0.296", "0.010 / 0.270", "0.010 / 0.234", "8.736"],
         ],
     )
     add_para(
         doc,
-        "Observations. On the templated test Adaptive ties B3 on Contains (0.987) and is one extra exact match (0.948 vs 0.935). "
-        "On the six-entity split it is ahead (EM 0.762 vs 0.684). On TimeQA n=500 it is ahead on Contains (0.296 vs 0.270) "
-        "and behind by one exact match (0.008 vs 0.010). Latency does not improve. Full table: artifacts/final_results.md.",
+        "Observations. On the templated test Adaptive ties B3 on Contains (0.987) and is one extra exact match (0.948 vs 0.935, McNemar p=1.000). "
+        "B4 decay is 0.662 / 0.727. On the six-entity split Adaptive EM is 0.762 vs B3 0.684 (p=6.10e-05) and vs B4 0.358. "
+        "On TimeQA n=500 Contains is 0.296 vs B3 0.270 (p=0.117) and vs B4 0.234 (p=5.39e-04). "
+        "Sufficiency off does not lower those scores. Full table: artifacts/final_results.md.",
         first_line=False,
     )
     add_figure(
@@ -687,24 +688,25 @@ def build_presentation() -> Path:
             "Index: MiniLM embeddings + FAISS IndexFlatIP",
             "Analyzer: DistilBERT multitask (necessity / temporal / confidence)",
             "Ranking: final = α·semantic + (1−α)·temporal (α = 0.6)",
-            "Systems: B1 LLM-only · B2 Standard RAG · B3 Temporal RAG · Adaptive",
+            "Systems: B1 LLM-only · B2 Standard RAG · B3 Temporal RAG · B4 decay · Adaptive",
             "Demo: Streamlit  |  Training path: local / Colab GPU",
         ],
     )
 
     # 8 Results
     slide = prs.slides.add_slide(prs.slide_layouts[1])
-    _slide_title(slide, "7. Results to Date (Test Split, n=75)")
+    _slide_title(slide, "7. Results (Frozen Checkpoint B)")
     _add_bullets(
         slide.placeholders[1].text_frame,
         [
-            "B1 LLM-only — Contains 0.03 | Temporal Acc. 0.31 | Retrieve 0%",
-            "B2 Standard RAG — Contains 0.43 | Temporal Acc. 0.57 | Retrieve 100%",
-            "B3 Temporal RAG — Contains 0.77 | Temporal Acc. 0.87 | Retrieve 100%",
-            "Adaptive — Contains 0.60 | Temporal Acc. 0.84 | Retrieve 68%",
-            "Key: Adaptive ≈ B3 on temporal accuracy while retrieving less often",
+            "Templated n=77 — Adaptive 0.948/0.987 vs B3 0.935/0.987 vs B4 0.662/0.727",
+            "Held-out n=193 — Adaptive 0.762/0.762 vs B3 0.684/0.710 vs B4 0.358/0.383",
+            "TimeQA n=500 — Adaptive 0.008/0.296 vs B3 0.010/0.270 vs B4 0.010/0.234",
+            "Held-out EM vs B3 p=6.10e-05; TimeQA Contains vs B3 p=0.117, vs B4 p=5.39e-04",
+            "Adaptive-Fast (sufficiency off) matches answers; the loop does not buy answers",
+            "Source: artifacts/final_results.md",
         ],
-        size=17,
+        size=16,
     )
 
     # 9 Progress / Gantt

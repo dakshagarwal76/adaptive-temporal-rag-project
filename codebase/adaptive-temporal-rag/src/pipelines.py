@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import math
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Literal, Optional, Protocol
 
 from .adaptive_policy import resolve_adaptive_routing
 from .answer_projection import project_answer
+from .bm25 import BM25Index
 from .config import EvalConfig
 from .data_schema import CorpusDoc, QueryItem
 from .embed_index import EmbeddingIndex
@@ -38,6 +41,7 @@ SystemName = Literal[
     "B3_fixed_temporal",
     "adaptive",
     "adaptive_learned",
+    "tempralm_decay",
 ]
 
 
@@ -661,6 +665,97 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
         }
 
 
+_YEAR = re.compile(r"(?:19|20)\d{2}")
+DECAY_LAMBDA_YEARS = 2.0
+
+
+def _doc_year(doc: CorpusDoc) -> int | None:
+    match = _YEAR.search(doc.timestamp or "")
+    if not match:
+        match = _YEAR.search(doc.text or "")
+    return int(match.group(0)) if match else None
+
+
+def _minmax(values: dict[str, float]) -> dict[str, float]:
+    if not values:
+        return {}
+    lo = min(values.values())
+    hi = max(values.values())
+    if hi <= lo:
+        return {key: 1.0 for key in values}
+    return {key: (value - lo) / (hi - lo) for key, value in values.items()}
+
+
+class TempRALMDecayPipeline(BasePipeline):
+    """Dense + BM25, then exponential year-distance decay. No hard window, no sufficiency loop.
+
+    Reader, answer projection, entity/surname cut, and sentence selector match the frozen systems.
+    """
+
+    name: SystemName = "tempralm_decay"
+
+    def __init__(self, *args, decay_lambda_years: float = DECAY_LAMBDA_YEARS, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.decay_lambda_years = decay_lambda_years
+        texts = [doc.text for doc in (self.index.docs if self.index is not None else [])]
+        self._bm25 = BM25Index(texts) if texts else None
+
+    def run(self, query: QueryItem | str) -> PipelineResult:
+        if self.index is None or self._bm25 is None:
+            raise RuntimeError("TempRALM decay requires an embedding index")
+        qtext, qid = _q(query)
+        time_hint = query.time_hint if isinstance(query, QueryItem) else None
+        t0 = time.perf_counter()
+        year = extract_year_hint(time_hint, qtext)
+        dense = self.index.search_candidates(qtext, top_k=max(self.candidate_k, self.top_k))
+        dense_scores = {doc.doc_id: score for doc, score in dense}
+        by_id = {doc.doc_id: doc for doc, _ in dense}
+        for doc_i, score in self._bm25.topk(qtext, max(self.candidate_k, self.top_k)):
+            doc = self.index.docs[doc_i]
+            by_id.setdefault(doc.doc_id, doc)
+            dense_scores.setdefault(doc.doc_id, 0.0)
+        bm25_raw = self._bm25.scores(qtext)
+        id_by_pos = {i: doc.doc_id for i, doc in enumerate(self.index.docs)}
+        bm25_scores = {
+            doc_id: bm25_raw.get(pos, 0.0)
+            for pos, doc_id in id_by_pos.items()
+            if doc_id in by_id
+        }
+        dense_n = _minmax({doc_id: dense_scores.get(doc_id, 0.0) for doc_id in by_id})
+        bm25_n = _minmax({doc_id: bm25_scores.get(doc_id, 0.0) for doc_id in by_id})
+        pooled: list[tuple[CorpusDoc, float]] = []
+        for doc_id, doc in by_id.items():
+            semantic = 0.5 * dense_n.get(doc_id, 0.0) + 0.5 * bm25_n.get(doc_id, 0.0)
+            decay = 1.0
+            doc_year = _doc_year(doc)
+            if year is not None and doc_year is not None and self.decay_lambda_years > 0:
+                decay = math.exp(-abs(doc_year - year) / self.decay_lambda_years)
+            pooled.append((doc, semantic * decay))
+        pooled.sort(key=lambda item: item[1], reverse=True)
+        pooled = self._subject_pool(qtext, pooled)[: self.top_k]
+        docs = [doc for doc, _ in pooled]
+        scores = [score for _, score in pooled]
+        answer, backend = self._read_answer(qtext, docs)
+        return PipelineResult(
+            system=self.name,
+            query_id=qid,
+            query=qtext,
+            answer=answer,
+            retrieved_docs=docs,
+            retrieved_scores=scores,
+            did_retrieve=True,
+            latency_s=time.perf_counter() - t0,
+            backend=backend,
+            meta={
+                "policy": "tempralm_decay",
+                "query_year": year,
+                "decay_lambda_years": self.decay_lambda_years,
+                "hard_window": False,
+                "sufficiency_loop": False,
+            },
+        )
+
+
 def build_all_pipelines(
     index: EmbeddingIndex,
     generator: Optional[Generator] = None,
@@ -716,6 +811,7 @@ def build_all_pipelines(
             sufficiency_threshold=cfg.sufficiency_threshold,
             query_timeout_s=cfg.query_timeout_s,
         ),
+        "tempralm_decay": TempRALMDecayPipeline(**shared),
     }
 
 
