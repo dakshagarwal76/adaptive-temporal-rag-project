@@ -46,7 +46,14 @@ def _add_unique(found: list[date], value: date | None) -> None:
         found.append(value)
 
 
+_HAS_DATE_CUE = re.compile(rf"\d{{4}}|{_MONTH}", flags=re.I)
+_MAX_PASSAGE_CHARS = 12000
+
+
 def _parse_loose(text: str) -> date | None:
+    """Parse a short date fragment. Skip long/non-date strings (dateutil fuzzy can hang)."""
+    if not text or len(text) > 64 or not _HAS_DATE_CUE.search(text):
+        return None
     try:
         parsed = date_parser.parse(text, fuzzy=True, default=datetime(2000, 1, 1))
         if isinstance(parsed, datetime):
@@ -62,6 +69,8 @@ def extract_dates(text: str) -> list[date]:
     """Every explicit date mentioned in text, earliest first."""
     if not text:
         return []
+    if len(text) > _MAX_PASSAGE_CHARS:
+        text = text[:_MAX_PASSAGE_CHARS]
     found: list[date] = []
     covered_spans: list[tuple[int, int]] = []
     for match in re.finditer(r"\b(\d{4})-(\d{2})-(\d{2})\b", text):
@@ -166,6 +175,8 @@ def extract_intervals(text: str) -> list[tuple[date, date]]:
     """Inclusive ranges stated in a passage, such as 1934–1936 or from X to Y."""
     if not text:
         return []
+    if len(text) > _MAX_PASSAGE_CHARS:
+        text = text[:_MAX_PASSAGE_CHARS]
     found: list[tuple[date, date]] = []
 
     def _add(start: date | None, end: date | None) -> None:

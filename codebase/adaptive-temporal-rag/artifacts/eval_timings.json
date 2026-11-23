@@ -1,0 +1,7 @@
+{
+  "synthetic_seconds": 407.2253013,
+  "heldout_seconds": 1125.3883383,
+  "timeqa_seconds": 10466.7595792,
+  "ablations_seconds": 13767.4655516,
+  "notes": "Four-system frozen Checkpoint B eval via scripts/evaluate.py --final --config configs/final.yaml. Janet Frame hang probe: 8.184s."
+}

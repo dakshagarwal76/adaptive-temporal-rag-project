@@ -32,10 +32,9 @@ Also includes **Supervisor Certification** block for signature.
 
 ## Student details used
 
-- **Name:** Rishi Kumar  
+- **Authors:** Daksh Agarwal (10819051623) and Shashank Kumar (08619051623)  
 - **Programme:** B.Tech. (AI & ML), Batch B2  
-- **Enrolment No.:** 61219051624  
-- **Guide:** Mr. Anuj Kumar, Assistant Professor, USAR  
+- **Guide:** Dr. Annu Priya, Assistant Professor, USAR  
 
 If any detail needs correction, edit the Word/PowerPoint files or re-run:
 

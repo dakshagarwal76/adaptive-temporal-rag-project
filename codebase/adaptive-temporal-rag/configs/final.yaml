@@ -1,0 +1,21 @@
+# Frozen Checkpoint B system. evaluate.py loads this file.
+# Differences between B1/B2/B3/Adaptive: retrieval decision, time window, sufficiency loop.
+name: checkpoint_b_final
+generator: extractive
+top_k: 5
+candidate_k: 80
+ce_rerank_keep: 40
+alpha: 0.6
+conf_threshold: 0.55
+sufficiency_threshold: 0.55
+max_sufficiency_rounds: 2   # initial retrieve + up to 2 repairs = 3 total
+query_timeout_s: 60.0
+enable_ce_rerank: true
+enable_sufficiency_loop: true
+enable_adaptive_window: true
+enable_entity_cut: true
+enable_sentence_selector: true
+enable_answer_projection: true
+always_retrieve: false      # router on
+span_extract_timeqa: true
+learned_experimental: true  # not in the main four-system table

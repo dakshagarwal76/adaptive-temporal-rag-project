@@ -610,29 +610,25 @@ def main():
     add_heading_num(doc, "7.2 Quantitative Proof of Work", level=2)
     add_para(
         doc,
-        "A. Comparative bake-off on the held-out test split (75 queries; extractive generator). Metrics were computed by "
-        "scripts/evaluate.py over the same questions for all four systems. These numbers are real measured outputs on the "
-        "project's synthetic educational corpus; they are not public-leaderboard scores.",
+        "A. Frozen Checkpoint B bake-off from artifacts/final_results.md (configs/final.yaml). Four systems share the "
+        "extractive reader, answer projection, and entity/surname cut. Do not quote older 0.600 / 0.844 / 0.468 figures.",
         align="justify",
     )
     add_table(
         doc,
-        ["System", "Contains", "Temporal Acc.", "Retrieval Rate", "Role"],
+        ["Split", "Adaptive EM / Cont", "B3 EM / Cont", "Adaptive ret", "Adaptive mean s"],
         [
-            ["B1 LLM-only", "0.027", "0.307", "0%", "Never retrieves"],
-            ["B2 Standard RAG", "0.427", "0.573", "100%", "Always semantic"],
-            ["B3 Fixed Temporal RAG", "0.773", "0.867", "100%", "Always + fixed window"],
-            ["Adaptive Temporal RAG", "0.600", "0.840", "68%", "Proposed conditional policy"],
+            ["synthetic n=77", "0.948 / 0.987", "0.935 / 0.987", "0.870", "1.690"],
+            ["held-out n=193", "0.762 / 0.762", "0.684 / 0.710", "1.000", "2.584"],
+            ["TimeQA n=500", "0.008 / 0.296", "0.010 / 0.270", "1.000", "8.736"],
         ],
-        col_widths=[2.1, 1.0, 1.2, 1.2, 1.5],
+        col_widths=[1.7, 1.6, 1.5, 1.2, 1.4],
     )
     add_para(
         doc,
-        "Headline deltas for Adaptive versus Standard RAG: about +17 percentage points Contains and +27 points Temporal "
-        "Accuracy, while retrieving on only 68% of queries (~32% less retrieval than B2/B3). Versus Fixed Temporal RAG, "
-        "Adaptive nearly matches temporal accuracy (0.840 vs 0.867). The Contains gap (0.600 vs 0.773) is interpreted in "
-        "Section 7.3 as largely an extractive-evaluation artifact on timeless / skipped-retrieval items rather than a "
-        "collapse of temporal ranking on current/historical questions.",
+        "On the templated test Adaptive ties B3 on Contains (0.987) and is one extra exact match (0.948 vs 0.935). "
+        "On the six-entity split it is ahead (EM 0.762 vs 0.684). On TimeQA n=500 it is ahead on Contains (0.296 vs 0.270) "
+        "and behind by one exact match (0.008 vs 0.010). Latency does not improve. Full table: artifacts/final_results.md.",
         align="justify",
     )
 

@@ -170,12 +170,12 @@ def build_progress_report() -> Path:
     )
 
     add_para(doc, "Submitted By:", size=11, bold=True, align="center", first_line=False, space_after=2)
-    add_para(doc, "Rishi Kumar", size=12, bold=True, align="center", first_line=False, space_after=1)
+    add_para(doc, "Daksh Agarwal (10819051623) and Shashank Kumar (08619051623)", size=12, bold=True, align="center", first_line=False, space_after=1)
     add_para(doc, "B.Tech. (AI & ML), Batch B2", size=11, align="center", first_line=False, space_after=1)
-    add_para(doc, "Enrolment No.: 61219051624", size=11, align="center", first_line=False, space_after=12)
+    add_para(doc, "Enrolment No.: 10819051623 & 08619051623", size=11, align="center", first_line=False, space_after=12)
 
     add_para(doc, "Under the Guidance of", size=11, italic=True, align="center", first_line=False, space_after=2)
-    add_para(doc, "Mr. Anuj Kumar", size=12, bold=True, align="center", first_line=False, space_after=1)
+    add_para(doc, "Dr. Annu Priya", size=12, bold=True, align="center", first_line=False, space_after=1)
     add_para(doc, "Assistant Professor, USAR", size=11, align="center", first_line=False, space_after=16)
 
     add_para(doc, "Academic Session: 2026–27  |  Evaluation Date: 8 October 2026", size=10, align="center", first_line=False, space_after=20)
@@ -193,7 +193,7 @@ def build_progress_report() -> Path:
         space_after=16,
     )
     add_para(doc, "Signature of Project Supervisor: ____________________", size=11, align="left", first_line=False, space_after=4)
-    add_para(doc, "Name: Mr. Anuj Kumar", size=11, align="left", first_line=False, space_after=2)
+    add_para(doc, "Name: Dr. Annu Priya", size=11, align="left", first_line=False, space_after=2)
     add_para(doc, "Date: ____________________", size=11, align="left", first_line=False, space_after=8)
 
     doc.add_page_break()
@@ -455,28 +455,24 @@ def build_progress_report() -> Path:
     add_heading_custom(doc, "8. Results (if any)", level=1)
     add_para(
         doc,
-        "Progress to the mid-term evaluation includes a complete implementation of dataset construction, FAISS indexing, "
-        "all four pipelines, DistilBERT analyzer training path, offline evaluation scripts, result charts, and a Streamlit "
-        "demo. Measured results on the held-out test split (75 queries) with the extractive generator backend are summarized below.",
+        "Frozen Checkpoint B numbers from artifacts/final_results.md (configs/final.yaml). Four systems share the "
+        "extractive reader, answer projection, and entity/surname cut. Do not quote older 0.600 / 0.844 / 0.468 figures.",
         first_line=False,
     )
     add_table(
         doc,
-        ["System", "Contains", "Temporal Acc.", "Retrieval Rate", "Latency (s)"],
+        ["Split", "Adaptive EM / Cont", "B3 EM / Cont", "Adaptive ret", "Adaptive mean s"],
         [
-            ["B1 LLM-only", "0.027", "0.307", "0.00", "~0.00"],
-            ["B2 Standard RAG", "0.427", "0.573", "1.00", "~0.022"],
-            ["B3 Temporal RAG (Fixed)", "0.773", "0.867", "1.00", "~0.020"],
-            ["Adaptive Temporal RAG", "0.600", "0.840", "0.68", "~0.098"],
+            ["synthetic n=77", "0.948 / 0.987", "0.935 / 0.987", "0.870", "1.690"],
+            ["held-out n=193", "0.762 / 0.762", "0.684 / 0.710", "1.000", "2.584"],
+            ["TimeQA n=500", "0.008 / 0.296", "0.010 / 0.270", "1.000", "8.736"],
         ],
     )
     add_para(
         doc,
-        "Observations. Adaptive Temporal RAG approaches Fixed Temporal RAG on temporal accuracy while retrieving for only "
-        "~68% of queries (skipping timeless / no-retrieval items). Under the extractive stub, answer contains trails B3 "
-        "because skipped-retrieval definition-style questions have no passages to extract from; stronger HF/API generators "
-        "are planned for fairer answer-quality comparison. Both temporal systems clearly outperform Standard RAG on "
-        "temporal accuracy. Work remaining: stronger generator experiments, deeper error analysis, and final report polish.",
+        "Observations. On the templated test Adaptive ties B3 on Contains (0.987) and is one extra exact match (0.948 vs 0.935). "
+        "On the six-entity split it is ahead (EM 0.762 vs 0.684). On TimeQA n=500 it is ahead on Contains (0.296 vs 0.270) "
+        "and behind by one exact match (0.008 vs 0.010). Latency does not improve. Full table: artifacts/final_results.md.",
         first_line=False,
     )
     add_figure(
@@ -621,8 +617,8 @@ def build_presentation() -> Path:
     sub.text = (
         "When and What to Retrieve for Time-Aware QA\n"
         "Minor Project (ARP-455) — 1st Mid-Term Evaluation\n\n"
-        "Rishi Kumar  |  61219051624  |  B.Tech AI&ML (B2)\n"
-        "Guide: Mr. Anuj Kumar, Assistant Professor, USAR\n"
+        "Daksh Agarwal (10819051623) and Shashank Kumar (08619051623)\n"
+        "Guide: Dr. Annu Priya, Assistant Professor, USAR\n"
         "GGSIPU — University School of Automation & Robotics\n"
         "8 October 2026"
     )

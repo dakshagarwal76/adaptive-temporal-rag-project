@@ -226,28 +226,16 @@ def _subject_surname(query: str) -> str:
     return ""
 
 
-def adaptive_filter_by_window(
+def filter_subject(
     candidates: list[tuple[CorpusDoc, float]],
-    window: AdaptiveWindow,
     query: str = "",
-    top_k: int = 0,
-) -> tuple[list[tuple[CorpusDoc, float]], AdaptiveWindow]:
-    """Keep the best-matching entity, then widen the date window until one of its docs is inside.
-
-    Overlap is against ``doc.entity`` only, so template words like "held" cannot
-    prefer a later holder. A window that already contains the right entity
-    (Parag Agrawal on 2022-03-31) does not grow out to the next appointment.
-    """
-    if not candidates:
-        window.final_years = window.initial_years
-        return candidates, window
-
-    # Match the entity name only. Full-text overlap treats "held" / "won" as
-    # part of the entity and can prefer a later holder's template sentence.
+) -> list[tuple[CorpusDoc, float]]:
+    """Keep documents of the asked entity (tagged) or surname (untagged prose)."""
+    if not candidates or not query:
+        return candidates
     eps = 0.01
-    pool = candidates
     has_entity = any((doc.entity or "").strip() for doc, _ in candidates)
-    if query and has_entity:
+    if has_entity:
         best = max(
             lexical_overlap_boost(query, d, ignore_years=True, entity_only=True)
             for d, _ in candidates
@@ -259,29 +247,46 @@ def adaptive_filter_by_window(
                 if lexical_overlap_boost(query, d, ignore_years=True, entity_only=True) >= best - eps
             ]
             if matched:
-                pool = matched
-    elif query:
-        # Untagged prose has no entity field. Keep chunks that match the subject's
-        # surname (or tie the best lexical overlap) so body paragraphs survive while
-        # unrelated people who only share a first name are excluded.
-        overlaps = [
-            lexical_overlap_boost(query, doc, ignore_years=True, entity_only=False)
-            for doc, _ in candidates
-        ]
-        best = max(overlaps) if overlaps else 0.0
-        surname = _subject_surname(query)
-        matched = [
-            item
-            for item, overlap in zip(candidates, overlaps)
-            if overlap >= 0.05
-            and (
-                not surname
-                or surname in f"{item[0].title} {item[0].text}".lower()
-                or overlap >= best - eps
-            )
-        ]
-        if matched:
-            pool = matched
+                return matched
+        return candidates
+    overlaps = [
+        lexical_overlap_boost(query, doc, ignore_years=True, entity_only=False)
+        for doc, _ in candidates
+    ]
+    best = max(overlaps) if overlaps else 0.0
+    surname = _subject_surname(query)
+    matched = [
+        item
+        for item, overlap in zip(candidates, overlaps)
+        if overlap >= 0.05
+        and (
+            not surname
+            or surname in f"{item[0].title} {item[0].text}".lower()
+            or overlap >= best - eps
+        )
+    ]
+    return matched or list(candidates)
+
+
+def adaptive_filter_by_window(
+    candidates: list[tuple[CorpusDoc, float]],
+    window: AdaptiveWindow,
+    query: str = "",
+    top_k: int = 0,
+    use_entity_cut: bool = True,
+) -> tuple[list[tuple[CorpusDoc, float]], AdaptiveWindow]:
+    """Keep the best-matching entity, then widen the date window until one of its docs is inside.
+
+    Overlap is against ``doc.entity`` only, so template words like "held" cannot
+    prefer a later holder. A window that already contains the right entity
+    (Parag Agrawal on 2022-03-31) does not grow out to the next appointment.
+    """
+    if not candidates:
+        window.final_years = window.initial_years
+        return candidates, window
+
+    pool = filter_subject(candidates, query) if use_entity_cut else list(candidates)
+    has_entity = any((doc.entity or "").strip() for doc, _ in candidates)
 
     half = float(window.initial_years)
     expansions = 0

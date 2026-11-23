@@ -1,0 +1,17 @@
+{
+  "adaptive_window_off": {
+    "n": 500.0,
+    "em": 0.01,
+    "token_f1": 0.08862389261369687,
+    "contains": 0.272,
+    "precision_at_k": 0.23638211382113905,
+    "recall_at_k": 0.39739256678281065,
+    "temporal_acc": NaN,
+    "abstain_acc": 0.82,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 3.332668869602028,
+    "latency_s_median": 3.141478450037539,
+    "retrieval_rate": 1.0
+  }
+}

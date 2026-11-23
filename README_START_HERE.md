@@ -61,7 +61,15 @@ Colab path: `notebooks\00_colab_e2e.ipynb`. Read `HOW_TO_RUN.md`, `ARCHITECTURE.
 
 **Stack:** BGE-small + FAISS + cross-encoder `ms-marco-MiniLM`, DistilBERT analyzer (DeBERTa planned for a larger run), generator extractive or Groq → OpenRouter → OpenCode.
 
-**Local bake-off (75 test queries, extractive):** Adaptive Contains 0.600, temporal acc 0.840, retrieval 68%. B3 is 0.773 / 0.867 / 100%. B2 is 0.427 / 0.573 / 100%.
+**Frozen Checkpoint B bake-off** (`codebase/adaptive-temporal-rag/artifacts/final_results.md`, config `configs/final.yaml`). Shared reader, projection, and entity cut. Do not quote older 0.600 / 0.844 / 0.468 numbers.
+
+| Dataset | Adaptive EM | Adaptive Contains | B3 EM | B3 Contains | Adaptive ret | Adaptive mean s |
+|---------|-------------|-------------------|-------|-------------|--------------|-----------------|
+| synthetic n=77 | 0.948 | 0.987 | 0.935 | 0.987 | 0.870 | 1.690 |
+| held-out n=193 | 0.762 | 0.762 | 0.684 | 0.710 | 1.000 | 2.584 |
+| TimeQA n=500 | 0.008 | 0.296 | 0.010 | 0.270 | 1.000 | 8.736 |
+
+Adaptive ties B3 on templated containment, wins on the six-entity split, and wins TimeQA containment while losing one exact-match question. Full P@5 / R@5 / F1 / median latency: `artifacts/final_results.md`.
 
 **Known training issue (say this honestly):** the Colab T4 pilot’s temporal accuracy stayed near chance (~0.33). Sanity queries often all came out `timeless`. `2+2` as `timeless` is correct (no time dimension). Skipping retrieval is a **different** field: `needs_retrieval == 0` **and** `is_trivial_query()` in `src\generate.py` (hardcoded phrases such as `2 + 2`). Identical ~75% confidence is expected when the confidence head is not in the training loss (`0.5 * ~0.5 + 0.5 * ~1.0 = 0.75`).
 

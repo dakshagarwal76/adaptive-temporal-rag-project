@@ -36,19 +36,17 @@ The student project behind this paper is called ``When and What to Retrieve.''
 The pipeline can label a question as present, past, or neither, keep a date window around the asked time, and read a sentence whose date agrees with the question.
 This paper reports what that pipeline actually changes, and where the measurements stop.
 
-On a templated test of 77 questions, adaptive retrieval and a fixed $\pm 2$ year filter have the same exact match, $0.468$.
-Containment differs by one question: 77 against 76.
-Precision at 5 is higher for the adaptive system ($0.673$ against $0.612$).
-Skipping retrieval fires on 10 of those 77 questions, only when a classifier says ``no'' and the text hits a hardcoded list of trivia.
-Latency does not fall.
-On 193 templated questions about six entity names, the same older checkpoint is ahead of the fixed window on exact match ($0.358$ against $0.285$) and containment ($0.834$ against $0.741$), but it always retrieves, and it uses an entity field the baselines do not.
-
-A 16-question TimeQA slice is not a result we ask a reader to trust.
-The date and sentence rules were written while looking at those questions.
-After the changes, adaptive containment is 13 of 16 and standard retrieval is 12 of 16.
-Before them, standard retrieval was ahead (4 of 16 against 1 of 16).
-Most of the movement is a sentence selector shared with the baselines.
-There is no full 500-question run, no ablation, and no comparison with a published temporal retriever.
+On a templated test of 77 questions, with a shared reader and shared projection, Adaptive and a fixed $\pm 2$ year filter both contain the gold string on 76 questions ($0.987$).
+Exact match is $0.948$ against $0.935$: one extra question.
+Precision at 5 is higher for Adaptive ($0.668$ against $0.608$).
+Skipping retrieval fires on 10 of those 77 questions.
+Mean latency does not fall ($1.690$\,s against $1.555$\,s).
+On 193 questions about six entity names, Adaptive is ahead of the same fixed window on exact match ($0.762$ against $0.684$) and containment ($0.762$ against $0.710$), and it always retrieves.
+The extra work shows up as mean latency ($2.584$\,s against $1.546$\,s).
+On the full 500-question TimeQA test, Adaptive containment is $0.296$, against $0.270$ for the fixed window and $0.260$ for standard retrieval.
+Exact match stays near zero for every system ($0.008$, $0.010$, $0.006$) even after span extraction.
+Recall at 5 is higher for Adaptive ($0.488$) than for B3 ($0.392$), which is the cost of filtering on stored timestamps that are often not fact dates.
+There is still no comparison with a published temporal retriever.
 \end{abstract}
 
 \section{Introduction}
@@ -69,15 +67,12 @@ The first is a whitelist.
 Section~\ref{sec:when} says exactly when retrieval is skipped, and Section~\ref{sec:results} shows that this skip does not change latency and does not occur on the held-out or TimeQA runs.
 
 We do not claim a new state of the art.
-We do not claim that the adaptive window beats standard retrieval once the answer stage is equal, except where a table shows that directly.
-Two recorded checkpoints appear in the tables, and they are not the same program.
-Checkpoint~A is the full synthetic test and the full held-out test.
-Checkpoint~B adds interval parsing, a surname filter, and date-aware sentence selection, and it was run on the first 16 test questions of each dataset only.
-Numbers from one checkpoint are not improvements over the other.
+We do not claim that the adaptive window beats a fixed window once the answer stage is equal, except where a table shows that directly.
+One frozen Checkpoint~B configuration is reported on the full synthetic, held-out, and TimeQA tests.
 
 The contribution is a description of that pipeline, the formulas it uses, and a reading of the saved numbers that does not pick the friendliest metric.
-The gaps a reviewer would ask for --- one frozen system on the full tests, shared answer extraction, ablations, and a comparison to published temporal rankers --- are listed in Section~\ref{sec:limits}.
-They were not run for this draft.
+The frozen comparison in Section~\ref{sec:results} uses one Checkpoint~B configuration on the full synthetic, held-out, and TimeQA tests, with a shared reader and shared answer projection.
+What remains missing --- a published temporal retriever as a fifth row, a live clock, and a learned skip that is not a trivia whitelist --- is listed in Section~\ref{sec:limits}.
 
 \section{Related work}
 \label{sec:related}
@@ -110,7 +105,7 @@ Dhingra et al.\ condition a language model on a timestamp so that closed-book re
 FreshQA asks models about facts that change quickly, including false premises \cite{vu2023freshqa}.
 TempRALM re-ranks retrieved passages with a temporal score and masks passages dated after the query time \cite{gade2024tempralm}.
 We cite these systems to locate the project.
-We did not reimplement them, and our 16-question slice is not comparable to any of their reported scores.
+We did not reimplement them, and our TimeQA subset is not comparable to their reported scores.
 
 \paragraph{Readers and the first-stage stack.}
 SQuAD 2.0 requires a span and an abstention decision \cite{rajpurkar2018squad2}.
@@ -174,9 +169,9 @@ It is not independent evidence that the answer is about the right year.
 \label{sec:method}
 
 The pipeline classifies the question, retrieves with the dense index, reorders with the cross-encoder, applies a temporal policy, checks sufficiency, and reads an answer.
-The index and the cross-encoder are shared.
-The reader is not fully shared, and neither is the subject filter.
-Section~\ref{sec:exp} states the difference before any table.
+The index, the cross-encoder, the extractive reader, answer projection, and the entity or surname cut are shared across B1--B3 and Adaptive in the frozen comparison.
+The systems differ on whether retrieval can be skipped, how the time window is chosen, and whether a sufficiency loop may retrieve again.
+Section~\ref{sec:exp} states that split before any table.
 
 \subsection{Query router}
 \label{sec:router}
@@ -307,15 +302,15 @@ Historical, but no year & 3.0 & 8.0 \\
 
 On the historical branch, before the window test, the pool is cut to a subject.
 If any candidate has a non-empty entity field, only documents whose overlap with that field is within $0.01$ of the best overlap are kept.
-The baselines do not make this cut.
-On the templated corpus the field is the entity name, filled when the passage was generated, so part of the historical gain can come from that metadata rather than from the date window.
+In the frozen comparison this cut is also applied to B2 and B3, so a precision gap is not an entity-field exclusive.
+On the templated corpus the field is the entity name, filled when the passage was generated.
 Current mode does not use this cut.
 It keeps a lexical tie and sorts by timestamp, and the fixed-window baseline calls that same function when it finds no year.
 The overlap text includes the entity string whenever the field is filled, so both systems see it there.
 If the field is empty, as it is for every TimeQA chunk, a document is kept when lexical overlap is at least $0.05$ and the text contains a surname, unless overlap is within $0.01$ of the best document.
 The surname is the last capitalised token of the first person-like span, ignoring months and question words, and it must be at least three characters.
 The rule is English-specific.
-It drops a pronoun or a given name, and it was added while inspecting failures on the same 16 TimeQA questions used in Table~\ref{tab:slice}.
+It drops a pronoun or a given name, and it was added while inspecting TimeQA failures.
 
 After a stop list, if $H$ remaining query tokens occur in the document, the lexical boost is $b=\min(0.25, 0.05H)$.
 The stop list includes months, years, and words such as ``between'', ``held'', and ``team'', because those tokens were matching the wrong passage.
@@ -385,17 +380,16 @@ Evidence is accepted during retrieval when the subject check passes and $S\ge 0.
 The weights and the threshold were not fit to data.
 
 If the check fails, the loop may enlarge the candidate pool, raise $k$, add to the window, or fall back toward semantic ranking.
-At most two repair rounds run.
-After an answer is drafted, an abstention stub can trigger one semantic retry, and the retry replaces the answer only when its sufficiency score is strictly higher.
-The reported tables do not record how often any of these repairs fired.
-A higher latency on the held-out test is consistent with more work, and it is not a measurement of the loop.
+At most two repair rounds run, for three retrieves in total.
+A wall-clock budget of 60 seconds per question stops the loop and keeps the best evidence so far.
+Both stops are logged.
+After an answer is drafted, an abstention stub can trigger one semantic retry only if the budget still allows it, and the retry replaces the answer only when its sufficiency score is strictly higher.
 
 \subsection{Reading the answer}
 \label{sec:reader}
 
 The offline reader does not call an external language model.
-B1, B2, and B3 receive whatever this reader returns.
-The adaptive system then runs an extra projection.
+B1, B2, B3, and Adaptive share this reader and then the same projection.
 
 The shared reader has a few shortcuts.
 Trivia cues have fixed replies.
@@ -409,13 +403,10 @@ A fragment shorter than 24 characters, including a section header, stays attache
 A dated clause shorter than 48 characters is prepended with the previous sentence.
 The best sentence is truncated at 400 characters.
 This selector is shared.
-On the TimeQA slice it moves standard retrieval as well as the adaptive system.
-It was developed against failures in that slice, including career headers and list sentences.
+It was developed against TimeQA failures, including career headers and list sentences.
 
-Projection, applied only after the adaptive reader, extracts a name from general who-question and result patterns such as ``held the office'' or ``$X$ won''.
-B2 and B3 do not run it.
-An exact-match gap that appears only for the adaptive row, while containment is tied, is this projection.
-It is not a retrieval result.
+Projection extracts a name from general who-question and result patterns such as ``held the office'' or ``$X$ won''.
+On TimeQA, evaluation also extracts a short span from the selected sentence before exact match and token F1, while containment still uses the sentence.
 The patterns do not reliably extract a title such as ``assistant district attorney'' from a sentence that mentions it in passing.
 
 \subsection{Learned path}
@@ -464,15 +455,17 @@ This path retrieves 40 candidates and keeps 20, against 80 and 40 for the heuris
 
 \subsection{Systems, and what they do not share}
 
-Five systems are named in the tables.
+Four systems appear in the frozen tables.
+They share the extractive reader, answer projection, sentence selector, and entity or surname cut.
+They differ on the retrieval decision, the time window, and the sufficiency loop.
 \begin{itemize}[leftmargin=1.4em]
   \item \textbf{B1.} The extractive reader with no documents. Hardcoded trivia replies still fire. This is not a closed-book language model.
-  \item \textbf{B2.} Always retrieve. Rank by \eqref{eq:blend}. No date window and no entity cut. The shared sentence selector runs. Projection does not.
-  \item \textbf{B3.} Always retrieve. If a year is found, keep candidates whose stored year is within $\pm 2$, and if that set is empty keep the unfiltered pool. Then call the shared ranker without the time-first flag. No entity cut. No projection.
-  \item \textbf{Adaptive.} Router, whitelist skip, entity or surname cut, adaptive window, sufficiency loop, shared sentence selector, and projection.
-  \item \textbf{Learned.} Section~\ref{sec:learned}. Reported only on 16-question slices.
+  \item \textbf{B2.} Always retrieve. Rank by \eqref{eq:blend}. No date window and no sufficiency loop.
+  \item \textbf{B3.} Always retrieve. If a year is found, keep candidates whose stored year is within $\pm 2$, and if that set is empty keep the unfiltered pool. Then call the shared ranker without the time-first flag. No sufficiency loop.
+  \item \textbf{Adaptive.} Router, whitelist skip, adaptive window, and sufficiency loop, under the same reader.
 \end{itemize}
-B1 appears only in the full synthetic table, because that is the saved run that included it.
+The learned path of Section~\ref{sec:learned} stays in the code, flagged experimental.
+It is not a row in the frozen comparison.
 
 \subsection{Data}
 
@@ -503,22 +496,18 @@ Chunks are pieces of the page attached to the sampled question, not a retrieval 
 A retrieved chunk is a much easier target than a passage from the open encyclopedia.
 Gold ids are chunks containing the answer string, at most eight.
 
-\subsection{Two checkpoints}
+\subsection{Frozen configuration}
 
-Checkpoint~A is the saved full synthetic run and the saved full held-out run.
-It does not include the sentence selector, surname filter, or interval handling used in Checkpoint~B.
-Checkpoint~B is the first 16 test questions of each dataset, in file order, after those changes.
-The 16 questions are not a random sample.
-The TimeQA rules in Checkpoint~B were edited against failures in that file order.
-We do not treat Checkpoint~B as an unbiased estimate of the 500-question test.
+All numbers in Section~\ref{sec:results} come from one Checkpoint~B configuration, \texttt{configs/final.yaml}: extractive reader, $k{=}5$, 80 candidates, 40 kept after the cross-encoder, $\alpha=0.6$, confidence and sufficiency thresholds $0.55$, at most two sufficiency repairs, and a 60-second query timeout.
+Sentence selection, date and sentence rules, answer projection, and the entity or surname cut are on.
+The learned path is off.
+\texttt{evaluate.py} loads this file for every system.
+
+Earlier drafts mixed a Checkpoint~A full test with a 16-question Checkpoint~B slice.
+Those files are archived under \texttt{artifacts/\_archive\_pre\_fix/} and are not the tables below.
 
 Runs are on a laptop CPU.
 No GPU was used.
-At about four seconds a question, the 500-question TimeQA test is on the order of half an hour for one system.
-It was not run.
-The earlier draft of this paper called that a hardware limit.
-The timings do not support that excuse.
-What is missing is the run, not a machine that could not finish it.
 
 The reference date inside \eqref{eq:cur} and inside temporal accuracy is 1 October 2025, the date the templated exam was built against.
 Current-question behaviour is measured on that templated exam only.
@@ -536,165 +525,83 @@ No real-text test of the router is reported.
 \section{Results}
 \label{sec:results}
 
-\subsection{Checkpoint A, templated test}
+Tables~\ref{tab:syn77}, \ref{tab:held193}, \ref{tab:timeqa500}, and \ref{tab:ablations} come from the frozen eval directory.
+Every system uses the same extractive reader, the same projection, and the same entity or surname cut.
 
-Table~\ref{tab:syn77} is the full 77-question test from Checkpoint~A.
-Adaptive containment is $1.000$ and B3 containment is $0.987$: 77 questions against 76.
-Exact match is $0.468$ for both, and token F1 is $0.676$ against $0.674$.
-The abstract of an earlier draft led with containment.
-Exact match, which is the stricter metric, does not move.
-Precision at 5 does move, from $0.612$ to $0.673$, with recall at 5 unchanged at $0.954$.
-That precision gap is the retrieval difference worth discussing, and it is confounded with the entity-field cut that only the adaptive system applies.
+\input{final_tables}
+
+\subsection{Templated test}
+
+Table~\ref{tab:syn77} is the full 77-question templated test.
+Adaptive containment is $0.987$, the same as B3: 76 of 77 questions.
+Exact match is $0.948$ against $0.935$, and token F1 is $0.960$ against $0.951$.
+That is one extra exact match after the reader is shared.
+Precision at 5 moves from $0.608$ to $0.668$; recall at 5 is $0.954$ against $0.943$.
+The remaining retrieval difference is the adaptive window and the sufficiency loop, not an exclusive entity field.
 
 Retrieval rate $0.870$ is 67 of 77 questions.
 The other 10 are the whitelist.
-Mean latency is $0.56$ seconds for both Adaptive and B3.
-Skipping those 10 questions does not show up as a faster system.
-B2, which has no date logic, is worse on every answer metric.
-That gap is real on this file and is the comparison a date filter is supposed to win.
+Mean latency is $1.690$\,s for Adaptive and $1.555$\,s for B3; medians are $1.573$\,s and $1.452$\,s.
+Skipping those 10 questions does not make Adaptive faster.
+B2, which has no date logic, is worse on every answer metric (containment $0.727$, exact match $0.649$).
+That gap is the comparison a date filter is supposed to win.
 It does not separate the adaptive window from the fixed two-year filter.
-
-\begin{table}[t]
-\centering
-\caption{Checkpoint~A. Templated test, $n{=}77$. EM is exact match, F1 is token F1, Cont is containment, P@5 and R@5 use the gold document ids, Temp is the timestamp metric of Section~\ref{sec:setup}, Ret is the fraction of questions that called the index, and $s$ is mean seconds.}
-\label{tab:syn77}
-\small
-\begin{tabular}{lcccccccc}
-\toprule
-System & EM & F1 & Cont & P@5 & R@5 & Temp & Ret & s \\
-\midrule
-B1 no retrieval & 0.117 & 0.158 & 0.130 & 0 & 0 & 0.247 & 0 & $\approx 0$ \\
-B2 standard & 0.390 & 0.529 & 0.714 & 0.393 & 0.655 & 0.662 & 1 & 0.59 \\
-B3 fixed $\pm 2$y & 0.468 & 0.674 & 0.987 & 0.612 & 0.954 & 1.000 & 1 & 0.56 \\
-Adaptive & 0.468 & 0.676 & 1.000 & 0.673 & 0.954 & 1.000 & 0.870 & 0.56 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 Temporal accuracy is $1.000$ for both Adaptive and B3.
 For B3 that is the circular reading in Section~\ref{sec:setup}.
 No confidence interval is reported.
-The pipeline is close to deterministic given the index, and the containment difference is one question.
-A significance test would not turn one question into a stable finding.
-We did not run one.
+The pipeline is close to deterministic given the index, and the exact-match difference is one question.
 
-\subsection{Checkpoint A, six entity names}
+\subsection{Six entity names}
 
-Table~\ref{tab:held193} is the 193-question file from the same checkpoint.
-Adaptive exact match is $0.358$, against $0.285$ for B3 and $0.197$ for B2.
-Containment is $0.834$, $0.741$, and $0.383$.
-Token F1 follows: $0.587$, $0.500$, $0.276$.
-Precision at 5 is $0.701$ against $0.614$ and $0.343$.
-Recall at 5 ties B3 at $0.881$.
-These gaps are larger than on the 77-question file.
-They are still one checkpoint, without the sentence selector, with the entity field visible only to the adaptive ranker, and with a router that has seen the six names in the other training file.
+Table~\ref{tab:held193} is the 193-question file.
+Adaptive exact match is $0.762$, against $0.684$ for B3 and $0.332$ for B2.
+Containment matches exact match for Adaptive at $0.762$, and is $0.710$ and $0.409$ for B3 and B2.
+Token F1 follows: $0.766$, $0.696$, $0.361$.
+Precision at 5 is $0.682$ against $0.591$ and $0.346$.
+Recall at 5 is $0.912$ against $0.879$ and $0.577$.
+Here Adaptive does help relative to a fair fixed window.
 Retrieval rate is $1$.
 The ``when'' decision does nothing on this split.
-Latency is about $1.02$ seconds against $0.80$ for B3.
-The extra time is not a saving from skipping retrieval.
+Mean latency is $2.584$\,s against $1.546$\,s for B3; medians are $1.715$\,s and $1.410$\,s.
+The mean--median gap is the sufficiency loop on a minority of questions, not a cost paid on every question.
 
-\begin{table}[t]
-\centering
-\caption{Checkpoint~A. Questions naming six entities, $n{=}193$. Columns match Table~\ref{tab:syn77}.}
-\label{tab:held193}
-\small
-\begin{tabular}{lcccccccc}
-\toprule
-System & EM & F1 & Cont & P@5 & R@5 & Temp & Ret & s \\
-\midrule
-B2 standard & 0.197 & 0.276 & 0.383 & 0.343 & 0.572 & 0.596 & 1 & 0.79 \\
-B3 fixed $\pm 2$y & 0.285 & 0.500 & 0.741 & 0.614 & 0.881 & 1.000 & 1 & 0.80 \\
-Adaptive & 0.358 & 0.587 & 0.834 & 0.701 & 0.881 & 0.984 & 1 & 1.02 \\
-\bottomrule
-\end{tabular}
-\end{table}
+B3's temporal accuracy is again $1.000$, and so is Adaptive's.
+Neither figure is answer quality.
 
-B3's temporal accuracy is again $1.000$, and Adaptive's is $0.984$.
-The fixed filter matches its own metric slightly more often.
-The answer metrics go the other way.
-Both facts can be true, and neither is a reason to quote temporal accuracy as answer quality.
+\subsection{TimeQA, 500 questions}
 
-The containment--exact gap is large because many gold strings are short status phrases.
-A sentence can name the right person and still miss the phrase.
-Containment scores the phrase if it happens to occur.
-That is a property of the metric and of the labels.
+Table~\ref{tab:timeqa500} is the full TimeQA test under the frozen config.
+Exact match and token F1 use a span extracted from the selected sentence.
+Containment still uses the sentence, because a 400-character sentence that contains the gold string is not an exact match.
 
-\subsection{Checkpoint B, first 16 questions}
+Adaptive containment is $0.296$, against $0.270$ for B3 and $0.260$ for B2: 148, 135, and 130 of 500 questions.
+Exact match is $0.008$ against $0.010$ and $0.006$: four, five, and three questions.
+Token F1 is $0.088$ against $0.089$ and $0.077$.
+The extractive span does not turn this reader into a TimeQA-paper number.
+What Adaptive changes on this file is recall at 5 ($0.488$ against $0.392$ for B3 and $0.468$ for B2) and a small containment gain.
+Precision at 5 is $0.241$, $0.237$, and $0.235$.
+Retrieval rate is $1$.
+Mean latency is $8.736$\,s against about $6.06$\,s; medians are $6.492$\,s against $6.116$\,s.
+B3 remains a weak control on this corpus: stored timestamps are often a birth year or 1 January 1970, so a $\pm 2$ year filter can drop the paragraph that names the asked year.
+The learned path is not in this table.
 
-Table~\ref{tab:slice} is Checkpoint~B.
-It is a development slice.
-We report it because it is the only measurement of the sentence selector, and because hiding it would make the TimeQA story look cleaner than it is.
+\subsection{Ablations}
 
-On the templated and held-out slices, Adaptive and the learned path reach exact match $1.000$ and $0.938$.
-B3 matches their containment and scores exact match $0$, because B3 returns the sentence and does not run projection.
-Giving the baselines the same projection, or dropping exact match from this table, would remove that gap.
-These 16 templated questions sit at the start of the file and are easier than the full test in Table~\ref{tab:syn77}, where exact match is $0.468$.
-The learned path's $1.000$ and $0.938$ must not be placed next to the full-test numbers.
+Table~\ref{tab:ablations} turns off one Adaptive component at a time on each full test: the router (always retrieve), the adaptive window (fixed $\pm 2$ years), the sufficiency loop, the surname or entity cut, and the sentence selector.
+The other frozen settings stay on.
+Answer scores in this table are comparable.
+Latency is from a later Adaptive-only run, so it is not matched to the four-system means in Tables~\ref{tab:syn77}--\ref{tab:timeqa500}.
 
-On TimeQA, before Checkpoint~B's date and sentence changes, containment on these same 16 questions was 4 of 16 for B2 and 1 of 16 for both B3 and Adaptive.
-After the changes it is 12, 7, and 13 of 16.
-B2 gains eight questions from a selector it shares.
-Adaptive moves from 1 of 16 to 13 of 16.
-It started three questions behind standard retrieval and finished one question ahead, after edits chosen on this slice.
-That is not evidence that the window transferred to Wikipedia text.
-Exact match stays $0$ for every heuristic row: the system returns a sentence, and the gold label is a span inside it.
-Token F1 is $0.162$ for Adaptive.
+On the templated and held-out files, turning off the router, the adaptive window, the sufficiency loop, or the sentence selector leaves exact match and containment unchanged.
+The entity cut is the component that moves those answers: synthetic exact match falls from $0.948$ to $0.922$, and held-out exact match from $0.762$ to $0.699$.
+Sufficiency off is faster and does not change those scores.
 
-The learned reader scores exact match $0.188$, three of 16, and containment $0.188$.
-It is the worst row on this slice, below B3.
-Its recall at 5 is the highest ($0.601$), so the retrieved set is not the whole failure.
-Abstention accuracy is $0.250$, four of 16 correct decisions, because the 16-example logistic model abstains on questions whose span is present.
-One of the 16 questions is unanswerable.
-The heuristic system answers it from a plausible organisation, so its abstention accuracy is 15 of 16: it is right on the answerable items and wrong on the one item that should be refused.
-
-B3 is weakest on this slice ($0.438$ containment) for a structural reason.
-Its filter uses $\tau_i$, and on these chunks $\tau_i$ is often a birth year or the placeholder 1 January 1970.
-The $\pm 2$ year cut removes the paragraph that contains the asked year.
-This baseline is a poor control for untagged Wikipedia text.
-On the templated corpus, where $\tau_i$ is the fact date, it is a much stronger one, which is why Table~\ref{tab:syn77} is nearly a tie.
-
-\begin{table}[t]
-\centering
-\caption{Checkpoint~B. First 16 test questions, in file order, after the date and sentence changes. Not a test of the 500-question TimeQA split. Temp is omitted. Learned is Section~\ref{sec:learned}.}
-\label{tab:slice}
-\small
-\begin{tabular}{llccccc}
-\toprule
-Data & System & EM & F1 & Cont & R@5 & s \\
-\midrule
-\multirow{4}{*}{TimeQA}
- & B2 & 0 & 0.148 & 0.750 & 0.499 & 3.19 \\
- & B3 & 0 & 0.078 & 0.438 & 0.190 & 3.11 \\
- & Adaptive & 0 & 0.162 & 0.812 & 0.573 & 3.98 \\
- & Learned & 0.188 & 0.188 & 0.188 & 0.601 & 4.84 \\
-\midrule
-\multirow{4}{*}{Held-out}
- & B2 & 0 & 0.154 & 0.312 & 0.458 & 0.62 \\
- & B3 & 0 & 0.438 & 0.938 & 1.000 & 0.51 \\
- & Adaptive & 0.938 & 0.938 & 0.938 & 0.979 & 0.58 \\
- & Learned & 0.938 & 0.938 & 0.938 & 1.000 & 0.41 \\
-\midrule
-\multirow{4}{*}{Synthetic}
- & B2 & 0 & 0.296 & 0.688 & 0.542 & 0.69 \\
- & B3 & 0 & 0.393 & 1.000 & 0.979 & 0.56 \\
- & Adaptive & 1.000 & 1.000 & 1.000 & 0.958 & 0.63 \\
- & Learned & 1.000 & 1.000 & 1.000 & 0.875 & 0.45 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The learned path is faster on the office slices ($0.41$ and $0.45$ seconds against about $0.58$ and $0.63$).
-It also retrieves a smaller pool.
-The timing is not evidence that a trained ranker is cheaper at the same search depth.
-
-\subsection{Where the remaining TimeQA errors come from}
-
-On the 16-question slice the heuristic misses are of three kinds.
-Some articles never state the asked month, so the date scorer has nothing to prefer.
-Some name the right year inside a list of teams, and a neighbouring sentence wins.
-The unanswerable item is answered anyway.
-None of these counts is a population rate.
-They describe 16 questions that the rules have already seen.
+On TimeQA the sentence selector is the largest drop: containment $0.168$ against $0.296$, exact match $0.002$ against $0.008$.
+The entity cut also matters (containment $0.252$).
+Turning the adaptive window into a fixed $\pm 2$ year filter lowers containment to $0.272$ and recall at 5 to $0.397$, which is the B3 pattern.
+Sufficiency off is $0.298$ containment against $0.296$: the loop does not buy answers on this file and it costs time.
+The router ablation matches the full system, because retrieval rate is already $1$.
 
 \section{What these measurements do not show}
 \label{sec:limits}
@@ -702,34 +609,25 @@ They describe 16 questions that the rules have already seen.
 The sentences below are the limits of this draft.
 They are not future work written as a compliment to the method.
 
-The full tests and the slice are different programs.
-Until Checkpoint~B is run on all 77, all 193, and all 500 TimeQA questions, there is no number for the system this paper describes at the end of Section~\ref{sec:method}.
-
-No component was removed.
-The router, the early stop in \eqref{eq:grow}, the sufficiency loop, the surname cut, and the sentence selector each have a story and no ablation.
-In particular, the TimeQA movement that survives after subtracting B2 is one question, and the shared selector accounts for the rest of B2's jump from 4 of 16 to 12 of 16.
-
-The baselines do not receive projection.
-The adaptive system does.
-Exact match on the office slices is not a retrieval comparison.
-The baselines also do not receive the entity-field cut.
-Precision and containment on the templated sets are not a pure comparison of date policies.
+The frozen comparison shares the reader, the projection, and the entity cut.
+What remains different is skip versus always-retrieve, the window, and the sufficiency loop.
+Ablations in Table~\ref{tab:ablations} turn those pieces off one at a time.
+They do not add Adaptive-RAG, TempRALM, or a date-aware re-ranker on top of B2.
 
 B3 is a reasonable control when the stored timestamp is the fact date.
 It is a weak control on TimeQA, and its perfect temporal accuracy is largely the filter scoring itself.
-There is no row for B2 plus a date-aware re-ranker, B2 plus the frozen SQuAD reader, Adaptive-RAG, or TempRALM.
 
 The skip decision was not tested against a model that knows the trivia without the whitelist.
 Latency does not improve.
-Held-out and TimeQA never skip.
-The project title's first half is not a result.
+Held-out retrieval rate is $1$.
+The project title's first half is not a result on that split.
 
 Constants throughout Section~\ref{sec:method} --- the blend weights, $\lambda$, $\alpha$, the window table, the 45-year cutoff, the 15 June midpoint, the $0.55$ threshold, the $0.01$ tie --- were chosen by hand.
-Some of the TimeQA rules were chosen while looking at the test slice.
+Some of the TimeQA rules were chosen while looking at development failures.
 There is no untouched development split for those choices.
 
 The learned path is a frozen reader, a tree model on 357 rows, and a logistic model on 16 rows plus an override.
-On the only Wikipedia slice it is the worst system.
+It is experimental and is not in the frozen tables.
 Its router accuracy was computed on the split used to pick $T$.
 
 Containment is bidirectional and, for this reader, close to ``did the gold string occur in the chosen sentence?''
@@ -746,15 +644,12 @@ The implementation is the project tree that produced the tables.
 \section{Conclusion}
 
 The pipeline can prefer a dated sentence and can keep a subject-matched window.
-On the full templated test that was actually run, this is worth one extra contained answer over a fixed two-year filter, and it is worth nothing on exact match.
-Precision at 5 is higher, under a comparison that also gives the adaptive system an entity field.
-Skipping retrieval is a trivia whitelist, used on 10 of 77 questions, unused on the other full test, and invisible in the latency.
-
-On 16 TimeQA questions the sentence selector, shared with standard retrieval, does most of the work.
-The adaptive row finishes one question ahead of that baseline after rules written on the same 16 questions, having started one to four questions behind.
-The learned reader does not repair this.
-A paper that wants to claim a temporal policy on real pages has to freeze one system, give every baseline the same reader and the same metadata, and run the 500-question split.
-This draft does not contain that experiment.
+On the templated test, with a shared reader, that is worth one extra exact match over a fixed two-year filter and nothing on containment.
+Precision at 5 is higher.
+Skipping retrieval is a trivia whitelist, used on 10 of 77 questions, unused on the 193-question split, and invisible in the latency.
+On the six-entity split the same frozen system is ahead of the fair fixed window on exact match, containment, and precision at 5, and it is slower.
+On 500 TimeQA questions it is ahead on containment and recall at 5, behind by one exact match, and slower.
+A published temporal retriever is still not in the table.
 
 \begin{thebibliography}{99}
 

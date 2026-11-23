@@ -43,6 +43,19 @@ def asks_who(query: str) -> bool:
     return _WHO.search(query) is not None
 
 
+_FACTOID_PATTERNS = (
+    re.compile(r"\breceived (?:the )?(.+?)(?:\s+(?:in|on|from|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bwas awarded (?:the )?(.+?)(?:\s+(?:in|on|from|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bwon (?:the )?(.+?)(?:\s+(?:in|on|from|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bheld (?:the )?(?:position|office|role)?\s*(?:of )?(.+?)(?:\s+(?:from|between|in|until)\b|[.,;]|$)", re.I),
+    re.compile(r"\bjoined (.+?)(?:\s+(?:in|on|from|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bwent to (.+?)(?:\s+(?:in|on|from|between|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bworked for (.+?)(?:\s+(?:in|on|from|between|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bbelong(?:ed)? to (.+?)(?:\s+(?:in|on|from|during)\b|[.,;]|$)", re.I),
+    re.compile(r"\bnationality(?: of \w+)? (?:was |is )?(.+?)(?:\s+(?:in|on|before|after)\b|[.,;]|$)", re.I),
+)
+
+
 def project_answer(query: str, answer: str) -> str:
     """Return a shorter grounded span, or the original heuristic answer."""
     text = (answer or "").strip()
@@ -57,6 +70,26 @@ def project_answer(query: str, answer: str) -> str:
     else:
         return text
     return _first_span(text, patterns) or text
+
+
+def extract_factoid_span(query: str, answer: str) -> str:
+    """Short span for exact-match scoring. Does not look at gold labels."""
+    projected = project_answer(query, answer)
+    if projected and projected != (answer or "").strip() and len(projected.split()) <= 24:
+        return projected
+    text = (answer or "").strip()
+    if not text:
+        return text
+    for pattern in _FACTOID_PATTERNS:
+        match = pattern.search(text)
+        if not match:
+            continue
+        span = match.group(1).strip(" ,.:;-")
+        if 1 < len(span) < len(text) and len(span.split()) <= 24:
+            return span
+    if len(text.split()) <= 12:
+        return text
+    return text
 
 
 def _first_span(text: str, patterns: tuple[re.Pattern[str], ...]) -> str:

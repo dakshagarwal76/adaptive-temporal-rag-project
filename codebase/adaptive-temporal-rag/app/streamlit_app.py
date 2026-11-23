@@ -196,14 +196,21 @@ def render_live_demo(artifacts: str) -> None:
 
 
 def render_comparative_analysis(artifacts: str) -> None:
-    results_path = Path(artifacts) / "results.csv"
-    charts_path = Path(artifacts) / "results_charts.png"
-    report_path = Path(artifacts) / "comparative_analysis.md"
+    artifacts_dir = Path(artifacts)
+    final_md = artifacts_dir / "final_results.md"
+    frozen_csv = artifacts_dir / "general_eval" / "final" / "synthetic" / "results.csv"
+    results_path = frozen_csv if frozen_csv.exists() else artifacts_dir / "results.csv"
+    charts_path = artifacts_dir / "results_charts.png"
+    report_path = final_md if final_md.exists() else artifacts_dir / "comparative_analysis.md"
 
     st.subheader("How Adaptive compares to existing systems")
     st.caption(
-        "Same held-out test split for B1 LLM-only · B2 Standard RAG · B3 Fixed Temporal RAG · Adaptive (ours)."
+        "Frozen Checkpoint B (`configs/final.yaml`). Numbers come from `artifacts/final_results.md`. "
+        "B1/B2/B3/Adaptive share the reader, answer projection, and entity/surname cut."
     )
+    if final_md.exists():
+        st.markdown(final_md.read_text(encoding="utf-8"))
+        st.markdown("---")
 
     loaded = load_eval_bundle(str(results_path))
     if loaded is None:
@@ -373,13 +380,13 @@ def render_comparative_analysis(artifacts: str) -> None:
         st.markdown("#### Static chart export")
         st.image(str(charts_path), width="stretch")
 
-    if report_path.exists():
+    if report_path.exists() and report_path != final_md:
         with st.expander("Full comparative report (markdown)"):
             st.markdown(report_path.read_text(encoding="utf-8"))
 
     st.info(
-        "Tip for viva/report: Adaptive matches Fixed Temporal on current/historical questions while retrieving "
-        "less often. Timeless *contains* can look lower under extractive eval because skipped retrieval has no passage to quote."
+        "Quote `artifacts/final_results.md` for the paper and the report. "
+        "Do not reuse older 16-question slices or Checkpoint A files."
     )
 
 

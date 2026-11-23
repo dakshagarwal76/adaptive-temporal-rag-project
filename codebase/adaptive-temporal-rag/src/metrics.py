@@ -153,6 +153,20 @@ def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, float]:
         vals = [r[key] for r in rows if key in r and r[key] == r[key] and not (isinstance(r[key], float) and math.isnan(r[key]))]
         return sum(vals) / len(vals) if vals else float("nan")
 
+    def median(key: str) -> float:
+        vals = [
+            r[key]
+            for r in rows
+            if key in r and r[key] == r[key] and not (isinstance(r[key], float) and math.isnan(r[key]))
+        ]
+        if not vals:
+            return float("nan")
+        vals = sorted(vals)
+        mid = len(vals) // 2
+        if len(vals) % 2:
+            return float(vals[mid])
+        return float((vals[mid - 1] + vals[mid]) / 2.0)
+
     return {
         "n": float(len(rows)),
         "em": mean("em"),
@@ -165,5 +179,6 @@ def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, float]:
         "router_temporal_acc": mean("router_temporal_acc"),
         "router_needs_acc": mean("router_needs_acc"),
         "latency_s": mean("latency_s"),
+        "latency_s_median": median("latency_s"),
         "retrieval_rate": mean("did_retrieve"),
     }

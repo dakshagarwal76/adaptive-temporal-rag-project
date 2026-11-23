@@ -1,0 +1,17 @@
+{
+  "adaptive_entity_cut_off": {
+    "n": 193.0,
+    "em": 0.6994818652849741,
+    "token_f1": 0.7033678756476683,
+    "contains": 0.6994818652849741,
+    "precision_at_k": 0.5264248704663212,
+    "recall_at_k": 0.8618307426597578,
+    "temporal_acc": 0.9637305699481865,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 1.0,
+    "latency_s": 0.9305323979424052,
+    "latency_s_median": 0.6700578001327813,
+    "retrieval_rate": 1.0
+  }
+}

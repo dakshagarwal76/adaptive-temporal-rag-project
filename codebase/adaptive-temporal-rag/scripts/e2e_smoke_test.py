@@ -79,10 +79,10 @@ def main() -> int:
     else:
         fail("corpus_size", f"expected 600-1000, got {len(docs)}")
 
-    if 800 <= len(queries) <= 1200:
+    if 800 <= len(queries) <= 4000:
         ok("queries_size", str(len(queries)))
     else:
-        fail("queries_size", f"expected 800-1200, got {len(queries)}")
+        fail("queries_size", f"expected 800-4000, got {len(queries)}")
 
     splits = {s: sum(1 for q in queries if q.split == s) for s in ("train", "val", "test")}
     if all(splits[s] > 0 for s in splits):

@@ -8,9 +8,17 @@ from typing import Any, Literal, Optional, Protocol
 
 from .adaptive_policy import resolve_adaptive_routing
 from .answer_projection import project_answer
+from .config import EvalConfig
 from .data_schema import CorpusDoc, QueryItem
 from .embed_index import EmbeddingIndex
-from .evidence_sufficiency import RepairAction, SufficiencyResult, assess_evidence_sufficiency
+from .evidence_sufficiency import (
+    MAX_REPAIR_ROUNDS,
+    QUERY_TIMEOUT_S,
+    QueryBudget,
+    RepairAction,
+    SufficiencyResult,
+    assess_evidence_sufficiency,
+)
 from .generate import Generator, is_trivial_query
 from .query_analyzer import AnalyzerOutput
 from .rerank_ce import CrossEncoderReranker, get_cross_encoder_reranker
@@ -18,6 +26,7 @@ from .temporal_rank import (
     adaptive_filter_by_window,
     extract_year_hint,
     filter_by_year_window,
+    filter_subject,
     infer_adaptive_window,
     lexical_overlap_boost,
     rerank,
@@ -65,14 +74,34 @@ class BasePipeline:
         alpha: float = 0.6,
         reranker: CrossEncoderReranker | None = None,
         ce_rerank_keep: int = 40,
+        use_entity_cut: bool = True,
+        use_answer_projection: bool = True,
+        use_sentence_selector: bool = True,
     ) -> None:
         self.index = index
-        self.generator = generator or Generator(backend="extractive")
+        self.generator = generator or Generator(
+            backend="extractive", use_sentence_selector=use_sentence_selector
+        )
         self.top_k = top_k
         self.candidate_k = candidate_k
         self.alpha = alpha
         self.reranker = reranker
         self.ce_rerank_keep = ce_rerank_keep
+        self.use_entity_cut = use_entity_cut
+        self.use_answer_projection = use_answer_projection
+        self.use_sentence_selector = use_sentence_selector
+
+    def _subject_pool(
+        self, query: str, candidates: list[tuple[CorpusDoc, float]]
+    ) -> list[tuple[CorpusDoc, float]]:
+        if not self.use_entity_cut:
+            return candidates
+        return filter_subject(candidates, query)
+
+    def _read_answer(self, query: str, docs: list[CorpusDoc] | None) -> tuple[str, str]:
+        gen = self.generator.generate(query, docs=docs)
+        answer = project_answer(query, gen.answer) if self.use_answer_projection else gen.answer
+        return answer, gen.backend
 
     def _rerank_faiss_candidates(
         self, query: str, candidates: list[tuple[CorpusDoc, float]], keep: int
@@ -91,15 +120,15 @@ class LLMOnlyPipeline(BasePipeline):
     def run(self, query: QueryItem | str) -> PipelineResult:
         qtext, qid = _q(query)
         t0 = time.perf_counter()
-        gen = self.generator.generate(qtext, docs=None)
+        answer, backend = self._read_answer(qtext, None)
         return PipelineResult(
             system=self.name,
             query_id=qid,
             query=qtext,
-            answer=gen.answer,
+            answer=answer,
             did_retrieve=False,
             latency_s=time.perf_counter() - t0,
-            backend=gen.backend,
+            backend=backend,
         )
 
 
@@ -112,20 +141,21 @@ class StandardRAGPipeline(BasePipeline):
         qtext, qid = _q(query)
         t0 = time.perf_counter()
         pool = self.index.search_candidates(qtext, top_k=max(self.candidate_k, self.top_k))
-        hits = self._rerank_faiss_candidates(qtext, pool, keep=self.top_k)
+        hits = self._rerank_faiss_candidates(qtext, pool, keep=min(self.ce_rerank_keep, len(pool)))
+        hits = self._subject_pool(qtext, hits)[: self.top_k]
         docs = [d for d, _ in hits]
         scores = [s for _, s in hits]
-        gen = self.generator.generate(qtext, docs=docs)
+        answer, backend = self._read_answer(qtext, docs)
         return PipelineResult(
             system=self.name,
             query_id=qid,
             query=qtext,
-            answer=gen.answer,
+            answer=answer,
             retrieved_docs=docs,
             retrieved_scores=scores,
             did_retrieve=True,
             latency_s=time.perf_counter() - t0,
-            backend=gen.backend,
+            backend=backend,
         )
 
 
@@ -140,6 +170,7 @@ class FixedTemporalRAGPipeline(BasePipeline):
         t0 = time.perf_counter()
         cands = self.index.search_candidates(qtext, top_k=self.candidate_k)
         cands = self._rerank_faiss_candidates(qtext, cands, keep=min(self.ce_rerank_keep, len(cands)))
+        cands = self._subject_pool(qtext, cands)
 
         # Fixed policy: if a year is present treat as historical window; else recency boost
         year = extract_year_hint(time_hint, qtext)
@@ -153,17 +184,17 @@ class FixedTemporalRAGPipeline(BasePipeline):
 
         docs = [d for d, _, _, _ in ranked]
         scores = [f for _, f, _, _ in ranked]
-        gen = self.generator.generate(qtext, docs=docs)
+        answer, backend = self._read_answer(qtext, docs)
         return PipelineResult(
             system=self.name,
             query_id=qid,
             query=qtext,
-            answer=gen.answer,
+            answer=answer,
             retrieved_docs=docs,
             retrieved_scores=scores,
             did_retrieve=True,
             latency_s=time.perf_counter() - t0,
-            backend=gen.backend,
+            backend=backend,
             meta={"fixed_mode": mode},
         )
 
@@ -185,8 +216,14 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
         max_sufficiency_rounds: int = 2,
         sufficiency_threshold: float = 0.55,
         enable_sufficiency_loop: bool = True,
+        enable_adaptive_window: bool = True,
+        always_retrieve: bool = False,
+        query_timeout_s: float = QUERY_TIMEOUT_S,
         reranker: CrossEncoderReranker | None = None,
         ce_rerank_keep: int = 40,
+        use_entity_cut: bool = True,
+        use_answer_projection: bool = True,
+        use_sentence_selector: bool = True,
     ) -> None:
         super().__init__(
             index=index,
@@ -196,12 +233,18 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
             alpha=alpha,
             reranker=reranker,
             ce_rerank_keep=ce_rerank_keep,
+            use_entity_cut=use_entity_cut,
+            use_answer_projection=use_answer_projection,
+            use_sentence_selector=use_sentence_selector,
         )
         self.analyzer = analyzer
         self.conf_threshold = conf_threshold
-        self.max_sufficiency_rounds = max(0, max_sufficiency_rounds)
+        self.max_sufficiency_rounds = max(0, min(max_sufficiency_rounds, MAX_REPAIR_ROUNDS - 1))
         self.sufficiency_threshold = sufficiency_threshold
         self.enable_sufficiency_loop = enable_sufficiency_loop
+        self.enable_adaptive_window = enable_adaptive_window
+        self.always_retrieve = always_retrieve
+        self.query_timeout_s = query_timeout_s
 
     def run(
         self,
@@ -225,6 +268,13 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
             )
 
         routing = resolve_adaptive_routing(analysis, qtext, self.conf_threshold)
+        if self.always_retrieve and routing.skip_retrieval:
+            routing = resolve_adaptive_routing(analysis, qtext, 0.0)
+            if routing.skip_retrieval:
+                from .adaptive_policy import AdaptiveRoutingDecision
+
+                mode = analysis.temporal_class if analysis.temporal_class in ("current", "historical") else "semantic"
+                routing = AdaptiveRoutingDecision(False, "router_off_always_retrieve", mode)
         if inference_trace is not None:
             inference_trace.append(
                 {
@@ -233,6 +283,7 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
                     "policy": routing.policy,
                     "retrieve_mode": routing.retrieve_mode or None,
                     "conf_threshold": self.conf_threshold,
+                    "always_retrieve": self.always_retrieve,
                 }
             )
         if routing.skip_retrieval:
@@ -240,16 +291,16 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
                 inference_trace.append(
                     {"stage": "generator_no_docs", "reason": "trivial_and_no_retrieval"}
                 )
-            gen = self.generator.generate(qtext, docs=None)
+            answer, backend = self._read_answer(qtext, None)
             return PipelineResult(
                 system=self.name,
                 query_id=qid,
                 query=qtext,
-                answer=project_answer(qtext, gen.answer),
+                answer=answer,
                 did_retrieve=False,
                 analyzer=analysis,
                 latency_s=time.perf_counter() - t0,
-                backend=gen.backend,
+                backend=backend,
                 meta={"policy": "no_retrieval", "sufficiency_loop": []},
             )
 
@@ -279,9 +330,13 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
         historical_suff: SufficiencyResult | None = None
         historical_window: dict[str, Any] | None = None
         cand_cache: dict[int, list[tuple[CorpusDoc, float]]] = {}
+        budget = QueryBudget(
+            timeout_s=self.query_timeout_s,
+            max_rounds=MAX_REPAIR_ROUNDS if self.enable_sufficiency_loop else 1,
+        )
 
-        rounds = 1 + (self.max_sufficiency_rounds if self.enable_sufficiency_loop else 0)
-        for round_i in range(rounds):
+        while budget.allow_round():
+            round_i = budget.rounds - 1
             effective_mode = (
                 "semantic"
                 if force_semantic
@@ -364,7 +419,7 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
                     }
                 )
 
-            if suff.sufficient or round_i >= rounds - 1 or not self.enable_sufficiency_loop:
+            if suff.sufficient or not self.enable_sufficiency_loop or budget.expired():
                 break
 
             applied = self._apply_repairs(
@@ -412,17 +467,17 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
                     "backend": getattr(self.generator, "backend_name", "extractive"),
                 }
             )
-        gen = self.generator.generate(qtext, docs=docs)
+        answer, backend = self._read_answer(qtext, docs)
 
         # One post-answer sufficiency check: if answer is weak, try a final expand once
-        if self.enable_sufficiency_loop and docs:
+        if self.enable_sufficiency_loop and docs and budget.allow_round() and not budget.expired():
             post = assess_evidence_sufficiency(
                 query=qtext,
                 docs=docs,
                 scores=sem_scores,
                 temporal_class=analysis.temporal_class,
                 time_hint=time_hint,
-                answer=gen.answer,
+                answer=answer,
                 min_score=self.sufficiency_threshold,
                 entity_matched=True,
             )
@@ -445,46 +500,44 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
                 docs2 = [d for d, _, _, _ in ranked2]
                 scores2 = [final for _, final, _, _ in ranked2]
                 sem2 = [sem for _, _, sem, _ in ranked2]
-                gen2 = self.generator.generate(qtext, docs=docs2)
+                answer2, backend2 = self._read_answer(qtext, docs2)
                 post2 = assess_evidence_sufficiency(
                     query=qtext,
                     docs=docs2,
                     scores=sem2,
                     temporal_class=analysis.temporal_class,
                     time_hint=time_hint,
-                    answer=gen2.answer,
+                    answer=answer2,
                     min_score=self.sufficiency_threshold,
                     entity_matched=entity2,
                 )
                 if post2.score > post.score:
-                    docs, scores, sem_scores, gen, last_suff = docs2, scores2, sem2, gen2, post2
+                    docs, scores, sem_scores, answer, backend, last_suff = docs2, scores2, sem2, answer2, backend2, post2
                     policy = f"{policy}+sufficiency_retry"
                     window_meta = window2
 
+        budget.log_stop(qtext)
         meta: dict[str, Any] = {
             "policy": policy,
-            "generator_error": getattr(gen, "error", ""),
             "sufficiency_loop": loop_log,
+            "query_budget": budget.as_meta(),
         }
         if last_suff is not None:
             meta["evidence_sufficiency"] = last_suff.as_meta()
         if window_meta is not None:
             meta["adaptive_window"] = window_meta
-        projected = project_answer(qtext, gen.answer)
-        if projected != gen.answer:
-            meta["answer_projection"] = projected
 
         return PipelineResult(
             system=self.name,
             query_id=qid,
             query=qtext,
-            answer=projected,
+            answer=answer,
             retrieved_docs=docs,
             retrieved_scores=scores,
             did_retrieve=True,
             analyzer=analysis,
             latency_s=time.perf_counter() - t0,
-            backend=gen.backend,
+            backend=backend,
             meta=meta,
         )
 
@@ -513,26 +566,47 @@ class AdaptiveTemporalRAGPipeline(BasePipeline):
         used_mode = retrieve_mode
 
         if retrieve_mode == "historical":
-            window = infer_adaptive_window(qtext, time_hint=time_hint, min_docs=max(3, top_k // 2))
-            if window_boost > 0:
-                window.initial_years = min(window.max_years, window.initial_years + window_boost)
-                window.max_years = min(12.0, window.max_years + window_boost)
-            filtered, window = adaptive_filter_by_window(cands, window, query=qtext, top_k=top_k)
-            ranked = rerank(
-                filtered,
-                mode="historical",
-                query=qtext,
-                time_hint=time_hint,
-                alpha=alpha,
-                top_k=top_k,
-                window_years=window.final_years or window.initial_years,
-                prefer_time=True,
-            )
-            window_meta = window.as_meta()
+            if self.enable_adaptive_window:
+                window = infer_adaptive_window(qtext, time_hint=time_hint, min_docs=max(3, top_k // 2))
+                if window_boost > 0:
+                    window.initial_years = min(window.max_years, window.initial_years + window_boost)
+                    window.max_years = min(12.0, window.max_years + window_boost)
+                filtered, window = adaptive_filter_by_window(
+                    cands, window, query=qtext, top_k=top_k, use_entity_cut=self.use_entity_cut
+                )
+                ranked = rerank(
+                    filtered,
+                    mode="historical",
+                    query=qtext,
+                    time_hint=time_hint,
+                    alpha=alpha,
+                    top_k=top_k,
+                    window_years=window.final_years or window.initial_years,
+                    prefer_time=True,
+                )
+                window_meta = window.as_meta()
+            else:
+                year = extract_year_hint(time_hint, qtext)
+                pooled = self._subject_pool(qtext, cands)
+                filtered = filter_by_year_window(pooled, year, window_years=2)
+                ranked = rerank(
+                    filtered,
+                    mode="historical",
+                    query=qtext,
+                    time_hint=time_hint or (str(year) if year else None),
+                    alpha=alpha,
+                    top_k=top_k,
+                    prefer_time=True,
+                )
+                window_meta = {"reason": "fixed_pm2", "window_years": 2, "target_year": year}
         elif retrieve_mode == "current":
-            ranked = rerank(cands, mode="current", query=qtext, alpha=alpha, top_k=top_k)
+            ranked = rerank(
+                self._subject_pool(qtext, cands), mode="current", query=qtext, alpha=alpha, top_k=top_k
+            )
         else:
-            ranked = rerank(cands, mode="semantic", query=qtext, alpha=alpha, top_k=top_k)
+            ranked = rerank(
+                self._subject_pool(qtext, cands), mode="semantic", query=qtext, alpha=alpha, top_k=top_k
+            )
             used_mode = "semantic"
         return ranked, window_meta, used_mode, _top_matches_best_entity(qtext, ranked, cands)
 
@@ -597,32 +671,50 @@ def build_all_pipelines(
     candidate_k: int = 80,
     enable_ce_rerank: bool = True,
     reranker_model: str | None = None,
+    config: EvalConfig | None = None,
 ) -> dict[str, BasePipeline]:
     from .model_config import DEFAULT_RERANKER_MODEL
 
-    generator = generator or Generator(backend="extractive")
+    cfg = config or EvalConfig()
+    generator = generator or Generator(
+        backend=cfg.generator, use_sentence_selector=cfg.enable_sentence_selector
+    )
+    if hasattr(generator, "use_sentence_selector"):
+        generator.use_sentence_selector = cfg.enable_sentence_selector
     reranker = get_cross_encoder_reranker(
         model_name=reranker_model or DEFAULT_RERANKER_MODEL,
-        enabled=enable_ce_rerank,
+        enabled=enable_ce_rerank and cfg.enable_ce_rerank,
     )
-    common = dict(
+    shared = dict(
         index=index,
         generator=generator,
-        top_k=top_k,
-        candidate_k=candidate_k,
-        alpha=alpha,
+        top_k=cfg.top_k if config else top_k,
+        candidate_k=cfg.candidate_k if config else candidate_k,
+        alpha=cfg.alpha if config else alpha,
         reranker=reranker,
+        ce_rerank_keep=cfg.ce_rerank_keep,
+        use_entity_cut=cfg.enable_entity_cut,
+        use_answer_projection=cfg.enable_answer_projection,
+        use_sentence_selector=cfg.enable_sentence_selector,
     )
     return {
-        "B1_llm_only": LLMOnlyPipeline(generator=generator),
-        "B2_standard_rag": StandardRAGPipeline(**common),
-        "B3_fixed_temporal": FixedTemporalRAGPipeline(**common),
+        "B1_llm_only": LLMOnlyPipeline(
+            generator=generator,
+            use_answer_projection=cfg.enable_answer_projection,
+            use_sentence_selector=cfg.enable_sentence_selector,
+        ),
+        "B2_standard_rag": StandardRAGPipeline(**shared),
+        "B3_fixed_temporal": FixedTemporalRAGPipeline(**shared),
         "adaptive": AdaptiveTemporalRAGPipeline(
             analyzer=analyzer,
-            **common,
-            conf_threshold=conf_threshold,
-            enable_sufficiency_loop=True,
-            max_sufficiency_rounds=2,
+            **shared,
+            conf_threshold=cfg.conf_threshold if config else conf_threshold,
+            enable_sufficiency_loop=cfg.enable_sufficiency_loop,
+            enable_adaptive_window=cfg.enable_adaptive_window,
+            always_retrieve=cfg.always_retrieve,
+            max_sufficiency_rounds=cfg.max_sufficiency_rounds,
+            sufficiency_threshold=cfg.sufficiency_threshold,
+            query_timeout_s=cfg.query_timeout_s,
         ),
     }
 

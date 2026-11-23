@@ -1,0 +1,454 @@
+{
+  "config": "configs/final.yaml",
+  "datasets": {
+    "synthetic": {
+      "B1_llm_only": {
+        "n": 77.0,
+        "em": 0.12987012987012986,
+        "token_f1": 0.1669699968657318,
+        "contains": 0.12987012987012986,
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "temporal_acc": 0.24675324675324675,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 0.0001631493516895291,
+        "latency_s_median": 0.0001689000055193901,
+        "retrieval_rate": 0.0
+      },
+      "B2_standard_rag": {
+        "n": 77.0,
+        "em": 0.6493506493506493,
+        "token_f1": 0.6760501403358545,
+        "contains": 0.7272727272727273,
+        "precision_at_k": 0.41120689655172415,
+        "recall_at_k": 0.6551724137931035,
+        "temporal_acc": 0.6623376623376623,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 1.5508366818055994,
+        "latency_s_median": 1.4321867998223752,
+        "retrieval_rate": 1.0
+      },
+      "B3_fixed_temporal": {
+        "n": 77.0,
+        "em": 0.935064935064935,
+        "token_f1": 0.9513592468137924,
+        "contains": 0.987012987012987,
+        "precision_at_k": 0.6077586206896555,
+        "recall_at_k": 0.9425287356321838,
+        "temporal_acc": 1.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 1.5552233091083827,
+        "latency_s_median": 1.4524477999657393,
+        "retrieval_rate": 1.0
+      },
+      "adaptive": {
+        "n": 77.0,
+        "em": 0.948051948051948,
+        "token_f1": 0.9603502558048014,
+        "contains": 0.987012987012987,
+        "precision_at_k": 0.6681034482758624,
+        "recall_at_k": 0.9540229885057471,
+        "temporal_acc": 1.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 0.987012987012987,
+        "latency_s": 1.6902304194873659,
+        "latency_s_median": 1.5731983000878245,
+        "retrieval_rate": 0.8701298701298701
+      }
+    },
+    "heldout": {
+      "B1_llm_only": {
+        "n": 193.0,
+        "em": 0.0,
+        "token_f1": 0.0019288161596541088,
+        "contains": 0.0,
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "temporal_acc": 0.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 0.00019880986067953815,
+        "latency_s_median": 0.00017699995078146458,
+        "retrieval_rate": 0.0
+      },
+      "B2_standard_rag": {
+        "n": 193.0,
+        "em": 0.3316062176165803,
+        "token_f1": 0.3607346884548957,
+        "contains": 0.40932642487046633,
+        "precision_at_k": 0.34611398963730583,
+        "recall_at_k": 0.5768566493955096,
+        "temporal_acc": 0.5958549222797928,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 1.5685405818518696,
+        "latency_s_median": 1.4892325999680907,
+        "retrieval_rate": 1.0
+      },
+      "B3_fixed_temporal": {
+        "n": 193.0,
+        "em": 0.6839378238341969,
+        "token_f1": 0.6957951375049821,
+        "contains": 0.7098445595854922,
+        "precision_at_k": 0.5914507772020717,
+        "recall_at_k": 0.8791018998272883,
+        "temporal_acc": 1.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 1.545736396878263,
+        "latency_s_median": 1.4098542998544872,
+        "retrieval_rate": 1.0
+      },
+      "adaptive": {
+        "n": 193.0,
+        "em": 0.7616580310880829,
+        "token_f1": 0.7655440414507773,
+        "contains": 0.7616580310880829,
+        "precision_at_k": 0.6816062176165788,
+        "recall_at_k": 0.9119170984455959,
+        "temporal_acc": 1.0,
+        "abstain_acc": 1.0,
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "latency_s": 2.5840997046602823,
+        "latency_s_median": 1.7152803998906165,
+        "retrieval_rate": 1.0
+      }
+    },
+    "timeqa": {
+      "B1_llm_only": {
+        "n": 500.0,
+        "em": 0.0,
+        "token_f1": 0.012991976577943022,
+        "contains": 0.014,
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "temporal_acc": NaN,
+        "abstain_acc": 0.82,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 9.708739444613457e-05,
+        "latency_s_median": 7.015001028776169e-05,
+        "retrieval_rate": 0.0
+      },
+      "B2_standard_rag": {
+        "n": 500.0,
+        "em": 0.006,
+        "token_f1": 0.07671062827771331,
+        "contains": 0.26,
+        "precision_at_k": 0.2351219512195132,
+        "recall_at_k": 0.46781649245063867,
+        "temporal_acc": NaN,
+        "abstain_acc": 0.82,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 6.055528539801482,
+        "latency_s_median": 6.118078650091775,
+        "retrieval_rate": 1.0
+      },
+      "B3_fixed_temporal": {
+        "n": 500.0,
+        "em": 0.01,
+        "token_f1": 0.08863886096364712,
+        "contains": 0.27,
+        "precision_at_k": 0.23662601626016339,
+        "recall_at_k": 0.3917015098722415,
+        "temporal_acc": NaN,
+        "abstain_acc": 0.82,
+        "router_temporal_acc": NaN,
+        "router_needs_acc": NaN,
+        "latency_s": 6.07414589620335,
+        "latency_s_median": 6.11625414993614,
+        "retrieval_rate": 1.0
+      },
+      "adaptive": {
+        "n": 500.0,
+        "em": 0.008,
+        "token_f1": 0.08759755371471156,
+        "contains": 0.296,
+        "precision_at_k": 0.24146341463414742,
+        "recall_at_k": 0.4882810685249711,
+        "temporal_acc": NaN,
+        "abstain_acc": 0.82,
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "latency_s": 8.735863220798317,
+        "latency_s_median": 6.491634199977852,
+        "retrieval_rate": 1.0
+      }
+    }
+  },
+  "ablations": {
+    "synthetic": {
+      "adaptive_router_off": {
+        "adaptive_router_off": {
+          "n": 77.0,
+          "em": 0.948051948051948,
+          "token_f1": 0.9603502558048014,
+          "contains": 0.987012987012987,
+          "precision_at_k": 0.6681034482758624,
+          "recall_at_k": 0.9540229885057471,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.987012987012987,
+          "latency_s": 2.0404526636385443,
+          "latency_s_median": 1.4558631998952478,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_window_off": {
+        "adaptive_window_off": {
+          "n": 77.0,
+          "em": 0.948051948051948,
+          "token_f1": 0.9603502558048014,
+          "contains": 0.987012987012987,
+          "precision_at_k": 0.6353448275862074,
+          "recall_at_k": 0.9885057471264368,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.987012987012987,
+          "latency_s": 1.3132237064827523,
+          "latency_s_median": 1.3494812999852002,
+          "retrieval_rate": 0.8701298701298701
+        }
+      },
+      "adaptive_sufficiency_off": {
+        "adaptive_sufficiency_off": {
+          "n": 77.0,
+          "em": 0.948051948051948,
+          "token_f1": 0.9603502558048014,
+          "contains": 0.987012987012987,
+          "precision_at_k": 0.6681034482758624,
+          "recall_at_k": 0.9540229885057471,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.987012987012987,
+          "latency_s": 1.1788182117093307,
+          "latency_s_median": 1.2902329000644386,
+          "retrieval_rate": 0.8701298701298701
+        }
+      },
+      "adaptive_entity_cut_off": {
+        "adaptive_entity_cut_off": {
+          "n": 77.0,
+          "em": 0.922077922077922,
+          "token_f1": 0.9340432294977749,
+          "contains": 0.961038961038961,
+          "precision_at_k": 0.5551724137931038,
+          "recall_at_k": 0.9252873563218388,
+          "temporal_acc": 0.974025974025974,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.987012987012987,
+          "latency_s": 1.3250197545389415,
+          "latency_s_median": 1.3048676000908017,
+          "retrieval_rate": 0.8701298701298701
+        }
+      },
+      "adaptive_sentence_selector_off": {
+        "adaptive_sentence_selector_off": {
+          "n": 77.0,
+          "em": 0.948051948051948,
+          "token_f1": 0.9603502558048014,
+          "contains": 0.987012987012987,
+          "precision_at_k": 0.6681034482758624,
+          "recall_at_k": 0.9540229885057471,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.987012987012987,
+          "latency_s": 1.2824447103896988,
+          "latency_s_median": 1.275914000114426,
+          "retrieval_rate": 0.8701298701298701
+        }
+      }
+    },
+    "heldout": {
+      "adaptive_router_off": {
+        "adaptive_router_off": {
+          "n": 193.0,
+          "em": 0.7616580310880829,
+          "token_f1": 0.7655440414507773,
+          "contains": 0.7616580310880829,
+          "precision_at_k": 0.6816062176165788,
+          "recall_at_k": 0.9119170984455959,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 1.124199780832175,
+          "latency_s_median": 0.8169529000297189,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_window_off": {
+        "adaptive_window_off": {
+          "n": 193.0,
+          "em": 0.7616580310880829,
+          "token_f1": 0.7655440414507773,
+          "contains": 0.7616580310880829,
+          "precision_at_k": 0.6401554404145059,
+          "recall_at_k": 0.9602763385146805,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.9452342486981341,
+          "latency_s_median": 0.6886845999397337,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_sufficiency_off": {
+        "adaptive_sufficiency_off": {
+          "n": 193.0,
+          "em": 0.7616580310880829,
+          "token_f1": 0.7655440414507773,
+          "contains": 0.7616580310880829,
+          "precision_at_k": 0.6816062176165788,
+          "recall_at_k": 0.9119170984455959,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.6626237823719574,
+          "latency_s_median": 0.6488509001210332,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_entity_cut_off": {
+        "adaptive_entity_cut_off": {
+          "n": 193.0,
+          "em": 0.6994818652849741,
+          "token_f1": 0.7033678756476683,
+          "contains": 0.6994818652849741,
+          "precision_at_k": 0.5264248704663212,
+          "recall_at_k": 0.8618307426597578,
+          "temporal_acc": 0.9637305699481865,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.9305323979424052,
+          "latency_s_median": 0.6700578001327813,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_sentence_selector_off": {
+        "adaptive_sentence_selector_off": {
+          "n": 193.0,
+          "em": 0.7616580310880829,
+          "token_f1": 0.7655440414507773,
+          "contains": 0.7616580310880829,
+          "precision_at_k": 0.6816062176165788,
+          "recall_at_k": 0.9119170984455959,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.9174500481790134,
+          "latency_s_median": 0.6554882999043912,
+          "retrieval_rate": 1.0
+        }
+      }
+    },
+    "timeqa": {
+      "adaptive_router_off": {
+        "adaptive_router_off": {
+          "n": 500.0,
+          "em": 0.008,
+          "token_f1": 0.08759755371471156,
+          "contains": 0.296,
+          "precision_at_k": 0.24146341463414742,
+          "recall_at_k": 0.4882810685249711,
+          "temporal_acc": NaN,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 4.445962630797643,
+          "latency_s_median": 3.1850751499878243,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_window_off": {
+        "adaptive_window_off": {
+          "n": 500.0,
+          "em": 0.01,
+          "token_f1": 0.08862389261369687,
+          "contains": 0.272,
+          "precision_at_k": 0.23638211382113905,
+          "recall_at_k": 0.39739256678281065,
+          "temporal_acc": NaN,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 3.332668869602028,
+          "latency_s_median": 3.141478450037539,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_sufficiency_off": {
+        "adaptive_sufficiency_off": {
+          "n": 500.0,
+          "em": 0.008,
+          "token_f1": 0.08758704796030338,
+          "contains": 0.298,
+          "precision_at_k": 0.2429268292682938,
+          "recall_at_k": 0.491329849012776,
+          "temporal_acc": NaN,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 3.1844112888057716,
+          "latency_s_median": 3.1597396499710158,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_entity_cut_off": {
+        "adaptive_entity_cut_off": {
+          "n": 500.0,
+          "em": 0.006,
+          "token_f1": 0.07607163349929735,
+          "contains": 0.252,
+          "precision_at_k": 0.167317073170732,
+          "recall_at_k": 0.33844076655052263,
+          "temporal_acc": NaN,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 6.650398843196687,
+          "latency_s_median": 5.4297177999978885,
+          "retrieval_rate": 1.0
+        }
+      },
+      "adaptive_sentence_selector_off": {
+        "adaptive_sentence_selector_off": {
+          "n": 500.0,
+          "em": 0.002,
+          "token_f1": 0.047565385484907644,
+          "contains": 0.168,
+          "precision_at_k": 0.24146341463414742,
+          "recall_at_k": 0.4882810685249711,
+          "temporal_acc": NaN,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 6.551159103402868,
+          "latency_s_median": 4.299553049961105,
+          "retrieval_rate": 1.0
+        }
+      }
+    }
+  }
+}

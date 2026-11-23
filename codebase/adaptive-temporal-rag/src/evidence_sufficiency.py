@@ -2,9 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 import re
+import time
 from dataclasses import dataclass, field
 from typing import Any, Literal, Optional
+
+logger = logging.getLogger("atr.sufficiency")
+
+# Hard caps for the Adaptive repair loop (Checkpoint B freeze).
+MAX_REPAIR_ROUNDS = 3
+QUERY_TIMEOUT_S = 60.0
 
 from .data_schema import CorpusDoc
 from .temporal_rank import extract_full_date_hint, extract_year_hint, lexical_overlap_boost, parse_date
@@ -34,6 +42,55 @@ class SufficiencyResult:
             "reasons": self.reasons,
             "suggested_repairs": list(self.suggested_repairs),
             "details": self.details,
+        }
+
+
+@dataclass
+class QueryBudget:
+    """Wall-clock and iteration budget for one Adaptive query."""
+
+    timeout_s: float = QUERY_TIMEOUT_S
+    max_rounds: int = MAX_REPAIR_ROUNDS
+    t0: float = field(default_factory=time.perf_counter)
+    rounds: int = 0
+    timed_out: bool = False
+    capped: bool = False
+
+    def expired(self) -> bool:
+        if (time.perf_counter() - self.t0) >= self.timeout_s:
+            self.timed_out = True
+            return True
+        return False
+
+    def allow_round(self) -> bool:
+        if self.rounds >= self.max_rounds:
+            self.capped = True
+            return False
+        if self.expired():
+            return False
+        self.rounds += 1
+        return True
+
+    def log_stop(self, query: str) -> None:
+        if not (self.timed_out or self.capped):
+            return
+        logger.warning(
+            "sufficiency stop query=%r rounds=%s timed_out=%s capped=%s elapsed=%.2fs",
+            query[:120],
+            self.rounds,
+            self.timed_out,
+            self.capped,
+            time.perf_counter() - self.t0,
+        )
+
+    def as_meta(self) -> dict[str, Any]:
+        return {
+            "rounds": self.rounds,
+            "timed_out": self.timed_out,
+            "capped": self.capped,
+            "elapsed_s": round(time.perf_counter() - self.t0, 3),
+            "timeout_s": self.timeout_s,
+            "max_rounds": self.max_rounds,
         }
 
 

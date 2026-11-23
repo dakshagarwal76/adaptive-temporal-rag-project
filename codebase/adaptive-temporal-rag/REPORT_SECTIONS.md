@@ -1,6 +1,6 @@
 # Report sections to paste into the final project report
 
-Use `artifacts/results_summary.json` + `comparative_analysis.md` from the **2026-10-08** Colab export (`atr_colab_artifacts_20261008_0451`) — **real** held-out test eval, n=77.
+Authoritative numbers: `artifacts/final_results.md` and `artifacts/final_results.json` from the frozen Checkpoint B eval (`configs/final.yaml`). Do not quote the older Colab 0.844 / local 0.600 / Checkpoint A 0.468 figures.
 
 ## 7. Proposed System Architecture
 
@@ -46,9 +46,9 @@ Four systems compared on the same test split:
 
 Metrics: answer contains/EM/token-F1 vs gold, temporal accuracy (evidence-date heuristic), precision@k / recall@k when gold docs exist, latency, retrieval rate.
 
-## 10. Results (Colab T4 — export `20261008_0451`)
+## 10. Results (frozen Checkpoint B)
 
-**Authoritative artifacts:** `artifacts/results_summary.json`, `results.csv`, `results_charts.png`, `comparative_analysis.md` from the held-out **test** eval (n=77). These are **real** `evaluate.py` outputs, not synthetic placeholders.
+**Authoritative artifacts:** `artifacts/final_results.md`, `artifacts/final_results.json`, `artifacts/general_eval/final/`. Four systems share the extractive reader, answer projection, and entity/surname cut. They differ on skip vs always-retrieve, the time window, and the sufficiency loop.
 
 ### 10.1 Analyzer training (successful DistilBERT run)
 
@@ -64,16 +64,26 @@ Metrics: answer contains/EM/token-F1 vs gold, temporal accuracy (evidence-date h
 
 Smoke predictions after train: current PM → `current`; US president 2018 → `historical`; photosynthesis / 2+2 → `timeless`.
 
-### 10.2 Comparative test results (real eval)
+### 10.2 Comparative test results (frozen eval)
 
-| System | Contains | EM | Token F1 | Temp Acc | P@5 | R@5 | Ret Rate | Latency (s) |
-|--------|----------|-----|----------|----------|-----|-----|----------|-------------|
-| B1 LLM-only | 0.117 | 0.104 | 0.145 | 0.247 | 0.000 | 0.000 | 0.000 | 0.432 |
-| B2 Standard RAG | 0.688 | 0.377 | 0.505 | 0.636 | 0.390 | 0.649 | 1.000 | 0.572 |
-| B3 Fixed Temporal | 0.844 | 0.442 | 0.609 | 0.883 | 0.547 | 0.759 | 1.000 | 0.498 |
-| Adaptive (ours) | 0.844 | 0.442 | 0.605 | 0.883 | 0.569 | 0.736 | 0.883 | 0.516 |
+Master table from `artifacts/final_results.md`:
 
-**Takeaways:** Adaptive matches B3 on Contains / Temp Acc while retrieving on **88%** of queries (vs 100% for B2/B3). vs B2: **+15.6%** Contains, **+24.7%** Temp Acc. Full narrative in `comparative_analysis.md`.
+| Dataset | System | N | EM | F1 | Contains | P@5 | R@5 | Temp | Ret | mean s | median s |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| synthetic | B1 no retrieval | 77 | 0.130 | 0.167 | 0.130 | 0.000 | 0.000 | 0.247 | 0.000 | 0.000 | 0.000 |
+| synthetic | B2 standard | 77 | 0.649 | 0.676 | 0.727 | 0.411 | 0.655 | 0.662 | 1.000 | 1.551 | 1.432 |
+| synthetic | B3 fixed ±2y | 77 | 0.935 | 0.951 | 0.987 | 0.608 | 0.943 | 1.000 | 1.000 | 1.555 | 1.452 |
+| synthetic | Adaptive | 77 | 0.948 | 0.960 | 0.987 | 0.668 | 0.954 | 1.000 | 0.870 | 1.690 | 1.573 |
+| heldout | B1 no retrieval | 193 | 0.000 | 0.002 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
+| heldout | B2 standard | 193 | 0.332 | 0.361 | 0.409 | 0.346 | 0.577 | 0.596 | 1.000 | 1.569 | 1.489 |
+| heldout | B3 fixed ±2y | 193 | 0.684 | 0.696 | 0.710 | 0.591 | 0.879 | 1.000 | 1.000 | 1.546 | 1.410 |
+| heldout | Adaptive | 193 | 0.762 | 0.766 | 0.762 | 0.682 | 0.912 | 1.000 | 1.000 | 2.584 | 1.715 |
+| timeqa | B1 no retrieval | 500 | 0.000 | 0.013 | 0.014 | 0.000 | 0.000 | — | 0.000 | 0.000 | 0.000 |
+| timeqa | B2 standard | 500 | 0.006 | 0.077 | 0.260 | 0.235 | 0.468 | — | 1.000 | 6.056 | 6.118 |
+| timeqa | B3 fixed ±2y | 500 | 0.010 | 0.089 | 0.270 | 0.237 | 0.392 | — | 1.000 | 6.074 | 6.116 |
+| timeqa | Adaptive | 500 | 0.008 | 0.088 | 0.296 | 0.241 | 0.488 | — | 1.000 | 8.736 | 6.492 |
+
+**Takeaways:** On the templated test Adaptive ties B3 on Contains (0.987) and is one extra exact match (0.948 vs 0.935) while skipping 10 of 77 queries. On the six-entity split it is ahead of B3 on EM (0.762 vs 0.684) and Contains (0.762 vs 0.710) and always retrieves. On TimeQA n=500 it is ahead on Contains (0.296 vs 0.270) and R@5 (0.488 vs 0.392) and behind by one EM (0.008 vs 0.010). Latency does not improve. Ablations: see `artifacts/final_results.md`.
 
 ## 11. Error Analysis
 

@@ -1,0 +1,17 @@
+{
+  "synthetic/router_off": 183.93009539996274,
+  "synthetic/window_off": 122.85427839984186,
+  "synthetic/sufficiency_off": 111.92626209999435,
+  "synthetic/entity_cut_off": 122.53468329994939,
+  "synthetic/sentence_selector_off": 127.04157080012374,
+  "heldout/router_off": 233.95084279985167,
+  "heldout/window_off": 192.30446480005048,
+  "heldout/sufficiency_off": 137.09427929995582,
+  "heldout/entity_cut_off": 189.16878780000843,
+  "heldout/sentence_selector_off": 186.1021294000093,
+  "timeqa/router_off": 2232.1800285999198,
+  "timeqa/window_off": 1676.3146530000959,
+  "timeqa/sufficiency_off": 1624.788287299918,
+  "timeqa/entity_cut_off": 3335.2124262999278,
+  "timeqa/sentence_selector_off": 3291.7670049001463
+}

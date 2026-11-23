@@ -1,0 +1,17 @@
+{
+  "adaptive_router_off": {
+    "n": 77.0,
+    "em": 0.948051948051948,
+    "token_f1": 0.9603502558048014,
+    "contains": 0.987012987012987,
+    "precision_at_k": 0.6681034482758624,
+    "recall_at_k": 0.9540229885057471,
+    "temporal_acc": 1.0,
+    "abstain_acc": 1.0,
+    "router_temporal_acc": 1.0,
+    "router_needs_acc": 0.987012987012987,
+    "latency_s": 2.0404526636385443,
+    "latency_s_median": 1.4558631998952478,
+    "retrieval_rate": 1.0
+  }
+}

@@ -159,7 +159,7 @@ def _best_dated_sentence(query: str, docs: list[CorpusDoc]) -> str:
     best_score = -1.0
     for doc_i, doc in enumerate(docs[:5]):
         rank_bonus = max(0.0, 0.25 - 0.05 * doc_i)
-        sents = _sentences(doc.text)
+        sents = _sentences(doc.text[:8000])[:40]
         for idx, sentence in enumerate(sents):
             sentence = sentence.strip()
             if len(sentence) < 24:
@@ -192,7 +192,11 @@ def _best_dated_sentence(query: str, docs: list[CorpusDoc]) -> str:
     return best if best_score > 0 else ""
 
 
-def extractive_answer(query: str, docs: list[CorpusDoc] | None = None) -> GenerationResult:
+def extractive_answer(
+    query: str,
+    docs: list[CorpusDoc] | None = None,
+    use_sentence_selector: bool = True,
+) -> GenerationResult:
     """Deterministic generator that works offline when APIs are unavailable."""
     docs = docs or []
     trivial = _trivial_answer(query)
@@ -224,9 +228,10 @@ def extractive_answer(query: str, docs: list[CorpusDoc] | None = None) -> Genera
         if m and one_fact:
             return GenerationResult(m.group(1).strip(" ,."), "extractive", len(query) + len(text))
 
-        picked = _best_dated_sentence(query, docs)
-        if picked:
-            return GenerationResult(picked[:400], "extractive", len(query) + len(picked))
+        if use_sentence_selector:
+            picked = _best_dated_sentence(query, docs)
+            if picked:
+                return GenerationResult(picked[:400], "extractive", len(query) + len(picked))
         return GenerationResult(text[:220], "extractive", len(query) + len(text))
 
     topic = re.sub(r"^(what is|what's|define|explain)\s+", "", q).strip(" ?.")
@@ -490,8 +495,9 @@ class FailoverAPIGenerator:
 class Generator:
     """Unified facade with multi-provider API failover and extractive safety net."""
 
-    def __init__(self, backend: str = "extractive", **kwargs) -> None:
+    def __init__(self, backend: str = "extractive", use_sentence_selector: bool = True, **kwargs) -> None:
         self.backend_name = backend
+        self.use_sentence_selector = use_sentence_selector
         self._impl = None
         self.last_error = ""
         if backend == "hf":
@@ -507,14 +513,16 @@ class Generator:
 
     def generate(self, query: str, docs: list[CorpusDoc] | None = None) -> GenerationResult:
         if self._impl is None:
-            return extractive_answer(query, docs)
+            return extractive_answer(query, docs, use_sentence_selector=self.use_sentence_selector)
         try:
             result = self._impl.generate(query, docs)
             self.last_error = getattr(self._impl, "last_error", "") or getattr(result, "error", "")
             return result
         except Exception as exc:  # pragma: no cover
             self.last_error = str(exc)
-            fallback = extractive_answer(query, docs)
+            fallback = extractive_answer(
+                query, docs, use_sentence_selector=self.use_sentence_selector
+            )
             fallback.error = self.last_error
             fallback.backend = "extractive(fallback)"
             return fallback
