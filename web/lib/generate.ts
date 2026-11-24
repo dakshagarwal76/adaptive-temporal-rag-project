@@ -15,6 +15,7 @@ export type Generation = {
 };
 
 const SYSTEM = "You are a concise factual assistant. The evidence is one combined collection, even when the passages come from different sources. Write one answer in one or two complete sentences, grounded in that evidence, and include the passage date. If a passage names the person or fact and its date is near the year in the question, answer from that passage. Do not say the evidence is missing in that case.";
+const SYSTEM_OPEN = "You are a concise factual assistant. No passages were retrieved. Answer the question in one or two complete sentences.";
 const STOP = new Set(["who", "what", "which", "when", "where", "whom", "whose", "the", "a", "an", "of", "is", "are", "was", "were", "did", "does", "how", "for", "and", "current", "currently"]);
 
 export function fallbackAnswer(query: string, evidence: Evidence[]): string {
@@ -52,11 +53,14 @@ export async function generateAnswer(query: string, evidence: Evidence[], choice
   if (mode === "extractive" || mode === "hf") return null;
   let providers = loadProviders();
   if (choice && choice !== "auto") {
-    const picked = providers.filter((provider) => `${provider.name}:${provider.model}` === choice);
-    if (picked.length === 0) {
+    const preferred = providers.filter((provider) => `${provider.name}:${provider.model}` === choice);
+    if (preferred.length === 0) {
       return { answer: "", backend: "extractive", error: "Model failed. That model is not configured." };
     }
-    providers = picked;
+    const others = evidence.length === 0
+      ? providers.filter((provider) => !preferred.some((item) => item.name === provider.name && item.model === provider.model))
+      : [];
+    providers = [...preferred, ...others];
   }
   if (providers.length === 0) {
     return { answer: "", backend: "extractive", error: "Model failed. No provider is configured. A provider needs an API key, base URL, and model." };
@@ -65,7 +69,13 @@ export async function generateAnswer(query: string, evidence: Evidence[], choice
   for (const provider of providers) {
     try {
       const result = await complete(provider, query, evidence);
-      if (result.text) return { answer: result.text, backend: `api:${provider.name}:${provider.model}` };
+      if (result.text) {
+        return {
+          answer: result.text,
+          backend: `api:${provider.name}:${provider.model}`,
+          error: errors.length > 0 ? `Model failed. ${errors.join(" ")}` : undefined,
+        };
+      }
       const reason = result.finish ? ` (${result.finish})` : "";
       errors.push(`${provider.name} (${provider.model}) stopped before a complete sentence${reason}.`);
     } catch (error) {
@@ -121,7 +131,7 @@ function env(name: string): string {
 
 async function complete(provider: Provider, query: string, evidence: Evidence[]): Promise<{ text: string; finish: string }> {
   const messages = [
-    { role: "system", content: SYSTEM },
+    { role: "system", content: evidence.length === 0 ? SYSTEM_OPEN : SYSTEM },
     { role: "user", content: prompt(query, evidence) },
   ];
   let budget = numberEnv("LLM_MAX_TOKENS", 512);
