@@ -28,10 +28,17 @@ export function SiteHeader() {
           <Link href="/" data-active={path === "/" ? "true" : "false"}>Ask</Link>
           <Link href="/results" data-active={path === "/results" ? "true" : "false"}>Results</Link>
         </nav>
-        <div className="theme" role="group" aria-label="Color mode">
-          <button type="button" aria-pressed={theme === "light"} onClick={() => choose("light")}>Light</button>
-          <button type="button" aria-pressed={theme === "dark"} onClick={() => choose("dark")}>Dark</button>
-        </div>
+        <button
+          type="button"
+          className="theme-toggle"
+          role="switch"
+          aria-checked={theme === "dark"}
+          aria-label="Color mode"
+          onClick={() => choose(theme === "dark" ? "light" : "dark")}
+        >
+          <span className="theme-track" aria-hidden="true"><span className="theme-thumb" /></span>
+          {theme === "dark" ? "Dark" : "Light"}
+        </button>
       </div>
     </header>
   );
