@@ -58,3 +58,12 @@ web/.deploy-b64/
 *.blg
 *.toc
 *.synctex.gz
+
+# Paper and reports stay on this machine, not in the repo
+docs-and-reports/
+README_START_HERE.md
+codebase/adaptive-temporal-rag/docs/paper/
+codebase/adaptive-temporal-rag/docs/arxiv_submission/
+codebase/adaptive-temporal-rag/docs/workshop_context4agents/
+codebase/adaptive-temporal-rag/REPORT_SECTIONS.md
+codebase/adaptive-temporal-rag/README_PRESENTATION.md

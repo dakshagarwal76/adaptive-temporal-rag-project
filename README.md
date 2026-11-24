@@ -12,11 +12,10 @@ ARP-455 minor project, University School of Automation and Robotics, Guru Gobind
 
 | Path | Contents |
 |------|----------|
-| `codebase/adaptive-temporal-rag/` | Research code, synthetic corpus, notebooks, paper, and saved evaluation tables |
+| `codebase/adaptive-temporal-rag/` | Research code, synthetic corpus, notebooks, and saved evaluation tables |
 | `web/` | Next.js demo deployed on Vercel. Lexical retrieval, the temporal policy, and an extractive reader |
-| `docs-and-reports/` | Minor-project report and earlier write-ups |
 
-The paper is `codebase/adaptive-temporal-rag/docs/paper/adaptive_temporal_rag.tex`. The frozen numbers are in `codebase/adaptive-temporal-rag/artifacts/final_results.md`.
+The frozen numbers are in `codebase/adaptive-temporal-rag/artifacts/final_results.md`.
 
 ## Systems
 
@@ -93,4 +92,4 @@ npm run dev
 
 ## Not in git
 
-`*.pt`, `*.npy`, `*.index`, `*.safetensors`, zip archives, virtualenvs, and `web/node_modules`. Logs and LaTeX build files are ignored too.
+`*.pt`, `*.npy`, `*.index`, `*.safetensors`, zip archives, virtualenvs, and `web/node_modules`. The paper and the project report stay on the local machine and are not in this repository.

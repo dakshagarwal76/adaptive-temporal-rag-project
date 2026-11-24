@@ -20,7 +20,7 @@ python scripts/build_index.py
 python scripts/train_analyzer.py --epochs 6
 ```
 
-Step-by-step setup, Colab, and common errors: [HOW_TO_RUN.md](HOW_TO_RUN.md). Pipeline map: [ARCHITECTURE.md](ARCHITECTURE.md). Saved tables: [artifacts/final_results.md](artifacts/final_results.md). Paper: [docs/paper/adaptive_temporal_rag.tex](docs/paper/adaptive_temporal_rag.tex).
+Step-by-step setup, Colab, and common errors: [HOW_TO_RUN.md](HOW_TO_RUN.md). Pipeline map: [ARCHITECTURE.md](ARCHITECTURE.md). Saved tables: [artifacts/final_results.md](artifacts/final_results.md).
 
 ## Layout
 
