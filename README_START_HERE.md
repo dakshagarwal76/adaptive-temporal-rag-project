@@ -1,12 +1,8 @@
-# Adaptive Temporal RAG — laptop transfer
+# Adaptive Temporal RAG — local notes
 
-Copied on 25 October 2026 from `C:\Users\Assessment\Documents\cursor`.
+The repository overview is [README.md](README.md). This file is the original laptop-transfer note.
 
-This PC has no `E:` drive. The external disk is the Seagate Backup Plus drive, letter **D:**. Everything is in this folder:
-
-`D:\Adaptive-Temporal-RAG-Laptop-Transfer`
-
-Treat this folder as private. `codebase\adaptive-temporal-rag\.env` was copied and may contain API keys.
+Do not commit `.env`. API keys stay in a local copy of `codebase\adaptive-temporal-rag\.env`, created from `.env.example`.
 
 ## What is inside
 

@@ -22,20 +22,21 @@ You will open a **terminal**, install Python packages, then open a **web demo** 
 
 2. This project folder:
    ```text
-   D:\cursor\adaptive-temporal-rag
+   codebase\adaptive-temporal-rag
    ```
 
 ---
 
 ## Path A — Fastest: just open the demo (recommended first)
 
-Your project already has the dataset and trained files in `data/` and `artifacts/`.  
-You only need to install packages and start the demo.
+The question files and the 803-passage corpus are in `data/`.
+A machine that already has `artifacts/analyzer.pt` and `artifacts/faiss.index` can start the demo after installing packages.
+Those checkpoints are not in git. On a fresh clone, build them with Path B before opening Streamlit.
 
-### Step 1 — Open PowerShell in the project folder
+### Step 1 — Open PowerShell at the repository root, then enter the project
 
 ```powershell
-cd D:\cursor\adaptive-temporal-rag
+cd codebase\adaptive-temporal-rag
 ```
 
 ### Step 2 — Create a virtual environment (one-time)
@@ -136,7 +137,7 @@ Use this when you want to rebuild everything yourself (good for project viva / C
 ### Step 1 — Go to the folder and activate venv
 
 ```powershell
-cd D:\cursor\adaptive-temporal-rag
+cd codebase\adaptive-temporal-rag
 .\.venv\Scripts\Activate.ps1
 ```
 
@@ -230,7 +231,7 @@ Viva line: *“After the pilot, we scaled data/augmentation on A100 for stronger
 
 Local after download:
 ```powershell
-cd D:\cursor\adaptive-temporal-rag
+cd codebase\adaptive-temporal-rag
 .\.venv\Scripts\Activate.ps1
 streamlit run app/streamlit_app.py
 ```
@@ -317,7 +318,7 @@ First-time downloads of `torch`, `transformers`, and models can take several min
 Always run commands from:
 
 ```powershell
-cd D:\cursor\adaptive-temporal-rag
+cd codebase\adaptive-temporal-rag
 ```
 
 ---
@@ -325,12 +326,14 @@ cd D:\cursor\adaptive-temporal-rag
 ## Smallest “I just want to see it work” checklist
 
 ```powershell
-cd D:\cursor\adaptive-temporal-rag
+cd codebase\adaptive-temporal-rag
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 streamlit run app/streamlit_app.py
 ```
+
+If Streamlit says the index or analyzer failed to load, the checkpoints are not in this clone. Run Path B steps 3 and 4, then start Streamlit again.
 
 Then open [http://localhost:8501](http://localhost:8501) and ask:
 
