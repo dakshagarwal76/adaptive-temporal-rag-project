@@ -14,7 +14,7 @@ export type Generation = {
   error?: string;
 };
 
-const SYSTEM = "You are a concise factual assistant. The evidence is one combined collection, even when the passages come from different sources. Write one answer in one or two complete sentences, grounded in that evidence, and include the relevant date.";
+const SYSTEM = "You are a concise factual assistant. The evidence is one combined collection, even when the passages come from different sources. Write one answer in one or two complete sentences, grounded in that evidence, and include the passage date. If a passage names the person or fact and its date is near the year in the question, answer from that passage. Do not say the evidence is missing in that case.";
 const STOP = new Set(["who", "what", "which", "when", "where", "whom", "whose", "the", "a", "an", "of", "is", "are", "was", "were", "did", "does", "how", "for", "and", "current", "currently"]);
 
 export function fallbackAnswer(query: string, evidence: Evidence[]): string {
@@ -179,7 +179,7 @@ function prompt(query: string, evidence: Evidence[]): string {
     return `Answer the question briefly and factually.\nQuestion: ${query}\nAnswer:`;
   }
   return [
-    "Use the dated evidence to answer. Prefer evidence whose date matches the question's time intent. Cite dates when relevant. Keep the answer short.",
+    "Use the dated evidence to answer. Prefer a passage from the asked year. If none is, use the closest passage and state its date. Keep the answer short.",
     "",
     "Evidence:",
     lines.join("\n"),
