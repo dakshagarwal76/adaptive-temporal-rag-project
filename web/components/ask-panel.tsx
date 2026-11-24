@@ -84,33 +84,39 @@ export function AskPanel() {
           />
           <button type="submit" disabled={pending}>{pending ? "Running" : "Ask"}</button>
         </div>
-        <div className="systems" role="group" aria-label="Sources">
-          {SOURCES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-pressed={sources.includes(item.id)}
-              data-on={sources.includes(item.id) ? "true" : "false"}
-              onClick={() => toggleSource(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="choice">
+          <span className="choice-label" id="sources-label">Sources</span>
+          <div className="systems" role="group" aria-labelledby="sources-label">
+            {SOURCES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={sources.includes(item.id)}
+                data-on={sources.includes(item.id) ? "true" : "false"}
+                onClick={() => toggleSource(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="systems" role="group" aria-label="System">
-          {SYSTEMS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              data-on={system === item.id ? "true" : "false"}
-              onClick={() => {
-                setSystem(item.id);
-                if (query.trim()) void run(query, item.id, sources);
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="choice">
+          <span className="choice-label" id="type-label">Type</span>
+          <div className="systems" role="group" aria-labelledby="type-label">
+            {SYSTEMS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                data-on={system === item.id ? "true" : "false"}
+                onClick={() => {
+                  setSystem(item.id);
+                  if (query.trim()) void run(query, item.id, sources);
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </form>
 

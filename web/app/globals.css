@@ -198,11 +198,27 @@ a { color: inherit; }
 
 .ask-row button:disabled { opacity: 0.55; cursor: wait; }
 
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 12px;
+}
+
+.choice-label {
+  flex: 0 0 4.6rem;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .systems {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 12px;
 }
 
 .systems button,
