@@ -322,7 +322,7 @@ function within(doc: Doc, targetYear: number, halfYears: number): boolean {
   return distance <= halfYears * 365.25;
 }
 
-function rank(pool: Scored[], mode: "current" | "historical" | "semantic", query: string, windowYears: number | null) {
+function rank(pool: Scored[], mode: "current" | "historical" | "semantic", query: string) {
   if (mode === "current") {
     return [...pool].sort((a, b) => {
       const byDate = dateOf(b.doc.timestamp).getTime() - dateOf(a.doc.timestamp).getTime();
@@ -333,12 +333,11 @@ function rank(pool: Scored[], mode: "current" | "historical" | "semantic", query
     return [...pool].sort((a, b) => b.score - a.score || a.index - b.index);
   }
   const year = extractYear(query) ?? REFERENCE.getUTCFullYear() - 5;
-  const halfLife = Math.max(90, (windowYears ?? 5) * 365.25);
   const target = Date.UTC(year, 5, 15);
   return [...pool].sort((a, b) => {
-    const ta = 1 - Math.min(1, Math.abs(dateOf(a.doc.timestamp).getTime() - target) / 86400000 / halfLife);
-    const tb = 1 - Math.min(1, Math.abs(dateOf(b.doc.timestamp).getTime() - target) / 86400000 / halfLife);
-    return tb + 0.01 * b.score - (ta + 0.01 * a.score);
+    const da = Math.abs(dateOf(a.doc.timestamp).getTime() - target);
+    const db = Math.abs(dateOf(b.doc.timestamp).getTime() - target);
+    return da - db || b.score - a.score;
   });
 }
 
@@ -367,11 +366,11 @@ function retrieve(query: string, mode: "current" | "historical" | "semantic") {
       finalYears: Number(half.toFixed(2)),
       reason: expansions > 0 ? `${spec.reason}, expanded ${expansions}` : spec.reason,
     };
-    ranked = rank(ranked, "historical", query, half);
+    ranked = rank(ranked, "historical", query);
   } else if (mode === "current") {
-    ranked = rank(pool, "current", query, null);
+    ranked = rank(pool, "current", query);
   } else {
-    ranked = rank(pool, "semantic", query, null);
+    ranked = rank(pool, "semantic", query);
   }
   return { ranked: ranked.slice(0, TOP_K), window };
 }
@@ -383,13 +382,13 @@ function fixedRetrieve(query: string) {
     const kept = cands.filter((row) => Math.abs(yearOf(row.doc.timestamp) - year) <= 2);
     const pool = kept.length > 0 ? kept : cands;
     return {
-      ranked: rank(pool, "historical", query, 2).slice(0, TOP_K),
+      ranked: rank(pool, "historical", query).slice(0, TOP_K),
       window: { targetYear: year, initialYears: 2, finalYears: 2, reason: "fixed ±2 years" },
       mode: "historical" as const,
     };
   }
   return {
-    ranked: rank(cands, "current", query, null).slice(0, TOP_K),
+    ranked: rank(cands, "current", query).slice(0, TOP_K),
     window: null,
     mode: "current" as const,
   };
@@ -447,15 +446,65 @@ function sufficiency(query: string, docs: Doc[], mode: string): { sufficient: bo
   return { sufficient: score >= 0.55, score };
 }
 
-function pack(rows: Scored[]): Evidence[] {
+function pack(query: string, rows: Scored[]): Evidence[] {
+  const cap = bm25Ceiling(query);
   return rows.map((row) => ({
     docId: row.doc.doc_id,
     timestamp: row.doc.timestamp,
     title: row.doc.title || row.doc.entity,
     entity: row.doc.entity,
     text: row.doc.text,
-    score: Number(row.score.toFixed(3)),
+    score: cap > 0 ? Number(Math.min(1, row.score / cap).toFixed(3)) : 0,
   }));
+}
+
+function bm25Ceiling(query: string): number {
+  const k1 = 1.2;
+  return queryTokens(query).reduce((sum, token) => sum + (index.idf.get(token) ?? 0) * (k1 + 1), 0);
+}
+
+export function orderEvidence(query: string, system: SystemId, evidence: Evidence[]): Evidence[] {
+  const mode = evidenceMode(query, system);
+  if (mode === "semantic") {
+    return evidence.map((item) => ({ ...item, score: Number(Math.min(1, Math.max(0, item.score)).toFixed(3)) }));
+  }
+  const target = extractYear(query);
+  const ranked = evidence.map((item) => {
+    const relevance = Math.min(1, Math.max(0, item.score > 1 ? item.score / (item.score + 8) : item.score));
+    const time = mode === "current" ? recency(item) : closeness(item, target ?? REFERENCE.getUTCFullYear() - 5);
+    return { item, relevance, time };
+  });
+  ranked.sort((a, b) => b.time - a.time || b.relevance - a.relevance);
+  return ranked.map((row) => ({
+    ...row.item,
+    score: Number(Math.min(1, 0.72 * row.time + 0.28 * row.relevance).toFixed(3)),
+  }));
+}
+
+function evidenceMode(query: string, system: SystemId): "current" | "historical" | "semantic" {
+  if (system === "standard" || system === "closed") return "semantic";
+  if (system === "fixed") return extractYear(query) === null ? "current" : "historical";
+  return route(analyze(query), query).mode;
+}
+
+function mentionedYears(text: string): number[] {
+  return [...text.matchAll(/\b(?:19|20)\d{2}\b/g)].map((match) => Number(match[0]));
+}
+
+function closeness(item: Evidence, targetYear: number): number {
+  const years = mentionedYears(`${item.title} ${item.text}`);
+  const stamp = Number(item.timestamp.slice(0, 4));
+  if (stamp >= 1800 && stamp <= 2100) years.push(stamp);
+  if (years.length === 0) return 0;
+  const distance = Math.min(...years.map((year) => Math.abs(year - targetYear)));
+  return Math.exp(-distance / 12);
+}
+
+function recency(item: Evidence): number {
+  const stamp = Number(item.timestamp.slice(0, 4));
+  const year = stamp >= 1800 && stamp <= 2100 ? stamp : Math.max(0, ...mentionedYears(`${item.title} ${item.text}`));
+  if (!year) return 0;
+  return Math.exp(-Math.max(0, REFERENCE.getUTCFullYear() - year) / 4);
 }
 
 export function ask(query: string, system: SystemId): AskResult {
@@ -493,7 +542,7 @@ export function ask(query: string, system: SystemId): AskResult {
       analyzer: null,
       window: null,
       sufficiency: sufficiency(q, docs, "semantic"),
-      evidence: pack(ranked),
+      evidence: pack(q, ranked),
     };
   }
 
@@ -511,7 +560,7 @@ export function ask(query: string, system: SystemId): AskResult {
       analyzer: null,
       window,
       sufficiency: sufficiency(q, docs, mode),
-      evidence: pack(ranked),
+      evidence: pack(q, ranked),
     };
   }
 
@@ -555,7 +604,7 @@ export function ask(query: string, system: SystemId): AskResult {
     },
     window,
     sufficiency: sufficiency(q, docs, decision.mode),
-    evidence: pack(ranked),
+    evidence: pack(q, ranked),
   };
 }
 

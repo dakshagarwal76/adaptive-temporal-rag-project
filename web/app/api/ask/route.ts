@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ask, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
+import { ask, orderEvidence, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
 import { fallbackAnswer, generateAnswer } from "@/lib/generate";
 import { askGdelt } from "@/lib/gdelt";
 import { askWikidata } from "@/lib/wikidata";
@@ -49,7 +49,8 @@ export async function POST(request: Request) {
 }
 
 async function timed(result: AskResult, started: number): Promise<AskResult> {
-  const answered = await withModel(result);
+  const ordered = { ...result, evidence: orderEvidence(result.query, result.system, result.evidence) };
+  const answered = await withModel(ordered);
   return { ...answered, latencyMs: Math.max(1, Math.round(performance.now() - started)) };
 }
 
