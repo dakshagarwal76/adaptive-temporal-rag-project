@@ -57,29 +57,35 @@ export async function generateAnswer(query: string, evidence: Evidence[], choice
     if (preferred.length === 0) {
       return { answer: "", backend: "extractive", error: "Model failed. That model is not configured." };
     }
-    const others = evidence.length === 0
-      ? providers.filter((provider) => !preferred.some((item) => item.name === provider.name && item.model === provider.model))
-      : [];
+    const others = providers.filter((provider) => !preferred.some((item) => item.name === provider.name && item.model === provider.model));
     providers = [...preferred, ...others];
   }
   if (providers.length === 0) {
     return { answer: "", backend: "extractive", error: "Model failed. No provider is configured. A provider needs an API key, base URL, and model." };
   }
   const errors: string[] = [];
+  let hostDown = evidence.length === 0;
+  const blockedHosts = new Set<string>();
+  const preferred = choice && choice !== "auto" ? providers.filter((provider) => `${provider.name}:${provider.model}` === choice) : providers;
   for (const provider of providers) {
+    const chosen = preferred.some((item) => item.name === provider.name && item.model === provider.model);
+    if (blockedHosts.has(provider.baseUrl) && !chosen) continue;
+    if (!chosen && !hostDown) break;
     try {
       const result = await complete(provider, query, evidence);
       if (result.text) {
-        return {
-          answer: result.text,
-          backend: `api:${provider.name}:${provider.model}`,
-          error: errors.length > 0 ? `Model failed. ${errors.join(" ")}` : undefined,
-        };
+        return { answer: result.text, backend: `api:${provider.name}:${provider.model}` };
       }
       const reason = result.finish ? ` (${result.finish})` : "";
       errors.push(`${provider.name} (${provider.model}) stopped before a complete sentence${reason}.`);
+      if (chosen) hostDown = evidence.length === 0;
     } catch (error) {
-      errors.push(`${provider.name} (${provider.model}): ${messageOf(error)}`);
+      const detail = messageOf(error);
+      errors.push(`${provider.name} (${provider.model}): ${detail}`);
+      if (chosen && (evidence.length === 0 || gatewayFailure(detail))) {
+        hostDown = true;
+        if (gatewayFailure(detail)) blockedHosts.add(provider.baseUrl);
+      }
     }
   }
   return { answer: "", backend: "extractive", error: `Model failed. ${errors.join(" ")}` };
@@ -145,29 +151,57 @@ async function complete(provider: Provider, query: string, evidence: Evidence[])
 }
 
 async function chat(provider: Provider, messages: Array<{ role: string; content: string }>, maxTokens: number): Promise<{ text: string; finish: string }> {
-  const response = await fetch(`${provider.baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${provider.apiKey}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...provider.headers,
-    },
-    body: JSON.stringify({
-      model: provider.model,
-      temperature: 0,
-      max_tokens: maxTokens,
-      messages,
-    }),
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!response.ok) {
-    const detail = await errorDetail(response);
-    throw new Error(detail ? `returned ${response.status}: ${detail}` : `returned ${response.status}`);
+  let lastStatus = 0;
+  let lastDetail = "";
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const response = await fetch(`${provider.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${provider.apiKey}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          ...provider.headers,
+        },
+        body: JSON.stringify({
+          model: provider.model,
+          temperature: 0,
+          max_tokens: maxTokens,
+          messages,
+        }),
+        signal: AbortSignal.timeout(12000),
+      });
+      if (response.ok) {
+        const body = await response.json();
+        const choice = body.choices?.[0];
+        return { text: sanitize(textOf(choice?.message?.content)), finish: String(choice?.finish_reason || "") };
+      }
+      lastStatus = response.status;
+      lastDetail = await errorDetail(response);
+      if (!gatewayStatus(response.status) || attempt === 1) break;
+      await wait(400);
+    } catch (error) {
+      if (attempt === 1 || !transient(error)) throw error;
+      await wait(400);
+    }
   }
-  const body = await response.json();
-  const choice = body.choices?.[0];
-  return { text: sanitize(textOf(choice?.message?.content)), finish: String(choice?.finish_reason || "") };
+  throw new Error(lastDetail ? `returned ${lastStatus}: ${lastDetail}` : `returned ${lastStatus || 502}`);
+}
+
+function gatewayStatus(status: number): boolean {
+  return status === 502 || status === 503 || status === 504;
+}
+
+function gatewayFailure(detail: string): boolean {
+  return /returned 50[234]\b|fetch failed|network|timed out/i.test(detail);
+}
+
+function transient(error: unknown): boolean {
+  return error instanceof Error && (error.name === "TypeError" || /fetch failed|network|ECONNRESET|ETIMEDOUT/i.test(error.message));
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function textOf(content: unknown): string {
@@ -226,16 +260,18 @@ function excerpt(query: string, text: string, limit: number): string {
 
 async function errorDetail(response: Response): Promise<string> {
   const text = await response.text();
+  if (/<!doctype html/i.test(text) || /<html/i.test(text)) return gatewayStatus(response.status) ? "bad gateway" : "the host returned a web page";
   try {
-    const body = JSON.parse(text) as { error?: { message?: unknown } | string; message?: unknown };
+    const body = JSON.parse(text) as { error?: { message?: unknown } | string; message?: unknown; title?: unknown };
     const nested = body?.error;
     const message = typeof nested === "string" ? nested : nested?.message ?? body?.message;
-    if (typeof message === "string" && message.trim()) return scrub(message.trim()).slice(0, 300);
+    if (typeof message === "string" && message.trim()) return scrub(message.trim()).slice(0, 180);
+    if (typeof body.title === "string" && body.title.trim()) return body.title.replace(/^Error\s+\d+:\s*/i, "").trim();
   } catch {
     // The provider returned plain text.
   }
   const plain = text.replace(/\s+/g, " ").trim();
-  return plain ? scrub(plain).slice(0, 300) : "";
+  return plain ? scrub(plain).slice(0, 180) : "";
 }
 
 function messageOf(error: unknown): string {
