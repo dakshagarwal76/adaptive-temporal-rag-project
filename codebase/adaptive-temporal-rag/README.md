@@ -2,6 +2,8 @@
 
 Research code for *When and What to Retrieve*. The repository overview, frozen numbers, and the Vercel demo are in the [root README](../../README.md).
 
+Contributors: [Rishikr22](https://github.com/Rishikr22), [Shashank Kumar](https://github.com/Shashankumar11), and Daksh Agarwal.
+
 ## Run
 
 Commands below assume this directory (`codebase/adaptive-temporal-rag`).
