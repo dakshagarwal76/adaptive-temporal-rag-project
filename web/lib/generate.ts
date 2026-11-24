@@ -71,14 +71,16 @@ function loadProviders(): Provider[] {
     const prefix = name.replace(/[^a-z0-9]/g, "_").toUpperCase();
     const apiKey = env(`${prefix}_API_KEY`);
     const baseUrl = env(`${prefix}_BASE_URL`);
-    const model = env(`${prefix}_MODEL`);
-    if (!apiKey || !baseUrl || !model) continue;
+    const models = modelList(env(`${prefix}_MODELS`), env(`${prefix}_MODEL`));
+    if (!apiKey || !baseUrl || models.length === 0) continue;
     const headers: Record<string, string> = {};
     const site = env(`${prefix}_SITE_URL`);
     const app = env(`${prefix}_APP_NAME`);
     if (site) headers["HTTP-Referer"] = site;
     if (app) headers["X-Title"] = app;
-    providers.push({ name, apiKey, baseUrl: baseUrl.replace(/\/$/, ""), model, headers });
+    for (const model of models) {
+      providers.push({ name, apiKey, baseUrl: baseUrl.replace(/\/$/, ""), model, headers });
+    }
   }
   return providers;
 }
@@ -88,6 +90,12 @@ function list(value: string): string[] {
     .split(",")
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
+}
+
+function modelList(models: string, model: string): string[] {
+  const many = models.split(",").map((item) => item.trim()).filter(Boolean);
+  if (many.length > 0) return many;
+  return model.trim() ? [model.trim()] : [];
 }
 
 function env(name: string): string {
@@ -212,7 +220,7 @@ function messageOf(error: unknown): string {
 function scrub(text: string): string {
   return text
     .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
-    .replace(/\b(?:gsk_|sk-|sk-or-)[A-Za-z0-9_-]+/g, "[redacted]");
+    .replace(/\b(?:gsk_|sk-|sk-or-|grok_)[A-Za-z0-9_-]+/g, "[redacted]");
 }
 
 function sanitize(text: string): string {
