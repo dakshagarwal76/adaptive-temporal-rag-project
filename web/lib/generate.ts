@@ -69,7 +69,7 @@ export async function generateAnswer(query: string, evidence: Evidence[], choice
   const preferred = choice && choice !== "auto" ? providers.filter((provider) => `${provider.name}:${provider.model}` === choice) : providers;
   for (const provider of providers) {
     const chosen = preferred.some((item) => item.name === provider.name && item.model === provider.model);
-    if (blockedHosts.has(provider.baseUrl) && !chosen) continue;
+    if (blockedHosts.has(provider.baseUrl)) continue;
     if (!chosen && !hostDown) break;
     try {
       const result = await complete(provider, query, evidence);
@@ -144,10 +144,13 @@ async function complete(provider: Provider, query: string, evidence: Evidence[])
   let result = { text: "", finish: "" };
   for (let attempt = 0; attempt < 2; attempt += 1) {
     result = await chat(provider, messages, budget);
-    if (result.finish !== "length" && /[.!?]["']?$/.test(result.text)) return result;
+    if (result.text && result.finish !== "length") {
+      return /[.!?]["']?$/.test(result.text) ? result : { ...result, text: `${result.text}.` };
+    }
     budget *= 2;
   }
-  return /[.!?]["']?$/.test(result.text) ? result : { text: "", finish: result.finish };
+  if (!result.text) return result;
+  return /[.!?]["']?$/.test(result.text) ? result : { ...result, text: `${result.text}.` };
 }
 
 async function chat(provider: Provider, messages: Array<{ role: string; content: string }>, maxTokens: number): Promise<{ text: string; finish: string }> {
@@ -167,6 +170,7 @@ async function chat(provider: Provider, messages: Array<{ role: string; content:
           model: provider.model,
           temperature: 0,
           max_tokens: maxTokens,
+          ...(provider.name === "groq" ? { reasoning_effort: "low" } : {}),
           messages,
         }),
         signal: AbortSignal.timeout(12000),
@@ -174,7 +178,7 @@ async function chat(provider: Provider, messages: Array<{ role: string; content:
       if (response.ok) {
         const body = await response.json();
         const choice = body.choices?.[0];
-        return { text: sanitize(textOf(choice?.message?.content)), finish: String(choice?.finish_reason || "") };
+        return { text: sanitize(messageText(choice?.message)), finish: String(choice?.finish_reason || "") };
       }
       lastStatus = response.status;
       lastDetail = await errorDetail(response);
@@ -202,6 +206,15 @@ function transient(error: unknown): boolean {
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function messageText(message: { content?: unknown; reasoning?: unknown } | undefined): string {
+  const content = textOf(message?.content);
+  if (content) return content;
+  const reasoning = textOf(message?.reasoning);
+  const sentences = reasoning.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter(Boolean);
+  const last = sentences[sentences.length - 1] ?? "";
+  return last.length > 0 && last.length <= 400 ? last : "";
 }
 
 function textOf(content: unknown): string {

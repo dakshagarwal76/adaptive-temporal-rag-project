@@ -27,6 +27,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a question." }, { status: 400 });
   }
   const started = performance.now();
+  if (system === "adaptive") {
+    const local = ask(query, system);
+    if (!local.didRetrieve && local.analyzer?.policy === "no_retrieval") {
+      const latencyMs = Math.max(1, Math.round(performance.now() - started));
+      return NextResponse.json(finish(local, sources, latencyMs));
+    }
+  }
   if (system === "closed") {
     const closed = finish(ask(query, "closed"), sources, 0);
     return NextResponse.json(await timed(closed, started, modelChoice(body.model)));
