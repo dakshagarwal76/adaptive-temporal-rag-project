@@ -33,7 +33,7 @@ export type AskResult = {
   system: SystemId;
   source: SourceId;
   sources?: SourceId[];
-  answers?: Array<{ source: SourceId; text: string }>;
+  warnings?: string[];
   answer: string;
   didRetrieve: boolean;
   latencyMs: number;

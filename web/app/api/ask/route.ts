@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ask, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
-import { generateAnswer } from "@/lib/generate";
+import { fallbackAnswer, generateAnswer } from "@/lib/generate";
 import { askGdelt } from "@/lib/gdelt";
 import { askWikipedia } from "@/lib/wikipedia";
 
@@ -54,8 +54,12 @@ async function timed(result: AskResult, started: number): Promise<AskResult> {
 
 async function withModel(result: AskResult): Promise<AskResult> {
   const generated = await generateAnswer(result.query, result.evidence);
-  if (!generated) return result;
-  return { ...result, answer: generated.answer, answers: undefined, backend: generated.backend };
+  const pooled = fallbackAnswer(result.query, result.evidence);
+  return {
+    ...result,
+    answer: generated?.answer || pooled || result.answer,
+    backend: generated?.backend || result.backend,
+  };
 }
 
 function parseSources(body: { source?: unknown; sources?: unknown }): SourceId[] {
@@ -88,17 +92,13 @@ function combine(results: AskResult[], failed: Array<{ source: SourceId; message
   });
   if (ordered.length === 1 && failed.length === 0) return ordered[0];
   const corpus = ordered.find((result) => result.source === "corpus");
-  const answers = [
-    ...ordered.map((result) => ({ source: result.source, text: result.answer })),
-    ...failed.map((item) => ({ source: item.source, text: item.message })),
-  ].sort((a, b) => ORDER.indexOf(a.source) - ORDER.indexOf(b.source));
   return {
     query: ordered[0].query,
     system: ordered[0].system,
     source: ordered[0].source,
     sources,
-    answers,
-    answer: answers.map((item) => item.text).join("\n\n"),
+    warnings: failed.map((item) => item.message),
+    answer: "",
     didRetrieve: ordered.some((result) => result.didRetrieve),
     latencyMs,
     backend: "extractive",

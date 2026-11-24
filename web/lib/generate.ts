@@ -13,8 +13,28 @@ export type Generation = {
   backend: string;
 };
 
-const SYSTEM = "You are a concise factual assistant. Ground the answer in the evidence. Reply with one or two complete sentences and include the relevant date from the evidence.";
+const SYSTEM = "You are a concise factual assistant. The evidence is one combined collection, even when the passages come from different sources. Write one answer in one or two complete sentences, grounded in that evidence, and include the relevant date.";
 const STOP = new Set(["who", "what", "which", "when", "where", "whom", "whose", "the", "a", "an", "of", "is", "are", "was", "were", "did", "does", "how", "for", "and", "current", "currently"]);
+
+export function fallbackAnswer(query: string, evidence: Evidence[]): string {
+  let best = "";
+  let bestScore = 0;
+  for (const item of evidence) {
+    const sentence = excerpt(query, item.text, 400);
+    const score = overlap(query, sentence);
+    if (score > bestScore) {
+      best = sentence;
+      bestScore = score;
+    }
+  }
+  return best;
+}
+
+function overlap(query: string, text: string): number {
+  const terms = query.toLowerCase().replace(/[^a-z0-9]+/g, " ").split(/\s+/).filter((term) => term.length > 2 && !STOP.has(term));
+  const haystack = text.toLowerCase();
+  return terms.reduce((hits, term) => hits + (haystack.includes(term) ? 1 : 0), 0);
+}
 
 export async function generateAnswer(query: string, evidence: Evidence[]): Promise<Generation | null> {
   const mode = env("GENERATOR_BACKEND").trim().toLowerCase() || "api";

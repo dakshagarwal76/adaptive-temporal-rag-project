@@ -132,18 +132,10 @@ export function AskPanel() {
 
       {result ? (
         <section className="result">
-          {result.answers && result.answers.length > 1 ? (
-            <div className="answers">
-              {result.answers.map((item) => (
-                <p className="answer" key={item.source}>
-                  <span className="kicker">{sourceLabel(item.source)}</span>
-                  {item.text}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="answer">{result.answer}</p>
-          )}
+          {result.warnings?.map((warning) => (
+            <p className="error" key={warning}>{warning}</p>
+          ))}
+          <p className="answer">{result.answer}</p>
           <div className="meta">
             {(result.sources ?? [result.source]).map((item) => (
               <span className="chip" key={item}>{sourceLabel(item)}</span>
