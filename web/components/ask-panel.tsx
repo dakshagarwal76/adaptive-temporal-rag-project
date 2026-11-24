@@ -269,5 +269,5 @@ function policyFor(system: SystemId, source: SourceId) {
   if (system === "standard") return "Always retrieve, rank by text overlap";
   if (system === "fixed") return "Always retrieve, fixed ±2 year window or recency";
   if (system === "closed") return "Never retrieve";
-  return "Retrieve the main passages for that question";
+  return "Adaptive";
 }

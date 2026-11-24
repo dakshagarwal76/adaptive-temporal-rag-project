@@ -465,8 +465,7 @@ function bm25Ceiling(query: string): number {
 
 export function orderEvidence(query: string, system: SystemId, evidence: Evidence[]): Evidence[] {
   const mode = evidenceMode(query, system);
-  const ordered = mode === "semantic" ? clampScores(evidence) : rankByTime(query, evidence, mode);
-  return system === "adaptive" ? mainEvidence(query, ordered) : ordered;
+  return mode === "semantic" ? clampScores(evidence) : rankByTime(query, evidence, mode);
 }
 
 function clampScores(evidence: Evidence[]): Evidence[] {
@@ -485,29 +484,6 @@ function rankByTime(query: string, evidence: Evidence[], mode: "current" | "hist
     ...row.item,
     score: Number(Math.min(1, 0.72 * row.time + 0.28 * row.relevance).toFixed(3)),
   }));
-}
-
-function mainEvidence(query: string, evidence: Evidence[]): Evidence[] {
-  if (evidence.length <= 1) return evidence;
-  const best = evidence[0].score;
-  const floor = Math.max(0.35, best * 0.72);
-  const terms = queryTokens(query);
-  const lead = titleCoverage(evidence[0].title, terms);
-  const topical = terms.length > 0 && lead >= 0.67;
-  const kept: Evidence[] = [];
-  for (const item of evidence) {
-    if (kept.length >= 5) break;
-    if (kept.length > 0 && item.score < floor) break;
-    if (kept.length > 0 && topical && titleCoverage(item.title, terms) + 1e-9 < lead) continue;
-    kept.push(item);
-  }
-  return kept.length > 0 ? kept : [evidence[0]];
-}
-
-function titleCoverage(title: string, terms: string[]): number {
-  if (terms.length === 0) return 0;
-  const hits = terms.filter((term) => new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i").test(title)).length;
-  return hits / terms.length;
 }
 
 function evidenceMode(query: string, system: SystemId): "current" | "historical" | "semantic" {
