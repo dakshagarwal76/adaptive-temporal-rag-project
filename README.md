@@ -6,7 +6,7 @@ A question about who holds an office now should not return a true sentence from 
 
 Live demo: [adaptive-temporal-rag.vercel.app](https://adaptive-temporal-rag.vercel.app)
 
-ARP-455 minor project, University School of Automation and Robotics, Guru Gobind Singh Indraprastha University. Shashank Kumar and Daksh Agarwal. Supervisor: Dr. Annu Priya.
+ARP-455 minor project, University School of Automation and Robotics, Guru Gobind Singh Indraprastha University. [Shashank Kumar](https://github.com/Shashankumar11) and Daksh Agarwal. Supervisor: Dr. Annu Priya.
 
 ## What is in this repo
 
