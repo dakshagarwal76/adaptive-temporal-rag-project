@@ -78,12 +78,25 @@ type Scored = { doc: Doc; score: number; index: number };
 
 const index = buildIndex(DOCS);
 
+function expandAliases(text: string): string {
+  return text
+    .replace(/\bwho'?s\b/gi, "who is")
+    .replace(/\bwhos\b/gi, "who is")
+    .replace(/\b(?:u\.?\s?s\.?\s?a\.?|usa)\b/gi, "united states")
+    .replace(/\bus\b/gi, "united states")
+    .replace(/\b(?:u\.?\s?k\.?|great britain|britain|england)\b/gi, "united kingdom");
+}
+
 function tokens(text: string): string[] {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .split(/\s+/)
     .filter((token) => token.length > 2 && !STOP.has(token) && !/^(19|20)\d{2}$/.test(token));
+}
+
+function queryTokens(text: string): string[] {
+  return tokens(expandAliases(text));
 }
 
 function buildIndex(docs: Doc[]) {
@@ -103,7 +116,7 @@ function buildIndex(docs: Doc[]) {
 }
 
 function bm25(query: string): Scored[] {
-  const q = tokens(query);
+  const q = queryTokens(query);
   const k1 = 1.2;
   const b = 0.75;
   const scored: Scored[] = [];
@@ -170,7 +183,7 @@ function analyze(query: string): Analysis {
     return { needsRetrieval: 0, temporalClass: "timeless", confidence: 0.94 };
   }
   const year = extractYear(query);
-  const q = query.toLowerCase();
+  const q = expandAliases(query).toLowerCase();
   const currentCue =
     /\b(current|currently|nowadays|right now|today|at present)\b/.test(q) ||
     (/\bwho is\b/.test(q) && year === null);
@@ -206,7 +219,7 @@ function route(analysis: Analysis, query: string) {
 }
 
 function overlap(query: string, doc: Doc, entityOnly: boolean): number {
-  const q = new Set(tokens(query));
+  const q = new Set(queryTokens(query));
   if (q.size === 0) return 0;
   const blob = (entityOnly ? doc.entity : `${doc.entity} ${doc.title} ${doc.text}`).toLowerCase();
   let hits = 0;
@@ -327,7 +340,7 @@ function fixedRetrieve(query: string) {
 
 function project(query: string, answer: string): string {
   const text = answer.trim();
-  if (!/\b(who|whom|whose)\b/i.test(query)) return text;
+  if (!/\b(who|whom|whose)\b/i.test(expandAliases(query))) return text;
   const paren = text.match(/^(.+?)\s+\([^)]+\)$/);
   if (paren && !/\sof\s/i.test(paren[1])) return paren[1].trim();
   const identified = text.match(/\bidentify\s+(.+?)\s+as\b/i);
