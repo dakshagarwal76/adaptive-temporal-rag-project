@@ -25,12 +25,15 @@ export type Evidence = {
   text: string;
   score: number;
   url?: string;
+  origin?: SourceId;
 };
 
 export type AskResult = {
   query: string;
   system: SystemId;
   source: SourceId;
+  sources?: SourceId[];
+  answers?: Array<{ source: SourceId; text: string }>;
   answer: string;
   didRetrieve: boolean;
   latencyMs: number;

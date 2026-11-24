@@ -198,6 +198,12 @@ a { color: inherit; }
 
 .result { margin-top: 28px; }
 
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .answer {
   margin: 0;
   font-family: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
@@ -205,6 +211,17 @@ a { color: inherit; }
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.45;
+}
+
+.kicker {
+  display: block;
+  margin-bottom: 4px;
+  font-family: "Segoe UI", Candara, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .meta {
