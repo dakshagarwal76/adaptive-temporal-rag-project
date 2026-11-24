@@ -37,10 +37,27 @@ function overlap(query: string, text: string): number {
   return terms.reduce((hits, term) => hits + (haystack.includes(term) ? 1 : 0), 0);
 }
 
-export async function generateAnswer(query: string, evidence: Evidence[]): Promise<Generation | null> {
+export type ModelChoice = { id: string; provider: string; model: string };
+
+export function configuredModels(): ModelChoice[] {
+  return loadProviders().map((provider) => ({
+    id: `${provider.name}:${provider.model}`,
+    provider: provider.name,
+    model: provider.model,
+  }));
+}
+
+export async function generateAnswer(query: string, evidence: Evidence[], choice?: string): Promise<Generation | null> {
   const mode = env("GENERATOR_BACKEND").trim().toLowerCase() || "api";
   if (mode === "extractive" || mode === "hf") return null;
-  const providers = loadProviders();
+  let providers = loadProviders();
+  if (choice && choice !== "auto") {
+    const picked = providers.filter((provider) => `${provider.name}:${provider.model}` === choice);
+    if (picked.length === 0) {
+      return { answer: "", backend: "extractive", error: "Model failed. That model is not configured." };
+    }
+    providers = picked;
+  }
   if (providers.length === 0) {
     return { answer: "", backend: "extractive", error: "Model failed. No provider is configured. A provider needs an API key, base URL, and model." };
   }

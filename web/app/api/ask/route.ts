@@ -12,7 +12,7 @@ const SOURCE_SET = new Set<SourceId>(ORDER);
 export const maxDuration = 30;
 
 export async function POST(request: Request) {
-  let body: { query?: unknown; system?: unknown; source?: unknown; sources?: unknown };
+  let body: { query?: unknown; system?: unknown; source?: unknown; sources?: unknown; model?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   const started = performance.now();
   if (system === "closed") {
     const closed = finish(ask(query, "closed"), sources, 0);
-    return NextResponse.json(await timed(closed, started));
+    return NextResponse.json(await timed(closed, started, modelChoice(body.model)));
   }
   const settled = await Promise.all(sources.map(async (source) => {
     try {
@@ -45,17 +45,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: failed.map((item) => item.message).join(" ") }, { status: 502 });
   }
   const combined = combine(ready, failed, sources, 1);
-  return NextResponse.json(await timed(combined, started));
+  return NextResponse.json(await timed(combined, started, modelChoice(body.model)));
 }
 
-async function timed(result: AskResult, started: number): Promise<AskResult> {
+function modelChoice(value: unknown): string {
+  return typeof value === "string" ? value.trim().slice(0, 120) : "auto";
+}
+
+async function timed(result: AskResult, started: number, model = "auto"): Promise<AskResult> {
   const ordered = { ...result, evidence: orderEvidence(result.query, result.system, result.evidence) };
-  const answered = await withModel(ordered);
+  const answered = await withModel(ordered, model);
   return { ...answered, latencyMs: Math.max(1, Math.round(performance.now() - started)) };
 }
 
-async function withModel(result: AskResult): Promise<AskResult> {
-  const generated = await generateAnswer(result.query, result.evidence);
+async function withModel(result: AskResult, model = "auto"): Promise<AskResult> {
+  const generated = await generateAnswer(result.query, result.evidence, model);
   const pooled = fallbackAnswer(result.query, result.evidence);
   const warnings = [...(result.warnings ?? [])];
   if (generated?.error) warnings.push(generated.error);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EXAMPLES, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
 
 const SYSTEMS: Array<{ id: SystemId; label: string }> = [
@@ -21,20 +21,35 @@ export function AskPanel() {
   const [query, setQuery] = useState(EXAMPLES[0]);
   const [system, setSystem] = useState<SystemId>("adaptive");
   const [sources, setSources] = useState<SourceId[]>(["corpus"]);
+  const [model, setModel] = useState("auto");
+  const [models, setModels] = useState<Array<{ id: string; provider: string; model: string }>>([]);
   const [result, setResult] = useState<AskResult | null>(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const requestId = useRef(0);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/models")
+      .then((response) => response.json())
+      .then((payload) => {
+        if (active && Array.isArray(payload.models)) setModels(payload.models);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function toggleSource(id: SourceId) {
     const next = sources.includes(id) ? sources.filter((item) => item !== id) : [...sources, id];
     if (next.length === 0) return;
     const ordered = SOURCES.map((item) => item.id).filter((item) => next.includes(item));
     setSources(ordered);
-    if (query.trim()) void run(query, system, ordered);
+    if (query.trim()) void run(query, system, ordered, model);
   }
 
-  async function run(nextQuery = query, nextSystem = system, nextSources = sources) {
+  async function run(nextQuery = query, nextSystem = system, nextSources = sources, nextModel = model) {
     const text = nextQuery.trim();
     if (!text) {
       setError("Enter a question.");
@@ -47,7 +62,7 @@ export function AskPanel() {
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: text, system: nextSystem, sources: nextSources }),
+        body: JSON.stringify({ query: text, system: nextSystem, sources: nextSources, model: nextModel }),
       });
       const payload = await response.json();
       if (id !== requestId.current) return;
@@ -64,6 +79,11 @@ export function AskPanel() {
     } finally {
       if (id === requestId.current) setPending(false);
     }
+  }
+
+  function chooseModel(next: string) {
+    setModel(next);
+    if (query.trim()) void run(query, system, sources, next);
   }
 
   return (
@@ -109,11 +129,22 @@ export function AskPanel() {
                 type="button"
                 data-on={system === item.id ? "true" : "false"}
                 onClick={() => {
-                  setSystem(item.id);
-                  if (query.trim()) void run(query, item.id, sources);
+                setSystem(item.id);
+                if (query.trim()) void run(query, item.id, sources, model);
                 }}
               >
                 {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="choice">
+          <span className="choice-label" id="model-label">Model</span>
+          <div className="systems" role="group" aria-labelledby="model-label">
+            <button type="button" data-on={model === "auto" ? "true" : "false"} onClick={() => chooseModel("auto")}>Auto</button>
+            {models.map((item) => (
+              <button key={item.id} type="button" data-on={model === item.id ? "true" : "false"} onClick={() => chooseModel(item.id)}>
+                {item.provider} · {item.model}
               </button>
             ))}
           </div>
@@ -127,7 +158,7 @@ export function AskPanel() {
             type="button"
             onClick={() => {
               setQuery(example);
-              void run(example, system, sources);
+              void run(example, system, sources, model);
             }}
           >
             {example}
