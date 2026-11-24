@@ -53,7 +53,6 @@ async function searchPages(query: string): Promise<WikiPage[]> {
   detail.searchParams.set("pageids", hits.map((hit) => String(hit.pageid)).join("|"));
   detail.searchParams.set("explaintext", "1");
   detail.searchParams.set("exintro", "1");
-  detail.searchParams.set("exchars", "1200");
   detail.searchParams.set("format", "json");
   detail.searchParams.set("utf8", "1");
   const body = await wikiGet(detail);
@@ -92,7 +91,7 @@ function toEvidence(page: WikiPage, index: number, total: number): Evidence {
     timestamp: page.timestamp,
     title: page.title,
     entity: "Wikipedia",
-    text: (page.extract ?? "").replace(/\s+/g, " ").trim(),
+    text: page.extract.length > 700 ? `${page.extract.slice(0, 697).trim()}…` : page.extract,
     score: Number((1 - index / Math.max(total, 1)).toFixed(3)),
     url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, "_"))}`,
   };
@@ -100,23 +99,22 @@ function toEvidence(page: WikiPage, index: number, total: number): Evidence {
 
 function answerFrom(query: string, pages: WikiPage[]): string {
   if (pages.length === 0) return `No Wikipedia page matched “${query}”.`;
-  const terms = query
+  const words = query
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .split(/\s+/)
     .filter((term) => term.length > 2 && !["who", "what", "the", "was", "were", "how", "did", "does"].includes(term));
+  const topic = words.filter((term) => term !== "current" && term !== "currently");
   const whoNow = /\bwho(?:'s|s)?\b/i.test(query) && !/\b(was|were|in \d{4})\b/i.test(query);
-  const primary = pages.findIndex((page) => !/^list of /i.test(page.title));
-  const primaryIndex = primary === -1 ? 0 : primary;
-  const ranked = pages.flatMap((page, pageIndex) =>
-    sentences(page.extract).map((sentence) => ({
-      sentence,
-      score:
-        overlap(terms, sentence) +
-        (pageIndex === primaryIndex ? 2 : 0) -
-        (whoNow && /\b(was|were) the\b|\bformer\b|\buntil\b|\bsucceeded\b/i.test(sentence) ? 3 : 0),
-    })),
-  );
+  const primary = pages.reduce((best, page, index) => {
+    const score = titleScore(page.title, topic);
+    if (score > best.score || (score === best.score && index < best.index)) return { score, index };
+    return best;
+  }, { score: -1, index: 0 });
+  const ranked = sentences(pages[primary.index].extract).map((sentence) => ({
+    sentence,
+      score: overlap(words, sentence) - (whoNow && /\b(?:(?:was|were) the|former|until|succeeded)\b/i.test(sentence) ? 3 : 0),
+  }));
   ranked.sort((a, b) => b.score - a.score);
   const best = ranked[0]?.sentence || sentences(pages[0].extract)[0] || pages[0].extract;
   return best.length > 420 ? `${best.slice(0, 417).trim()}…` : best;
@@ -127,6 +125,17 @@ function sentences(extract: string): string[] {
     .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
     .filter((sentence) => sentence.length > 40);
+}
+
+function titleScore(title: string, terms: string[]): number {
+  const words = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 2 && !["the", "and", "for"].includes(word));
+  if (words.length === 0 || terms.length === 0) return 0;
+  const hits = words.filter((word) => terms.includes(word)).length;
+  return hits / words.length;
 }
 
 function overlap(terms: string[], sentence: string): number {
