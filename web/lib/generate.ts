@@ -11,6 +11,7 @@ type Provider = {
 export type Generation = {
   answer: string;
   backend: string;
+  error?: string;
 };
 
 const SYSTEM = "You are a concise factual assistant. The evidence is one combined collection, even when the passages come from different sources. Write one answer in one or two complete sentences, grounded in that evidence, and include the relevant date.";
@@ -40,17 +41,21 @@ export async function generateAnswer(query: string, evidence: Evidence[]): Promi
   const mode = env("GENERATOR_BACKEND").trim().toLowerCase() || "api";
   if (mode === "extractive" || mode === "hf") return null;
   const providers = loadProviders();
-  if (providers.length === 0) return null;
+  if (providers.length === 0) {
+    return { answer: "", backend: "extractive", error: "Model failed. No provider is configured. A provider needs an API key, base URL, and model." };
+  }
+  const errors: string[] = [];
   for (const provider of providers) {
     try {
-      const answer = await complete(provider, query, evidence);
-      if (!answer) continue;
-      return { answer, backend: `api:${provider.name}:${provider.model}` };
-    } catch {
-      continue;
+      const result = await complete(provider, query, evidence);
+      if (result.text) return { answer: result.text, backend: `api:${provider.name}:${provider.model}` };
+      const reason = result.finish ? ` (${result.finish})` : "";
+      errors.push(`${provider.name} (${provider.model}) stopped before a complete sentence${reason}.`);
+    } catch (error) {
+      errors.push(`${provider.name} (${provider.model}): ${messageOf(error)}`);
     }
   }
-  return null;
+  return { answer: "", backend: "extractive", error: `Model failed. ${errors.join(" ")}` };
 }
 
 function loadProviders(): Provider[] {
@@ -89,20 +94,19 @@ function env(name: string): string {
   return process.env[name] || "";
 }
 
-async function complete(provider: Provider, query: string, evidence: Evidence[]): Promise<string> {
+async function complete(provider: Provider, query: string, evidence: Evidence[]): Promise<{ text: string; finish: string }> {
   const messages = [
     { role: "system", content: SYSTEM },
     { role: "user", content: prompt(query, evidence) },
   ];
   let budget = numberEnv("LLM_MAX_TOKENS", 512);
-  let answer = "";
+  let result = { text: "", finish: "" };
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const result = await chat(provider, messages, budget);
-    answer = result.text;
-    if (result.finish !== "length" && /[.!?]["']?$/.test(answer)) return answer;
+    result = await chat(provider, messages, budget);
+    if (result.finish !== "length" && /[.!?]["']?$/.test(result.text)) return result;
     budget *= 2;
   }
-  return /[.!?]["']?$/.test(answer) ? answer : "";
+  return /[.!?]["']?$/.test(result.text) ? result : { text: "", finish: result.finish };
 }
 
 async function chat(provider: Provider, messages: Array<{ role: string; content: string }>, maxTokens: number): Promise<{ text: string; finish: string }> {
@@ -122,7 +126,10 @@ async function chat(provider: Provider, messages: Array<{ role: string; content:
     }),
     signal: AbortSignal.timeout(20000),
   });
-  if (!response.ok) throw new Error(`${provider.name} returned ${response.status}`);
+  if (!response.ok) {
+    const detail = await errorDetail(response);
+    throw new Error(detail ? `returned ${response.status}: ${detail}` : `returned ${response.status}`);
+  }
   const body = await response.json();
   const choice = body.choices?.[0];
   return { text: sanitize(textOf(choice?.message?.content)), finish: String(choice?.finish_reason || "") };
@@ -180,6 +187,32 @@ function excerpt(query: string, text: string, limit: number): string {
   const chosen = parts.filter((sentence) => ranked.includes(sentence));
   const snippet = (chosen.length > 0 ? chosen : [clean]).join(" ");
   return snippet.length <= limit ? snippet : `${snippet.slice(0, limit).replace(/\s+\S*$/, "")}…`;
+}
+
+async function errorDetail(response: Response): Promise<string> {
+  const text = await response.text();
+  try {
+    const body = JSON.parse(text) as { error?: { message?: unknown } | string; message?: unknown };
+    const nested = body?.error;
+    const message = typeof nested === "string" ? nested : nested?.message ?? body?.message;
+    if (typeof message === "string" && message.trim()) return scrub(message.trim()).slice(0, 300);
+  } catch {
+    // The provider returned plain text.
+  }
+  const plain = text.replace(/\s+/g, " ").trim();
+  return plain ? scrub(plain).slice(0, 300) : "";
+}
+
+function messageOf(error: unknown): string {
+  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) return "the request timed out.";
+  const raw = error instanceof Error ? error.message : "the request failed.";
+  return scrub(raw);
+}
+
+function scrub(text: string): string {
+  return text
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/\b(?:gsk_|sk-|sk-or-)[A-Za-z0-9_-]+/g, "[redacted]");
 }
 
 function sanitize(text: string): string {

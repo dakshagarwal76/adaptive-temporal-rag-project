@@ -56,10 +56,13 @@ async function timed(result: AskResult, started: number): Promise<AskResult> {
 async function withModel(result: AskResult): Promise<AskResult> {
   const generated = await generateAnswer(result.query, result.evidence);
   const pooled = fallbackAnswer(result.query, result.evidence);
+  const warnings = [...(result.warnings ?? [])];
+  if (generated?.error) warnings.push(generated.error);
   return {
     ...result,
     answer: generated?.answer || pooled || result.answer,
-    backend: generated?.backend || result.backend,
+    backend: generated?.answer ? generated.backend : result.backend,
+    warnings: warnings.length > 0 ? warnings : undefined,
   };
 }
 
