@@ -8,7 +8,11 @@ Live demo: [adaptive-temporal-rag.vercel.app](https://adaptive-temporal-rag.verc
 
 ARP-455 minor project, University School of Automation and Robotics, Guru Gobind Singh Indraprastha University. [Shashank Kumar](https://github.com/Shashankumar11) and Daksh Agarwal. Supervisor: Dr. Annu Priya.
 
-Contributors: [Shashankumar11](https://github.com/Shashankumar11), [Rishikr22](https://github.com/Rishikr22).
+## Contributors
+
+- [Rishikr22](https://github.com/Rishikr22)
+- [Shashank Kumar](https://github.com/Shashankumar11)
+- Daksh Agarwal
 
 ## What is in this repo
 
