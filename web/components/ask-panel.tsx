@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EXAMPLES, type AskResult, type SystemId } from "@/lib/engine";
+import { EXAMPLES, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
 
 const SYSTEMS: Array<{ id: SystemId; label: string }> = [
   { id: "adaptive", label: "Adaptive" },
@@ -10,14 +10,20 @@ const SYSTEMS: Array<{ id: SystemId; label: string }> = [
   { id: "closed", label: "Closed book" },
 ];
 
+const SOURCES: Array<{ id: SourceId; label: string }> = [
+  { id: "corpus", label: "corpus.jsonl" },
+  { id: "wikipedia", label: "Wikipedia" },
+];
+
 export function AskPanel() {
   const [query, setQuery] = useState(EXAMPLES[0]);
   const [system, setSystem] = useState<SystemId>("adaptive");
+  const [source, setSource] = useState<SourceId>("corpus");
   const [result, setResult] = useState<AskResult | null>(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  async function run(nextQuery = query, nextSystem = system) {
+  async function run(nextQuery = query, nextSystem = system, nextSource = source) {
     const text = nextQuery.trim();
     if (!text) {
       setError("Enter a question.");
@@ -29,7 +35,7 @@ export function AskPanel() {
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: text, system: nextSystem }),
+        body: JSON.stringify({ query: text, system: nextSystem, source: nextSource }),
       });
       const payload = await response.json();
       if (!response.ok) {
@@ -64,6 +70,21 @@ export function AskPanel() {
           />
           <button type="submit" disabled={pending}>{pending ? "Running" : "Ask"}</button>
         </div>
+        <div className="systems" role="group" aria-label="Source">
+          {SOURCES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              data-on={source === item.id ? "true" : "false"}
+              onClick={() => {
+                setSource(item.id);
+                if (query.trim()) void run(query, system, item.id);
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
         <div className="systems" role="group" aria-label="System">
           {SYSTEMS.map((item) => (
             <button
@@ -72,7 +93,7 @@ export function AskPanel() {
               data-on={system === item.id ? "true" : "false"}
               onClick={() => {
                 setSystem(item.id);
-                if (query.trim()) void run(query, item.id);
+                if (query.trim()) void run(query, item.id, source);
               }}
             >
               {item.label}
@@ -88,7 +109,7 @@ export function AskPanel() {
             type="button"
             onClick={() => {
               setQuery(example);
-              void run(example, system);
+              void run(example, system, source);
             }}
           >
             {example}
@@ -102,6 +123,7 @@ export function AskPanel() {
         <section className="result">
           <p className="answer">{result.answer}</p>
           <div className="meta">
+            <span className="chip">{sourceLabel(result.source)}</span>
             <span className="chip">{labelFor(result.system)}</span>
             <span className="chip">{result.didRetrieve ? "Retrieved" : "No retrieval"}</span>
             {result.analyzer ? <span className="chip">{result.analyzer.temporalClass}</span> : null}
@@ -119,7 +141,7 @@ export function AskPanel() {
             ) : (
               <>
                 <dt>Policy</dt>
-                <dd>{baselinePolicy(result.system)}</dd>
+                <dd>{baselinePolicy(result.system, result.source)}</dd>
               </>
             )}
             {result.window ? (
@@ -148,7 +170,11 @@ export function AskPanel() {
               result.evidence.map((doc, index) => (
                 <article className="card" key={doc.docId}>
                   <header>
-                    <span><strong>{index + 1}. {doc.timestamp}</strong> · {doc.title}</span>
+                    <span>
+                      <strong>{index + 1}. {doc.timestamp || "Wikipedia"}</strong>
+                      {" · "}
+                      {doc.url ? <a href={doc.url} target="_blank" rel="noreferrer">{doc.title}</a> : doc.title}
+                    </span>
                     <span>{doc.score.toFixed(2)}</span>
                   </header>
                   <p>{doc.text}</p>
@@ -166,7 +192,12 @@ function labelFor(system: SystemId) {
   return SYSTEMS.find((item) => item.id === system)?.label ?? system;
 }
 
-function baselinePolicy(system: SystemId) {
+function sourceLabel(source: AskResult["source"]) {
+  return SOURCES.find((item) => item.id === source)?.label ?? source;
+}
+
+function baselinePolicy(system: SystemId, source: AskResult["source"]) {
+  if (source === "wikipedia" && system !== "closed") return "Wikipedia search";
   if (system === "standard") return "Always retrieve, rank by text overlap";
   if (system === "fixed") return "Always retrieve, fixed ±2 year window or recency";
   if (system === "closed") return "Never retrieve";

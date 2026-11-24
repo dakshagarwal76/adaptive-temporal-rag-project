@@ -15,6 +15,8 @@ export type Doc = {
 
 export type SystemId = "adaptive" | "standard" | "fixed" | "closed";
 
+export type SourceId = "corpus" | "wikipedia";
+
 export type Evidence = {
   docId: string;
   timestamp: string;
@@ -22,11 +24,13 @@ export type Evidence = {
   entity: string;
   text: string;
   score: number;
+  url?: string;
 };
 
 export type AskResult = {
   query: string;
   system: SystemId;
+  source: SourceId;
   answer: string;
   didRetrieve: boolean;
   latencyMs: number;
@@ -461,6 +465,7 @@ export function ask(query: string, system: SystemId): AskResult {
     return {
       query: q,
       system,
+      source: "corpus",
       answer: readAnswer(q, []),
       didRetrieve: false,
       latencyMs: Math.max(1, Math.round(performance.now() - started)),
@@ -478,6 +483,7 @@ export function ask(query: string, system: SystemId): AskResult {
     return {
       query: q,
       system,
+      source: "corpus",
       answer: readAnswer(q, docs),
       didRetrieve: true,
       latencyMs: Math.max(1, Math.round(performance.now() - started)),
@@ -495,6 +501,7 @@ export function ask(query: string, system: SystemId): AskResult {
     return {
       query: q,
       system,
+      source: "corpus",
       answer: readAnswer(q, docs),
       didRetrieve: true,
       latencyMs: Math.max(1, Math.round(performance.now() - started)),
@@ -511,6 +518,7 @@ export function ask(query: string, system: SystemId): AskResult {
     return {
       query: q,
       system,
+      source: "corpus",
       answer: readAnswer(q, []),
       didRetrieve: false,
       latencyMs: Math.max(1, Math.round(performance.now() - started)),
@@ -532,6 +540,7 @@ export function ask(query: string, system: SystemId): AskResult {
   return {
     query: q,
     system,
+    source: "corpus",
     answer: readAnswer(q, docs),
     didRetrieve: true,
     latencyMs: Math.max(1, Math.round(performance.now() - started)),

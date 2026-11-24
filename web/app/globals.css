@@ -262,10 +262,13 @@ a { color: inherit; }
   color: var(--muted);
 }
 
-.card strong {
+.card strong,
+.card a {
   color: var(--ink);
   font-weight: 600;
 }
+
+.card a { text-underline-offset: 2px; }
 
 .card p { margin: 8px 0 0; }
 
