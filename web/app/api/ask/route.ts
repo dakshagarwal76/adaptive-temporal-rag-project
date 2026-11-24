@@ -25,12 +25,11 @@ export async function POST(request: Request) {
   if (!query) {
     return NextResponse.json({ error: "Enter a question." }, { status: 400 });
   }
+  const started = performance.now();
   if (system === "closed") {
     const closed = finish(ask(query, "closed"), sources, 0);
-    return NextResponse.json(await withModel(closed));
+    return NextResponse.json(await timed(closed, started));
   }
-
-  const started = performance.now();
   const settled = await Promise.all(sources.map(async (source) => {
     try {
       return { ok: true as const, source, result: await askOne(query, system, source) };
@@ -44,8 +43,13 @@ export async function POST(request: Request) {
   if (ready.length === 0) {
     return NextResponse.json({ error: failed.map((item) => item.message).join(" ") }, { status: 502 });
   }
-  const combined = combine(ready, failed, sources, Math.max(1, Math.round(performance.now() - started)));
-  return NextResponse.json(await withModel(combined));
+  const combined = combine(ready, failed, sources, 1);
+  return NextResponse.json(await timed(combined, started));
+}
+
+async function timed(result: AskResult, started: number): Promise<AskResult> {
+  const answered = await withModel(result);
+  return { ...answered, latencyMs: Math.max(1, Math.round(performance.now() - started)) };
 }
 
 async function withModel(result: AskResult): Promise<AskResult> {
