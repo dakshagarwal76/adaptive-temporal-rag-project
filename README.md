@@ -6,14 +6,6 @@ A question about who holds an office now should not return a true sentence from 
 
 Live demo: [adaptive-temporal-rag.vercel.app](https://adaptive-temporal-rag.vercel.app)
 
-ARP-455 minor project, University School of Automation and Robotics, Guru Gobind Singh Indraprastha University. [Shashank Kumar](https://github.com/Shashankumar11) and Daksh Agarwal. Supervisor: Dr. Annu Priya.
-
-## Contributors
-
-- [Rishikr22](https://github.com/Rishikr22)
-- [Shashank Kumar](https://github.com/Shashankumar11)
-- Daksh Agarwal
-
 ## What is in this repo
 
 | Path | Contents |
@@ -98,4 +90,4 @@ npm run dev
 
 ## Not in git
 
-`*.pt`, `*.npy`, `*.index`, `*.safetensors`, zip archives, virtualenvs, and `web/node_modules`. The paper and the project report stay on the local machine and are not in this repository.
+`*.pt`, `*.npy`, `*.index`, `*.safetensors`, zip archives, virtualenvs, and `web/node_modules`.

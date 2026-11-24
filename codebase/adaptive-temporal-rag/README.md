@@ -2,8 +2,6 @@
 
 Research code for *When and What to Retrieve*. The repository overview, frozen numbers, and the Vercel demo are in the [root README](../../README.md).
 
-Contributors: [Rishikr22](https://github.com/Rishikr22), [Shashank Kumar](https://github.com/Shashankumar11), and Daksh Agarwal.
-
 ## Run
 
 Commands below assume this directory (`codebase/adaptive-temporal-rag`).
@@ -34,7 +32,7 @@ data/                    corpus and question splits
 configs/final.yaml       frozen Checkpoint B settings
 artifacts/               local checkpoints and result tables
 notebooks/               Colab and training notebooks
-docs/                    paper and diagrams
+docs/                    diagrams and run notes
 ```
 
 ## Defaults
@@ -43,5 +41,3 @@ docs/                    paper and diagrams
 - Analyzer: `distilbert-base-uncased`
 - Retrieval depth `k = 5`, blend `α = 0.6`, confidence and sufficiency thresholds `0.55`
 - Offline generator: extractive. API answers are optional via `.env.example`
-
-Synthetic educational corpus for coursework. Timelines are curated for temporal ranking experiments.
