@@ -76,27 +76,77 @@ const TRIVIAL: Array<[string[], string]> = [
 
 type Scored = { doc: Doc; score: number; index: number };
 
-const index = buildIndex(DOCS);
+const FUNCTION_WORDS = new Set(["a", "an", "the", "of", "and", "for", "in", "on", "to", "de", "du", "von", "di"]);
 
-function expandAliases(text: string): string {
-  return text
-    .replace(/\bwho'?s\b/gi, "who is")
-    .replace(/\bwhos\b/gi, "who is")
-    .replace(/\b(?:u\.?\s?s\.?\s?a\.?|usa)\b/gi, "united states")
-    .replace(/\bus\b/gi, "united states")
-    .replace(/\b(?:u\.?\s?k\.?|great britain|britain|england)\b/gi, "united kingdom");
+const index = buildIndex(DOCS);
+const namePhrases = buildNamePhrases(DOCS);
+
+function foldAbbrev(text: string): string {
+  let current = text.toLowerCase();
+  let previous = "";
+  while (current !== previous) {
+    previous = current;
+    current = current.replace(/\b([a-z])\.(?=[a-z])/g, "$1");
+  }
+  return current;
 }
 
 function tokens(text: string): string[] {
-  return text
-    .toLowerCase()
+  return foldAbbrev(text)
     .replace(/[^a-z0-9]+/g, " ")
     .split(/\s+/)
     .filter((token) => token.length > 2 && !STOP.has(token) && !/^(19|20)\d{2}$/.test(token));
 }
 
+function nameWords(text: string): string[] {
+  return foldAbbrev(text)
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length >= 3 && !FUNCTION_WORDS.has(word) && !STOP.has(word) && !/^(19|20)\d{2}$/.test(word));
+}
+
+function buildNamePhrases(docs: Doc[]): Map<string, Set<string>> {
+  const phrases = new Map<string, Set<string>>();
+  for (const entity of new Set(docs.map((doc) => doc.entity).filter(Boolean))) {
+    const words = nameWords(entity);
+    for (let start = 0; start < words.length; start++) {
+      let letters = "";
+      for (let end = start; end < words.length && end < start + 4; end++) {
+        letters += words[end][0];
+        if (end === start) continue;
+        const key = letters;
+        const phrase = words.slice(start, end + 1).join(" ");
+        const known = phrases.get(key) ?? new Set<string>();
+        known.add(phrase);
+        phrases.set(key, known);
+      }
+    }
+  }
+  return phrases;
+}
+
 function queryTokens(text: string): string[] {
-  return tokens(expandAliases(text));
+  const base = tokens(text);
+  const seen = new Set(base);
+  const pieces = foldAbbrev(text)
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .filter((piece) => piece.length >= 2 && piece.length <= 6 && !STOP.has(piece) && !FUNCTION_WORDS.has(piece));
+  for (const piece of pieces) {
+    if (seen.has(piece)) continue;
+    const phrases = namePhrases.get(piece);
+    if (!phrases || phrases.size !== 1) continue;
+    for (const word of [...phrases][0].split(" ")) {
+      if (seen.has(word) || word.length <= 2) continue;
+      seen.add(word);
+      base.push(word);
+    }
+  }
+  return base;
+}
+
+function isWhoQuestion(query: string): boolean {
+  return /\bwho(?:m|se|'s|s)?\b/i.test(query);
 }
 
 function buildIndex(docs: Doc[]) {
@@ -183,10 +233,10 @@ function analyze(query: string): Analysis {
     return { needsRetrieval: 0, temporalClass: "timeless", confidence: 0.94 };
   }
   const year = extractYear(query);
-  const q = expandAliases(query).toLowerCase();
+  const q = foldAbbrev(query);
   const currentCue =
     /\b(current|currently|nowadays|right now|today|at present)\b/.test(q) ||
-    (/\bwho is\b/.test(q) && year === null);
+    (isWhoQuestion(q) && year === null && !/\b(was|were|former|previous|used to)\b/.test(q));
   if (isDefinition(query) && year === null && !/\b(current|currently|today)\b/.test(q)) {
     return { needsRetrieval: 0, temporalClass: "timeless", confidence: 0.82 };
   }
@@ -340,7 +390,7 @@ function fixedRetrieve(query: string) {
 
 function project(query: string, answer: string): string {
   const text = answer.trim();
-  if (!/\b(who|whom|whose)\b/i.test(expandAliases(query))) return text;
+  if (!isWhoQuestion(query)) return text;
   const paren = text.match(/^(.+?)\s+\([^)]+\)$/);
   if (paren && !/\sof\s/i.test(paren[1])) return paren[1].trim();
   const identified = text.match(/\bidentify\s+(.+?)\s+as\b/i);
@@ -375,7 +425,7 @@ function readAnswer(query: string, docs: Doc[]): string {
 }
 
 function sufficiency(query: string, docs: Doc[], mode: string): { sufficient: boolean; score: number } {
-  const q = new Set(tokens(query));
+  const q = new Set(queryTokens(query));
   if (docs.length === 0 || q.size === 0) return { sufficient: false, score: 0 };
   const blob = docs.map((doc) => `${doc.entity} ${doc.title} ${doc.text}`.toLowerCase()).join(" ");
   let hits = 0;

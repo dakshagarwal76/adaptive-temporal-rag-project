@@ -14,6 +14,8 @@ for (const [query, system] of [
   ["Who's the prime minister of the UK?", "adaptive"],
   ["whos the prime minister of uk", "adaptive"],
   ["Who is the president of the US?", "adaptive"],
+  ["Who is the pm of India?", "adaptive"],
+  ["Who was the prime minister of the uk in 2018?", "adaptive"],
   ["Who is the current Prime Minister of India?", "adaptive"],
   ["Who is the current Prime Minister of India?", "standard"],
   ["Who is the current Prime Minister of India?", "fixed"],
@@ -25,16 +27,17 @@ for (const [query, system] of [
 ] as const) {
   const result = ask(query, system);
   const ok =
-    (query.includes("UK") || query.includes("uk")) && system === "adaptive"
-      ? result.didRetrieve && result.answer === "Keir Starmer"
-      : query.includes("president of the US") && system === "adaptive"
-        ? result.didRetrieve && /trump/i.test(result.answer)
-        : (query.includes("Prime Minister") && system === "adaptive" && /modi/i.test(result.answer)) ||
-          (query.includes("2018") && system === "adaptive" && /trump/i.test(result.answer)) ||
-          (query.includes("photosynthesis") && /photosynthesis/i.test(result.answer)) ||
-          (query.includes("2 + 2") && result.answer === "4" && !result.didRetrieve) ||
-          (system !== "adaptive" && query.includes("Prime Minister")) ||
-          (system !== "adaptive" && query.includes("2018"));
+    (query === "Who's the prime minister of the UK?" && result.answer === "Keir Starmer" && result.didRetrieve) ||
+    (query === "whos the prime minister of uk" && result.answer === "Keir Starmer" && result.didRetrieve) ||
+    (query === "Who is the president of the US?" && /trump/i.test(result.answer) && result.didRetrieve) ||
+    (query === "Who is the pm of India?" && result.answer === "Narendra Modi" && result.didRetrieve) ||
+    (query === "Who was the prime minister of the uk in 2018?" && /may/i.test(result.answer) && result.didRetrieve) ||
+    (query === "Who is the current Prime Minister of India?" && system === "adaptive" && /modi/i.test(result.answer)) ||
+    (query === "Who was the President of the United States in 2018?" && system === "adaptive" && /trump/i.test(result.answer)) ||
+    (query.includes("photosynthesis") && /photosynthesis/i.test(result.answer)) ||
+    (query.includes("2 + 2") && result.answer === "4" && !result.didRetrieve) ||
+    (system !== "adaptive" && query === "Who is the current Prime Minister of India?") ||
+    (system !== "adaptive" && query === "Who was the President of the United States in 2018?");
   if (!ok) failed += 1;
   console.log(
     `${ok ? "OK" : "FAIL"} [${system}] ${result.answer} | retrieve=${result.didRetrieve} | ${result.analyzer?.temporalClass ?? "-"} | ${result.evidence[0]?.timestamp ?? "none"} ${result.evidence[0]?.title ?? ""}`,
