@@ -15,7 +15,7 @@ export type Doc = {
 
 export type SystemId = "adaptive" | "standard" | "fixed" | "closed";
 
-export type SourceId = "corpus" | "wikipedia";
+export type SourceId = "corpus" | "wikipedia" | "gdelt";
 
 export type Evidence = {
   docId: string;

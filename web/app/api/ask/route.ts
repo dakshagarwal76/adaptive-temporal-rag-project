@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { ask, type SourceId, type SystemId } from "@/lib/engine";
+import { askGdelt } from "@/lib/gdelt";
 import { askWikipedia } from "@/lib/wikipedia";
 
 const SYSTEMS = new Set<SystemId>(["adaptive", "standard", "fixed", "closed"]);
-const SOURCES = new Set<SourceId>(["corpus", "wikipedia"]);
+const SOURCES = new Set<SourceId>(["corpus", "wikipedia", "gdelt"]);
+
+export const maxDuration = 30;
 
 export async function POST(request: Request) {
   let body: { query?: unknown; system?: unknown; source?: unknown };
@@ -27,6 +30,14 @@ export async function POST(request: Request) {
       return NextResponse.json(await askWikipedia(query, system));
     } catch {
       return NextResponse.json({ error: "Wikipedia could not be reached." }, { status: 502 });
+    }
+  }
+  if (source === "gdelt") {
+    try {
+      return NextResponse.json(await askGdelt(query, system));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "GDELT could not be reached.";
+      return NextResponse.json({ error: message }, { status: 502 });
     }
   }
   return NextResponse.json(ask(query, system));

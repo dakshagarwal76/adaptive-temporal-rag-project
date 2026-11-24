@@ -13,6 +13,7 @@ const SYSTEMS: Array<{ id: SystemId; label: string }> = [
 const SOURCES: Array<{ id: SourceId; label: string }> = [
   { id: "corpus", label: "corpus.jsonl" },
   { id: "wikipedia", label: "Wikipedia" },
+  { id: "gdelt", label: "GDELT" },
 ];
 
 export function AskPanel() {
@@ -198,6 +199,7 @@ function sourceLabel(source: AskResult["source"]) {
 
 function baselinePolicy(system: SystemId, source: AskResult["source"]) {
   if (source === "wikipedia" && system !== "closed") return "Wikipedia search";
+  if (source === "gdelt" && system !== "closed") return "GDELT news, last 3 months";
   if (system === "standard") return "Always retrieve, rank by text overlap";
   if (system === "fixed") return "Always retrieve, fixed ±2 year window or recency";
   if (system === "closed") return "Never retrieve";
