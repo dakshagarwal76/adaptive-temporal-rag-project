@@ -369,6 +369,12 @@ function retrieve(query: string, mode: "current" | "historical" | "semantic") {
     ranked = rank(ranked, "historical", query);
   } else if (mode === "current") {
     ranked = rank(pool, "current", query);
+    window = {
+      targetYear: REFERENCE.getUTCFullYear(),
+      initialYears: 0,
+      finalYears: 0,
+      reason: `as of ${REFERENCE.toISOString().slice(0, 10)}`,
+    };
   } else {
     ranked = rank(pool, "semantic", query);
   }

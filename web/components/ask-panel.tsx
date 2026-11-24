@@ -181,7 +181,7 @@ export function AskPanel() {
             <span className="chip">{labelFor(result.system)}</span>
             <span className="chip">{backendLabel(result.backend)}</span>
             <span className="chip">{result.didRetrieve ? "Retrieved" : "No retrieval"}</span>
-            {result.analyzer ? <span className="chip">{result.analyzer.temporalClass}</span> : null}
+            {result.analyzer ? <span className="chip">{temporalChip(result)}</span> : null}
             <span className="chip">{result.latencyMs} ms</span>
           </div>
 
@@ -202,9 +202,7 @@ export function AskPanel() {
             {result.window ? (
               <>
                 <dt>Date window</dt>
-                <dd>
-                  {result.window.targetYear ?? "—"} · ±{result.window.finalYears}y · {result.window.reason}
-                </dd>
+                <dd>{windowText(result.window)}</dd>
               </>
             ) : null}
             {result.sufficiency ? (
@@ -242,6 +240,22 @@ export function AskPanel() {
       ) : null}
     </>
   );
+}
+
+function temporalChip(result: AskResult) {
+  const kind = result.analyzer?.temporalClass ?? "";
+  const period = result.window ? periodText(result.window) : "";
+  return period ? `${kind} · ${period}` : kind;
+}
+
+function windowText(window: NonNullable<AskResult["window"]>) {
+  if (window.finalYears === 0) return window.reason;
+  return `${window.targetYear ?? "—"} · ±${window.finalYears}y · ${window.reason}`;
+}
+
+function periodText(window: NonNullable<AskResult["window"]>) {
+  if (window.finalYears === 0) return window.reason;
+  return `${window.targetYear ?? "—"} ±${window.finalYears}y`;
 }
 
 function backendLabel(backend: string) {
