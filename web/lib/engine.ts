@@ -465,9 +465,15 @@ function bm25Ceiling(query: string): number {
 
 export function orderEvidence(query: string, system: SystemId, evidence: Evidence[]): Evidence[] {
   const mode = evidenceMode(query, system);
-  if (mode === "semantic") {
-    return evidence.map((item) => ({ ...item, score: Number(Math.min(1, Math.max(0, item.score)).toFixed(3)) }));
-  }
+  const ordered = mode === "semantic" ? clampScores(evidence) : rankByTime(query, evidence, mode);
+  return system === "adaptive" ? mainEvidence(ordered) : ordered;
+}
+
+function clampScores(evidence: Evidence[]): Evidence[] {
+  return evidence.map((item) => ({ ...item, score: Number(Math.min(1, Math.max(0, item.score)).toFixed(3)) }));
+}
+
+function rankByTime(query: string, evidence: Evidence[], mode: "current" | "historical"): Evidence[] {
   const target = extractYear(query);
   const ranked = evidence.map((item) => {
     const relevance = Math.min(1, Math.max(0, item.score > 1 ? item.score / (item.score + 8) : item.score));
@@ -479,6 +485,19 @@ export function orderEvidence(query: string, system: SystemId, evidence: Evidenc
     ...row.item,
     score: Number(Math.min(1, 0.72 * row.time + 0.28 * row.relevance).toFixed(3)),
   }));
+}
+
+function mainEvidence(evidence: Evidence[]): Evidence[] {
+  if (evidence.length <= 1) return evidence;
+  const best = evidence[0].score;
+  const floor = Math.max(0.35, best * 0.72);
+  const kept = [evidence[0]];
+  for (const item of evidence.slice(1)) {
+    if (item.score < floor || kept.length >= 12) break;
+    if (kept.length >= 5 && item.score < best * 0.85) break;
+    kept.push(item);
+  }
+  return kept;
 }
 
 function evidenceMode(query: string, system: SystemId): "current" | "historical" | "semantic" {
