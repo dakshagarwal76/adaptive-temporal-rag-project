@@ -33,7 +33,7 @@ export async function askGdelt(query: string, system: SystemId): Promise<AskResu
     query,
     system,
     source: "gdelt",
-    answer: best ? [best.title, lead].filter(Boolean).join(" ") : `No GDELT article matched “${query}” in the last 3 months.`,
+    answer: best ? pointed(best.title, lead) : `No GDELT article matched “${query}” in the last 3 months.`,
     didRetrieve: ranked.length > 0,
     latencyMs: Math.max(1, Math.round(performance.now() - started)),
     backend: "extractive",
@@ -117,6 +117,14 @@ function relevance(terms: string[], title: string): number {
   const text = title.toLowerCase();
   const hits = terms.filter((term) => text.includes(term)).length;
   return Number((hits / terms.length).toFixed(3));
+}
+
+function pointed(title: string, lead: string): string {
+  const first = lead.split(/(?<=[.!?])\s+(?=[A-Z])/)[0]?.replace(/\s+/g, " ").trim() ?? "";
+  if (first.length < 40) return title;
+  const short = first.length > 220 ? `${first.slice(0, 200).replace(/\s+\S*$/, "")}…` : first;
+  if (short.toLowerCase().startsWith(title.toLowerCase().slice(0, 28))) return short;
+  return `${title}. ${short}`;
 }
 
 async function articleLead(url: string): Promise<string> {
