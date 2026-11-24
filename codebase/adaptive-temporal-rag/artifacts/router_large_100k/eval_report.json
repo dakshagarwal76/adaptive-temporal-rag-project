@@ -1,0 +1,239 @@
+{
+  "router_large_test": {
+    "n": 9941,
+    "val_macro_f1": 0.9980632685412598,
+    "necessity": {
+      "per_class": {
+        "no_retrieval": {
+          "precision": 0.9991853360468449,
+          "recall": 0.9983719983699667,
+          "f1": 0.9987784966266321,
+          "support": 4914
+        },
+        "needs_retrieval": {
+          "precision": 0.9984098588729906,
+          "recall": 0.999204296795307,
+          "f1": 0.998806914862799,
+          "support": 5027
+        }
+      },
+      "macro_f1": 0.9987927057447156,
+      "macro_f1_all_labels": 0.9987927057447156,
+      "accuracy": 0.9987928779800825
+    },
+    "temporal": {
+      "per_class": {
+        "current": {
+          "precision": 0.9885714285149387,
+          "recall": 0.9999999999421965,
+          "f1": 0.9942528685062425,
+          "support": 173
+        },
+        "historical": {
+          "precision": 0.9987644151544507,
+          "recall": 0.9991759373691818,
+          "f1": 0.998970128880538,
+          "support": 4854
+        },
+        "timeless": {
+          "precision": 0.9991853360468449,
+          "recall": 0.9983719983699667,
+          "f1": 0.9987784966266321,
+          "support": 4914
+        }
+      },
+      "macro_f1": 0.9973338313378042,
+      "macro_f1_all_labels": 0.9973338313378042,
+      "accuracy": 0.9987928779800825
+    },
+    "necessity_confusion": [
+      [
+        4906,
+        8
+      ],
+      [
+        4,
+        5023
+      ]
+    ],
+    "temporal_confusion": [
+      [
+        173,
+        0,
+        0
+      ],
+      [
+        0,
+        4850,
+        4
+      ],
+      [
+        2,
+        6,
+        4906
+      ]
+    ],
+    "necessity_ece": 0.0007845388669001428,
+    "temporal_ece": 0.0004853985820686045,
+    "confidence_head_ece": 0.19834814711651227,
+    "temperature": 1.5
+  },
+  "heldout_test": {
+    "n": 193,
+    "val_macro_f1": 0.9999999949222115,
+    "necessity": {
+      "per_class": {
+        "no_retrieval": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "needs_retrieval": {
+          "precision": 0.9999999999481864,
+          "recall": 0.9999999999481864,
+          "f1": 0.9999999949481864,
+          "support": 193
+        }
+      },
+      "macro_f1": 0.9999999949481864,
+      "macro_f1_all_labels": 0.4999999974740932,
+      "accuracy": 1.0
+    },
+    "temporal": {
+      "per_class": {
+        "current": {
+          "precision": 0.9999999999000001,
+          "recall": 0.9999999999000001,
+          "f1": 0.9999999949,
+          "support": 100
+        },
+        "historical": {
+          "precision": 0.9999999998924732,
+          "recall": 0.9999999998924732,
+          "f1": 0.9999999948924732,
+          "support": 93
+        },
+        "timeless": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        }
+      },
+      "macro_f1": 0.9999999948962366,
+      "macro_f1_all_labels": 0.6666666632641577,
+      "accuracy": 1.0
+    },
+    "necessity_confusion": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        193
+      ]
+    ],
+    "temporal_confusion": [
+      [
+        100,
+        0,
+        0
+      ],
+      [
+        0,
+        93,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "necessity_ece": 0.002389868924037142,
+    "temporal_ece": 0.0007179496819491593,
+    "confidence_head_ece": 0.0782805032680689,
+    "temperature": 1.5
+  },
+  "timeqa_test": {
+    "n": 500,
+    "val_macro_f1": 0.99999999498,
+    "necessity": {
+      "per_class": {
+        "no_retrieval": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "needs_retrieval": {
+          "precision": 0.99999999998,
+          "recall": 0.99999999998,
+          "f1": 0.99999999498,
+          "support": 500
+        }
+      },
+      "macro_f1": 0.99999999498,
+      "macro_f1_all_labels": 0.49999999749,
+      "accuracy": 1.0
+    },
+    "temporal": {
+      "per_class": {
+        "current": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "historical": {
+          "precision": 0.99999999998,
+          "recall": 0.99999999998,
+          "f1": 0.99999999498,
+          "support": 500
+        },
+        "timeless": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        }
+      },
+      "macro_f1": 0.99999999498,
+      "macro_f1_all_labels": 0.33333333166,
+      "accuracy": 1.0
+    },
+    "necessity_confusion": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        500
+      ]
+    ],
+    "temporal_confusion": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        500,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "necessity_ece": 0.00032635724544527456,
+    "temporal_ece": 0.0005745953321456554,
+    "confidence_head_ece": 0.04647485864162445,
+    "temperature": 1.5
+  }
+}

@@ -1,0 +1,218 @@
+[
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "How does carbon-14 dating measure artifacts from 2000 BC?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "Why does the year 2024 have 366 days?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "What is the square root of 1600?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "How many minutes are in 1440 seconds?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "Is 2027 a prime number?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "How do leap years work, for example in 2028?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "What does the word today mean in English grammar?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "What is meant by the most recent common ancestor in biology?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "Which planet is the largest in our solar system today?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "A_timeless_with_year_or_time_word",
+  "query": "What is 1999 plus 1?",
+  "gold_temporal": "timeless",
+  "gold_needs": 0
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Who leads the Federal Reserve?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Who is the chief executive of Microsoft?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "What is the price of Bitcoin?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Which team holds the NBA championship title?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "What is the population of India?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Who is Japan's prime minister?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "What is the inflation rate in the United States?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Who coaches Manchester United?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Which country tops the FIFA men's world ranking?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "B_current_without_explicit_cue",
+  "query": "Who is the reigning Wimbledon men's singles champion?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who won the first FIFA World Cup?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who was the British prime minister when the Berlin Wall fell?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who was UN Secretary-General before Kofi Annan?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Which team won the World Cup final held in South Africa?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who was Apple's CEO before Tim Cook?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "What was the capital of West Germany before reunification?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who did Barack Obama defeat in his re-election campaign?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who was the Soviet leader during the Cuban Missile Crisis?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Who was Germany's chancellor at the end of the Cold War?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "C_historical_without_year",
+  "query": "Which country hosted the Summer Olympics right after the Beijing Games?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "D_year_anchored_control",
+  "query": "Who was the President of France in 1995?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "D_year_anchored_control",
+  "query": "Who won the Nobel Prize in Literature in 2016?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "D_year_anchored_control",
+  "query": "Who was the UK prime minister in 2010?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "D_year_anchored_control",
+  "query": "Who won the Super Bowl in 1990?",
+  "gold_temporal": "historical",
+  "gold_needs": 1
+ },
+ {
+  "category": "D_year_anchored_control",
+  "query": "Which countries are hosting the 2026 FIFA World Cup?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ },
+ {
+  "category": "D_year_anchored_control",
+  "query": "Who won the 2025 German federal election?",
+  "gold_temporal": "current",
+  "gold_needs": 1
+ }
+]

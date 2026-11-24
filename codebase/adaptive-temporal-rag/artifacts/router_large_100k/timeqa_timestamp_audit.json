@@ -1,0 +1,7 @@
+{
+  "corpus": "data/general/timeqa/corpus.jsonl",
+  "n_chunks": 5931,
+  "n_placeholder_1970_01_01": 662,
+  "n_timestamp_equals_birth_year_heuristic": 658,
+  "heuristic": "timestamp year equals first 'born ... YYYY' year within the first 400 characters (excluding 1970-01-01 rows)"
+}

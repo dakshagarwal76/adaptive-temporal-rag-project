@@ -1,0 +1,1948 @@
+{
+  "meta": {
+    "bundle": "artifacts/router_large_100k/analyzer.pt",
+    "analyzer_sha256": "9833670825e4215308b209bed2e3678b1641a95896984207d07a25d137b71199",
+    "test_file": "data/router_large/test.jsonl (100k build, n=9941)",
+    "test_sha256": "8aa68c10c2383e02fab9fedb4c81e4184c8ee7e25bc8071dcc795de48a743158",
+    "temperature": 1.5,
+    "blend_confidence": true,
+    "max_length": 128,
+    "device": "cpu (box)",
+    "torch": "2.15.0+cpu",
+    "python": "3.13.5",
+    "inference_seconds": 489.8983461856842,
+    "timestamp": "2026-11-24T04:43:12+0000"
+  },
+  "overall_test": {
+    "n": 9941,
+    "temporal_accuracy": 0.9987928779800825,
+    "temporal_macro_f1_present_labels": 0.9973338363581594,
+    "necessity_accuracy": 0.9987928779800825,
+    "n_temporal_errors": 12,
+    "gold_label_counts": {
+      "historical": 4854,
+      "timeless": 4914,
+      "current": 173
+    },
+    "temporal_confusion_rows_gold_cols_pred": {
+      "labels": [
+        "current",
+        "historical",
+        "timeless"
+      ],
+      "matrix": [
+        [
+          173,
+          0,
+          0
+        ],
+        [
+          0,
+          4850,
+          4
+        ],
+        [
+          2,
+          6,
+          4906
+        ]
+      ]
+    },
+    "temporal_macro_f1_all3": 0.9973338363581594,
+    "necessity_macro_f1": 0.9987927107467244
+  },
+  "matches_kaggle_eval_report": {
+    "kaggle_temporal_accuracy": 0.9987928779800825,
+    "kaggle_temporal_macro_f1": 0.9973338313378042
+  },
+  "silver_label_provenance": {
+    "note": "Gold router labels are silver labels produced by src/router_large.label_question (year regex, current/relative-past/when/office regexes, then per-source defaults).",
+    "labeler_reproduces_gold_on_test": 9941,
+    "n": 9941,
+    "rule_counts": {
+      "explicit_year": 3433,
+      "source_default:nq_open": 1542,
+      "when_regex": 1089,
+      "current_cue_regex": 114,
+      "source_default:squad_v2": 1484,
+      "source_default:arc": 175,
+      "relative_past_regex": 226,
+      "office_now_regex": 55,
+      "source_default:triviaqa": 824,
+      "source_default:timeqa": 74,
+      "source_default:commonsense_qa": 272,
+      "source_default:qasc": 169,
+      "source_default:openbookqa": 154,
+      "source_default:sciq": 294,
+      "office_past_regex": 36
+    },
+    "rows_labelled_by_regex_rules": 4953,
+    "rows_labelled_by_source_default": 4988
+  },
+  "per_source": {
+    "arc": {
+      "n": 186,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 175,
+        "historical": 8,
+        "current": 3
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            8,
+            0
+          ],
+          [
+            0,
+            0,
+            175
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.9408602150537635,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "source_default:arc": 175,
+        "relative_past_regex": 8,
+        "current_cue_regex": 3
+      }
+    },
+    "commonsense_qa": {
+      "n": 276,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 272,
+        "historical": 3,
+        "current": 1
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0
+          ],
+          [
+            0,
+            0,
+            272
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.9855072463768116,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "source_default:commonsense_qa": 272,
+        "relative_past_regex": 3,
+        "current_cue_regex": 1
+      }
+    },
+    "nq_open": {
+      "n": 2644,
+      "temporal_accuracy": 0.9992435703479576,
+      "temporal_macro_f1_present_labels": 0.996753387214127,
+      "necessity_accuracy": 0.9992435703479576,
+      "n_temporal_errors": 2,
+      "gold_label_counts": {
+        "timeless": 1542,
+        "historical": 993,
+        "current": 109
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            109,
+            0,
+            0
+          ],
+          [
+            0,
+            993,
+            0
+          ],
+          [
+            2,
+            0,
+            1540
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.5832072617246596,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "source_default:nq_open": 1542,
+        "when_regex": 655,
+        "office_now_regex": 49,
+        "relative_past_regex": 113,
+        "explicit_year": 203,
+        "office_past_regex": 23,
+        "current_cue_regex": 59
+      }
+    },
+    "openbookqa": {
+      "n": 157,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 154,
+        "historical": 3
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            0
+          ],
+          [
+            0,
+            0,
+            154
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.9808917197452229,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "source_default:openbookqa": 154,
+        "relative_past_regex": 2,
+        "explicit_year": 1
+      }
+    },
+    "qasc": {
+      "n": 184,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "historical": 14,
+        "timeless": 169,
+        "current": 1
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            14,
+            0
+          ],
+          [
+            0,
+            0,
+            169
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.9184782608695652,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "relative_past_regex": 14,
+        "source_default:qasc": 169,
+        "current_cue_regex": 1
+      }
+    },
+    "sciq": {
+      "n": 308,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 294,
+        "historical": 14
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            14,
+            0
+          ],
+          [
+            0,
+            0,
+            294
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.9545454545454546,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "source_default:sciq": 294,
+        "relative_past_regex": 12,
+        "explicit_year": 1,
+        "when_regex": 1
+      }
+    },
+    "situatedqa": {
+      "n": 668,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "historical": 668
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            668,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "majority_label": "historical",
+      "majority_share_purity": 1.0,
+      "single_class": true,
+      "silver_label_rule_counts": {
+        "explicit_year": 668
+      }
+    },
+    "squad_v2": {
+      "n": 2319,
+      "temporal_accuracy": 0.9987063389391979,
+      "temporal_macro_f1_present_labels": 0.9990389015536847,
+      "necessity_accuracy": 0.9987063389391979,
+      "n_temporal_errors": 3,
+      "gold_label_counts": {
+        "current": 35,
+        "timeless": 1484,
+        "historical": 800
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            35,
+            0,
+            0
+          ],
+          [
+            0,
+            800,
+            0
+          ],
+          [
+            0,
+            3,
+            1481
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.6399310047434239,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "current_cue_regex": 26,
+        "source_default:squad_v2": 1484,
+        "when_regex": 401,
+        "explicit_year": 357,
+        "relative_past_regex": 43,
+        "office_now_regex": 6,
+        "office_past_regex": 2
+      }
+    },
+    "timeqa": {
+      "n": 1629,
+      "temporal_accuracy": 0.9975445058317987,
+      "temporal_macro_f1_present_labels": 0.49938537185003073,
+      "necessity_accuracy": 0.9975445058317987,
+      "n_temporal_errors": 4,
+      "gold_label_counts": {
+        "historical": 1629
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1625,
+            4
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "majority_label": "historical",
+      "majority_share_purity": 1.0,
+      "single_class": true,
+      "silver_label_rule_counts": {
+        "explicit_year": 1555,
+        "source_default:timeqa": 74
+      }
+    },
+    "triviaqa": {
+      "n": 1570,
+      "temporal_accuracy": 0.9980891719745223,
+      "temporal_macro_f1_present_labels": 0.9987010122609822,
+      "necessity_accuracy": 0.9980891719745223,
+      "n_temporal_errors": 3,
+      "gold_label_counts": {
+        "historical": 722,
+        "timeless": 824,
+        "current": 24
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            24,
+            0,
+            0
+          ],
+          [
+            0,
+            722,
+            0
+          ],
+          [
+            0,
+            3,
+            821
+          ]
+        ]
+      },
+      "majority_label": "timeless",
+      "majority_share_purity": 0.5248407643312102,
+      "single_class": false,
+      "silver_label_rule_counts": {
+        "explicit_year": 648,
+        "source_default:triviaqa": 824,
+        "when_regex": 32,
+        "office_past_regex": 11,
+        "relative_past_regex": 31,
+        "current_cue_regex": 24
+      }
+    }
+  },
+  "per_silver_label_rule": {
+    "current_cue_regex": {
+      "n": 114,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "current": 114
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            114,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "explicit_year": {
+      "n": 3433,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "historical": 3429,
+        "current": 4
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            3429,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "office_now_regex": {
+      "n": 55,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "current": 55
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            55,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "office_past_regex": {
+      "n": 36,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "historical": 36
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            36,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "relative_past_regex": {
+      "n": 226,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "historical": 226
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            226,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "source_default:arc": {
+      "n": 175,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 175
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            175
+          ]
+        ]
+      }
+    },
+    "source_default:commonsense_qa": {
+      "n": 272,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 272
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            272
+          ]
+        ]
+      }
+    },
+    "source_default:nq_open": {
+      "n": 1542,
+      "temporal_accuracy": 0.9987029831387808,
+      "temporal_macro_f1_present_labels": 0.49967553536664505,
+      "necessity_accuracy": 0.9987029831387808,
+      "n_temporal_errors": 2,
+      "gold_label_counts": {
+        "timeless": 1542
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1540
+          ]
+        ]
+      }
+    },
+    "source_default:openbookqa": {
+      "n": 154,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 154
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            154
+          ]
+        ]
+      }
+    },
+    "source_default:qasc": {
+      "n": 169,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 169
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            169
+          ]
+        ]
+      }
+    },
+    "source_default:sciq": {
+      "n": 294,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "timeless": 294
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            294
+          ]
+        ]
+      }
+    },
+    "source_default:squad_v2": {
+      "n": 1484,
+      "temporal_accuracy": 0.9979784366576819,
+      "temporal_macro_f1_present_labels": 0.49949409780775716,
+      "necessity_accuracy": 0.9979784366576819,
+      "n_temporal_errors": 3,
+      "gold_label_counts": {
+        "timeless": 1484
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            1481
+          ]
+        ]
+      }
+    },
+    "source_default:timeqa": {
+      "n": 74,
+      "temporal_accuracy": 0.9459459459459459,
+      "temporal_macro_f1_present_labels": 0.4861111111111111,
+      "necessity_accuracy": 0.9459459459459459,
+      "n_temporal_errors": 4,
+      "gold_label_counts": {
+        "historical": 74
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            70,
+            4
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "source_default:triviaqa": {
+      "n": 824,
+      "temporal_accuracy": 0.9963592233009708,
+      "temporal_macro_f1_present_labels": 0.4990881458966565,
+      "necessity_accuracy": 0.9963592233009708,
+      "n_temporal_errors": 3,
+      "gold_label_counts": {
+        "timeless": 824
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            821
+          ]
+        ]
+      }
+    },
+    "when_regex": {
+      "n": 1089,
+      "temporal_accuracy": 1.0,
+      "temporal_macro_f1_present_labels": 1.0,
+      "necessity_accuracy": 1.0,
+      "n_temporal_errors": 0,
+      "gold_label_counts": {
+        "historical": 1089
+      },
+      "temporal_confusion_rows_gold_cols_pred": {
+        "labels": [
+          "current",
+          "historical",
+          "timeless"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1089,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    }
+  },
+  "label_by_source_counts": {
+    "current": {
+      "squad_v2": 35,
+      "nq_open": 109,
+      "triviaqa": 24,
+      "arc": 3,
+      "qasc": 1,
+      "commonsense_qa": 1
+    },
+    "historical": {
+      "timeqa": 1629,
+      "triviaqa": 722,
+      "nq_open": 993,
+      "qasc": 14,
+      "situatedqa": 668,
+      "squad_v2": 800,
+      "sciq": 14,
+      "commonsense_qa": 3,
+      "arc": 8,
+      "openbookqa": 3
+    },
+    "timeless": {
+      "nq_open": 1542,
+      "squad_v2": 1484,
+      "arc": 175,
+      "triviaqa": 824,
+      "commonsense_qa": 272,
+      "qasc": 169,
+      "openbookqa": 154,
+      "sciq": 294
+    }
+  },
+  "source_only_majority_baseline": {
+    "accuracy": 0.7253797404687657,
+    "temporal_macro_f1": 0.47501210938370836,
+    "note": "majority label per source computed on the test set itself (optimistic oracle)"
+  },
+  "test_errors": [
+    {
+      "query": "Which child of Hemma was born in 833?",
+      "source": "timeqa",
+      "gold": "historical",
+      "pred": "timeless",
+      "rule": "source_default:timeqa",
+      "temporal_probs": {
+        "current": 0.0003,
+        "historical": 0.0006,
+        "timeless": 0.9991
+      }
+    },
+    {
+      "query": "The Mekong river is the border between Laos and which other Asian country for about 1000km of its length?",
+      "source": "triviaqa",
+      "gold": "timeless",
+      "pred": "historical",
+      "rule": "source_default:triviaqa",
+      "temporal_probs": {
+        "current": 0.0003,
+        "historical": 0.9994,
+        "timeless": 0.0003
+      }
+    },
+    {
+      "query": "Offa was King of which Anglo-Saxon Kingdom from 757 to 796?",
+      "source": "triviaqa",
+      "gold": "timeless",
+      "pred": "historical",
+      "rule": "source_default:triviaqa",
+      "temporal_probs": {
+        "current": 0.0003,
+        "historical": 0.9994,
+        "timeless": 0.0003
+      }
+    },
+    {
+      "query": "Which child of Hemma was born in 832?",
+      "source": "timeqa",
+      "gold": "historical",
+      "pred": "timeless",
+      "rule": "source_default:timeqa",
+      "temporal_probs": {
+        "current": 0.0003,
+        "historical": 0.0005,
+        "timeless": 0.9992
+      }
+    },
+    {
+      "query": "When would one use an auger?",
+      "source": "triviaqa",
+      "gold": "timeless",
+      "pred": "historical",
+      "rule": "source_default:triviaqa",
+      "temporal_probs": {
+        "current": 0.0006,
+        "historical": 0.9989,
+        "timeless": 0.0005
+      }
+    },
+    {
+      "query": "Who was acquired from the Oakland Athletics in early July?",
+      "source": "squad_v2",
+      "gold": "timeless",
+      "pred": "historical",
+      "rule": "source_default:squad_v2",
+      "temporal_probs": {
+        "current": 0.0004,
+        "historical": 0.999,
+        "timeless": 0.0006
+      }
+    },
+    {
+      "query": "who won the male singles section at this years australian open",
+      "source": "nq_open",
+      "gold": "timeless",
+      "pred": "current",
+      "rule": "source_default:nq_open",
+      "temporal_probs": {
+        "current": 0.9991,
+        "historical": 0.0002,
+        "timeless": 0.0007
+      }
+    },
+    {
+      "query": "Which child of Hemma was born in 837?",
+      "source": "timeqa",
+      "gold": "historical",
+      "pred": "timeless",
+      "rule": "source_default:timeqa",
+      "temporal_probs": {
+        "current": 0.0003,
+        "historical": 0.0005,
+        "timeless": 0.9992
+      }
+    },
+    {
+      "query": "He was the first pope to take the pontifical name of \"John\" upon election in how long?",
+      "source": "squad_v2",
+      "gold": "timeless",
+      "pred": "historical",
+      "rule": "source_default:squad_v2",
+      "temporal_probs": {
+        "current": 0.0056,
+        "historical": 0.985,
+        "timeless": 0.0094
+      }
+    },
+    {
+      "query": "Who was Inaugurated in Nanjing as the first provisional president?",
+      "source": "squad_v2",
+      "gold": "timeless",
+      "pred": "historical",
+      "rule": "source_default:squad_v2",
+      "temporal_probs": {
+        "current": 0.0057,
+        "historical": 0.9843,
+        "timeless": 0.0099
+      }
+    },
+    {
+      "query": "name the four us presidents who were assassinated while in office",
+      "source": "nq_open",
+      "gold": "timeless",
+      "pred": "current",
+      "rule": "source_default:nq_open",
+      "temporal_probs": {
+        "current": 0.9962,
+        "historical": 0.0006,
+        "timeless": 0.0031
+      }
+    },
+    {
+      "query": "Which child of Hemma was born in 828?",
+      "source": "timeqa",
+      "gold": "historical",
+      "pred": "timeless",
+      "rule": "source_default:timeqa",
+      "temporal_probs": {
+        "current": 0.0003,
+        "historical": 0.0006,
+        "timeless": 0.9992
+      }
+    }
+  ],
+  "counterfactual_probe": {
+    "summary": {
+      "n": 36,
+      "router_temporal_acc": 0.3333333333333333,
+      "router_needs_acc": 0.3611111111111111,
+      "silver_labeler_temporal_acc": 0.3611111111111111,
+      "router_agrees_with_labeler": 0.9722222222222222,
+      "by_category": {
+        "A_timeless_with_year_or_time_word": {
+          "n": 10,
+          "router_temporal_acc": 0.0,
+          "router_needs_acc": 0.0,
+          "silver_labeler_temporal_acc": 0.0,
+          "router_agrees_with_labeler": 1.0
+        },
+        "B_current_without_explicit_cue": {
+          "n": 10,
+          "router_temporal_acc": 0.3,
+          "router_needs_acc": 0.3,
+          "silver_labeler_temporal_acc": 0.3,
+          "router_agrees_with_labeler": 1.0
+        },
+        "C_historical_without_year": {
+          "n": 10,
+          "router_temporal_acc": 0.4,
+          "router_needs_acc": 0.4,
+          "silver_labeler_temporal_acc": 0.4,
+          "router_agrees_with_labeler": 1.0
+        },
+        "D_year_anchored_control": {
+          "n": 6,
+          "router_temporal_acc": 0.8333333333333334,
+          "router_needs_acc": 1.0,
+          "silver_labeler_temporal_acc": 1.0,
+          "router_agrees_with_labeler": 0.8333333333333334
+        }
+      },
+      "confusion": {
+        "n": 36,
+        "temporal_accuracy": 0.3333333333333333,
+        "temporal_macro_f1_present_labels": 0.31746031746031744,
+        "necessity_accuracy": 0.3611111111111111,
+        "n_temporal_errors": 24,
+        "gold_label_counts": {
+          "timeless": 10,
+          "current": 12,
+          "historical": 14
+        },
+        "temporal_confusion_rows_gold_cols_pred": {
+          "labels": [
+            "current",
+            "historical",
+            "timeless"
+          ],
+          "matrix": [
+            [
+              4,
+              1,
+              7
+            ],
+            [
+              0,
+              8,
+              6
+            ],
+            [
+              5,
+              5,
+              0
+            ]
+          ]
+        }
+      }
+    },
+    "rows": [
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "How does carbon-14 dating measure artifacts from 2000 BC?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9779,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "Why does the year 2024 have 366 days?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9779,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "What is the square root of 1600?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9779,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "How many minutes are in 1440 seconds?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.978,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "Is 2027 a prime number?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9992,
+          "historical": 0.0003,
+          "timeless": 0.0005
+        },
+        "confidence": 0.9723,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "How do leap years work, for example in 2028?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9991,
+          "historical": 0.0004,
+          "timeless": 0.0005
+        },
+        "confidence": 0.9757,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "What does the word today mean in English grammar?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9989,
+          "historical": 0.0005,
+          "timeless": 0.0006
+        },
+        "confidence": 0.9785,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "current_cue_regex",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "What is meant by the most recent common ancestor in biology?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.999,
+          "historical": 0.0005,
+          "timeless": 0.0006
+        },
+        "confidence": 0.9779,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "current_cue_regex",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "Which planet is the largest in our solar system today?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.999,
+          "historical": 0.0005,
+          "timeless": 0.0006
+        },
+        "confidence": 0.9778,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "current_cue_regex",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "A_timeless_with_year_or_time_word",
+        "query": "What is 1999 plus 1?",
+        "gold_temporal": "timeless",
+        "gold_needs": 0,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9785,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Who leads the Federal Reserve?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0004,
+          "historical": 0.0003,
+          "timeless": 0.9993
+        },
+        "confidence": 0.9017,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Who is the chief executive of Microsoft?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9991,
+          "historical": 0.0004,
+          "timeless": 0.0004
+        },
+        "confidence": 0.8561,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "office_now_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "What is the price of Bitcoin?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0004,
+          "historical": 0.0003,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8979,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Which team holds the NBA championship title?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0004,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8137,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "What is the population of India?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0004,
+          "historical": 0.0003,
+          "timeless": 0.9993
+        },
+        "confidence": 0.902,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Who is Japan's prime minister?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9991,
+          "historical": 0.0004,
+          "timeless": 0.0005
+        },
+        "confidence": 0.8575,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "office_now_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "What is the inflation rate in the United States?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0004,
+          "historical": 0.0003,
+          "timeless": 0.9993
+        },
+        "confidence": 0.9029,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Who coaches Manchester United?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0002,
+          "historical": 0.0004,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8425,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Which country tops the FIFA men's world ranking?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0004,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8198,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "B_current_without_explicit_cue",
+        "query": "Who is the reigning Wimbledon men's singles champion?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9991,
+          "historical": 0.0004,
+          "timeless": 0.0005
+        },
+        "confidence": 0.8527,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "office_now_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who won the first FIFA World Cup?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0006,
+          "timeless": 0.9991
+        },
+        "confidence": 0.8139,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who was the British prime minister when the Berlin Wall fell?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0035,
+          "historical": 0.992,
+          "timeless": 0.0045
+        },
+        "confidence": 0.8222,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "office_past_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who was UN Secretary-General before Kofi Annan?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0042,
+          "historical": 0.99,
+          "timeless": 0.0058
+        },
+        "confidence": 0.8228,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "office_past_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Which team won the World Cup final held in South Africa?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0005,
+          "timeless": 0.9991
+        },
+        "confidence": 0.8026,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who was Apple's CEO before Tim Cook?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.005,
+          "historical": 0.9877,
+          "timeless": 0.0073
+        },
+        "confidence": 0.8219,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "office_past_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "What was the capital of West Germany before reunification?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0003,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8979,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who did Barack Obama defeat in his re-election campaign?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0004,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8905,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who was the Soviet leader during the Cuban Missile Crisis?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0004,
+          "timeless": 0.9993
+        },
+        "confidence": 0.8974,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Who was Germany's chancellor at the end of the Cold War?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0055,
+          "historical": 0.986,
+          "timeless": 0.0086
+        },
+        "confidence": 0.8234,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "office_past_regex",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "C_historical_without_year",
+        "query": "Which country hosted the Summer Olympics right after the Beijing Games?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "timeless",
+        "pred_needs": 0,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.0005,
+          "timeless": 0.9992
+        },
+        "confidence": 0.8125,
+        "silver_labeler_temporal": "timeless",
+        "silver_labeler_rule": "source_default:nq_open",
+        "router_correct": false,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "D_year_anchored_control",
+        "query": "Who was the President of France in 1995?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9772,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "D_year_anchored_control",
+        "query": "Who won the Nobel Prize in Literature in 2016?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9775,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "D_year_anchored_control",
+        "query": "Who was the UK prime minister in 2010?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9995,
+          "timeless": 0.0003
+        },
+        "confidence": 0.977,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "D_year_anchored_control",
+        "query": "Who won the Super Bowl in 1990?",
+        "gold_temporal": "historical",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9994,
+          "timeless": 0.0003
+        },
+        "confidence": 0.9774,
+        "silver_labeler_temporal": "historical",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "D_year_anchored_control",
+        "query": "Which countries are hosting the 2026 FIFA World Cup?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "current",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.9992,
+          "historical": 0.0003,
+          "timeless": 0.0005
+        },
+        "confidence": 0.973,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": true,
+        "router_agrees_with_labeler": true
+      },
+      {
+        "category": "D_year_anchored_control",
+        "query": "Who won the 2025 German federal election?",
+        "gold_temporal": "current",
+        "gold_needs": 1,
+        "pred_temporal": "historical",
+        "pred_needs": 1,
+        "temporal_probs": {
+          "current": 0.0003,
+          "historical": 0.9993,
+          "timeless": 0.0004
+        },
+        "confidence": 0.9788,
+        "silver_labeler_temporal": "current",
+        "silver_labeler_rule": "explicit_year",
+        "router_correct": false,
+        "router_agrees_with_labeler": false
+      }
+    ]
+  }
+}

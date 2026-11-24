@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "router_bundle": "/workspace/atrag_eval/repo/artifacts/router_large_100k",
+    "analyzer_pt_sha256": "9833670825e4215308b209bed2e3678b1641a95896984207d07a25d137b71199",
+    "model_name": "microsoft/deberta-v3-base",
+    "temperature": 1.5,
+    "config_path": "/workspace/atrag_eval/repo/configs/final.yaml",
+    "device": "cpu",
+    "python": "3.13.5",
+    "torch": "2.14.1+cpu",
+    "transformers": "5.20.2",
+    "timestamp": "2026-11-24T05:31:31.834482+00:00",
+    "limit": 0
+  },
+  "datasets": {
+    "synthetic": {
+      "adaptive_learned100k": {
+        "n": 77,
+        "summary": {
+          "n": 77.0,
+          "em": 0.7402597402597403,
+          "token_f1": 0.7896579150081954,
+          "contains": 0.7792207792207793,
+          "precision_at_k": 0.5775862068965517,
+          "recall_at_k": 0.8333333333333334,
+          "temporal_acc": 0.9090909090909091,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.9090909090909091,
+          "latency_s": 0.48208624781824705,
+          "latency_s_median": 0.26933349600039946,
+          "retrieval_rate": 0.6623376623376623
+        },
+        "wall_clock_s": 37.136130313998365,
+        "routing_agreement": {
+          "n_routing_differs": 16,
+          "n_did_retrieve_differs": 16,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 26,
+          "n_skip_frozen": 10,
+          "learned_policy_counts": {
+            "current": 36,
+            "historical_adaptive_window": 15,
+            "no_retrieval": 26
+          },
+          "frozen_policy_counts": {
+            "current": 36,
+            "historical_adaptive_window": 15,
+            "no_retrieval": 10,
+            "soft_retrieve_timeless": 8,
+            "timeless_semantic": 8
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 0.9090909090909091,
+        "timed_out": 0.0,
+        "capped": 0.025974025974025976
+      },
+      "adaptive_fast_learned100k": {
+        "n": 77,
+        "summary": {
+          "n": 77.0,
+          "em": 0.7402597402597403,
+          "token_f1": 0.7896579150081954,
+          "contains": 0.7792207792207793,
+          "precision_at_k": 0.5775862068965517,
+          "recall_at_k": 0.8333333333333334,
+          "temporal_acc": 0.9090909090909091,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.9090909090909091,
+          "latency_s": 0.1760874339737971,
+          "latency_s_median": 0.17897799799902714,
+          "retrieval_rate": 0.6623376623376623
+        },
+        "wall_clock_s": 13.571703040999637,
+        "routing_agreement": {
+          "n_routing_differs": 16,
+          "n_did_retrieve_differs": 16,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 26,
+          "n_skip_frozen": 10,
+          "learned_policy_counts": {
+            "current": 36,
+            "historical_adaptive_window": 15,
+            "no_retrieval": 26
+          },
+          "frozen_policy_counts": {
+            "current": 36,
+            "historical_adaptive_window": 15,
+            "no_retrieval": 10,
+            "soft_retrieve_timeless": 8,
+            "timeless_semantic": 8
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 0.9090909090909091,
+        "timed_out": 0.0,
+        "capped": 0.0
+      }
+    },
+    "heldout": {
+      "adaptive_learned100k": {
+        "n": 193,
+        "summary": {
+          "n": 193.0,
+          "em": 0.7616580310880829,
+          "token_f1": 0.7655440414507773,
+          "contains": 0.7616580310880829,
+          "precision_at_k": 0.6816062176165804,
+          "recall_at_k": 0.9119170984455959,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.34732212249745564,
+          "latency_s_median": 0.24112624199915444,
+          "retrieval_rate": 1.0
+        },
+        "wall_clock_s": 67.06659814399973,
+        "routing_agreement": {
+          "n_routing_differs": 0,
+          "n_did_retrieve_differs": 0,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 0,
+          "n_skip_frozen": 0,
+          "learned_policy_counts": {
+            "current": 100,
+            "historical_adaptive_window": 93
+          },
+          "frozen_policy_counts": {
+            "current": 100,
+            "historical_adaptive_window": 93
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "timed_out": 0.0,
+        "capped": 0.10880829015544041
+      },
+      "adaptive_fast_learned100k": {
+        "n": 193,
+        "summary": {
+          "n": 193.0,
+          "em": 0.7616580310880829,
+          "token_f1": 0.7655440414507773,
+          "contains": 0.7616580310880829,
+          "precision_at_k": 0.6816062176165804,
+          "recall_at_k": 0.9119170984455959,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.3021125329378076,
+          "latency_s_median": 0.26123331999951915,
+          "retrieval_rate": 1.0
+        },
+        "wall_clock_s": 58.34096183499969,
+        "routing_agreement": {
+          "n_routing_differs": 0,
+          "n_did_retrieve_differs": 0,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 0,
+          "n_skip_frozen": 0,
+          "learned_policy_counts": {
+            "current": 100,
+            "historical_adaptive_window": 93
+          },
+          "frozen_policy_counts": {
+            "current": 100,
+            "historical_adaptive_window": 93
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "timed_out": 0.0,
+        "capped": 0.0
+      }
+    },
+    "timeqa": {
+      "adaptive_learned100k": {
+        "n": 500,
+        "summary": {
+          "n": 500.0,
+          "em": 0.008,
+          "token_f1": 0.08759755371471152,
+          "contains": 0.296,
+          "precision_at_k": 0.24195121951219514,
+          "recall_at_k": 0.4887688734030197,
+          "temporal_acc": null,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 1.2668650965259622,
+          "latency_s_median": 0.8257376849996945,
+          "retrieval_rate": 1.0
+        },
+        "wall_clock_s": 633.5498565729995,
+        "routing_agreement": {
+          "n_routing_differs": 0,
+          "n_did_retrieve_differs": 0,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 0,
+          "n_skip_frozen": 0,
+          "learned_policy_counts": {
+            "historical_adaptive_window": 500
+          },
+          "frozen_policy_counts": {
+            "historical_adaptive_window": 500
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "timed_out": 0.0,
+        "capped": 0.106
+      },
+      "adaptive_fast_learned100k": {
+        "n": 500,
+        "summary": {
+          "n": 500.0,
+          "em": 0.008,
+          "token_f1": 0.08758704796030334,
+          "contains": 0.298,
+          "precision_at_k": 0.24341463414634149,
+          "recall_at_k": 0.4918176538908246,
+          "temporal_acc": null,
+          "abstain_acc": 0.82,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 1.0,
+          "latency_s": 0.7940864274339728,
+          "latency_s_median": 0.7094091159988238,
+          "retrieval_rate": 1.0
+        },
+        "wall_clock_s": 397.1503053970009,
+        "routing_agreement": {
+          "n_routing_differs": 0,
+          "n_did_retrieve_differs": 0,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 0,
+          "n_skip_frozen": 0,
+          "learned_policy_counts": {
+            "historical_adaptive_window": 500
+          },
+          "frozen_policy_counts": {
+            "historical_adaptive_window": 500
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 1.0,
+        "timed_out": 0.0,
+        "capped": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,176 @@
+\documentclass[sigconf,anonymous,review]{acmart}
+
+\setcopyright{none}
+\copyrightyear{2027}
+\acmYear{2027}
+\acmDOI{}
+\acmISBN{}
+\settopmatter{printacmref=false,printccs=false}
+\acmConference[Context4Agents@WSDM '27]{Contextual Intelligence for AI Agents: Retrieval, Memory, and Reasoning}{February 19, 2027}{Hong Kong}
+\acmBooktitle{Context4Agents Workshop at WSDM 2027}
+
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{multirow}
+\emergencystretch=2em
+
+\begin{document}
+
+\title{When and What to Retrieve:\\Adaptive Temporal Context\\for Time-Sensitive Questions}
+
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \country{}
+}
+\renewcommand{\shortauthors}{Anonymous Author(s)}
+
+\begin{abstract}
+An agent that answers a time-sensitive question has to decide whether stored context is enough, which dates newly retrieved context may cover, and when that context is sufficient to stop.
+This paper freezes one pipeline and gives every compared system the same reader, the same answer shortening, and the same entity cut.
+On 77 templated questions Adaptive exact match is 0.948 against 0.935 for a fixed $\pm 2$ year filter and 0.662 for a TempRALM-style exponential decay ranker (B4).
+Containment ties the fixed filter at 0.987.
+On 193 questions about six entity names, Adaptive exact match is 0.762 against 0.684 for the fixed filter (paired difference $+0.078$, 95\% interval $[+0.041,+0.119]$, McNemar $p=6.10\times 10^{-5}$) and 0.358 for B4.
+On 500 TimeQA questions containment is 0.296 against 0.270 for the fixed filter ($p=0.117$) and 0.234 for B4 ($p=5.39\times 10^{-4}$).
+Exact match stays at 0.008.
+Turning the sufficiency loop off does not lower those scores.
+\end{abstract}
+
+\keywords{adaptive retrieval, temporal question answering, context selection, retrieval-augmented generation}
+
+\maketitle
+
+\section{Introduction}
+
+A fact such as who holds an office is true on an interval.
+The passage nearest in embedding space can be a true sentence about another year.
+Retrieval-augmented generation brings external text into a generator~\cite{lewis2020rag}, but the usual pipeline has no separate decision for whether to retrieve, which dates to keep, and when to stop.
+This paper measures a small explicit policy for those three controls, after freezing the reader so the comparison is not an answer-string trick.
+
+The policy has a DistilBERT router, a date window whose width follows the cue, and a sufficiency loop that may retrieve again.
+B4 is a separate baseline: dense retrieval union BM25, then smooth exponential decay around the year in the question, with no hard cutoff and no repair loop.
+Every retrieving system in the tables uses the same extractive reader, the same projection, the same sentence selector, and the same entity or surname cut.
+Numbers are the frozen run in \texttt{artifacts/final\_results.md}.
+Paired tests use the saved per-query rows.
+
+\section{Related Work}
+
+Dense passage retrieval replaces a sparse first stage with a dual encoder~\cite{karpukhin2020dpr}.
+Self-RAG and Adaptive-RAG decide how much retrieval a question deserves~\cite{asai2024selfrag,jeong2024adaptiverag}.
+They do not score whether a passage date matches the question, and Adaptive-RAG is not reimplemented here.
+TimeQA, SituatedQA, StreamingQA, RealTime QA, and FreshLLMs study answers that change with time~\cite{chen2021timeqa,zhang2021situatedqa,liska2022streamingqa,kasai2023realtimeqa,vu2023freshqa}.
+TempRALM re-ranks passages with a temporal score and can mask text dated after the query~\cite{gade2024tempralm}.
+B4 takes only the decay idea: $\exp(-|\Delta y|/2)$ on a dense+BM25 pool.
+It is not that paper's system, and the scores below are not TimeQA leaderboard numbers.
+The index is BGE-small with exact FAISS inner product, plus a MiniLM cross-encoder on B2, B3, and Adaptive~\cite{xiao2024cpack,johnson2019faiss,wang2020minilm}.
+
+\section{Method}
+
+The router predicts retrieval necessity and current, historical, or timeless.
+The confidence head is not in the loss.
+Retrieval is skipped only when the necessity class is 0 and the string hits a fixed trivia list.
+Historical questions use a cue-dependent window that can grow.
+B3 instead keeps a hard $\pm 2$ year band when a year is present.
+B4 never drops a candidate for being outside a band.
+It mixes min--max normalised dense and BM25 scores with equal weight and multiplies by the exponential decay when both the question and the document have a year.
+The sufficiency score can widen the search, up to three retrieves or 60 seconds, and then keeps the best evidence so far.
+Adaptive-Fast is that same policy with the loop removed.
+It is reported from the ablation file, not from a second four-system pass, so its latency is not paired with the Adaptive mean in the main block.
+
+\section{Setup}
+
+The templated test has 77 questions.
+The held-out test has 193 questions that name one of six entities.
+The TimeQA test has 500 questions on chunks of the pages attached to the sampled items, not open Wikipedia.
+Exact match and token F1 use SQuAD normalisation.
+On TimeQA they use a span taken from the selected sentence.
+Containment is 1 when the gold string occurs in the sentence or the sentence occurs in the gold string.
+Precision and recall at 5 use stored gold document ids.
+Temporal accuracy reads only the top timestamp and is left blank on TimeQA.
+Paired tests are exact two-sided McNemar tests.
+Intervals are paired bootstrap percentile intervals of Adaptive minus the other system, 10{,}000 resamples, seed 0.
+
+\section{Results}
+
+Tables~\ref{tab:syn77}, \ref{tab:held193}, and \ref{tab:timeqa500} are the frozen master comparison.
+Table~\ref{tab:ablations} removes one Adaptive piece at a time on all three tests: router, adaptive window, sufficiency loop, entity cut, and sentence selector.
+
+\input{../paper/final_tables}
+
+On the templated test Adaptive and B3 tie on containment (0.987, McNemar $p=1.000$) and differ by one exact match (0.948 versus 0.935, $p=1.000$).
+B4 matches B2 more than it matches the windowed systems: exact match 0.662, containment 0.727.
+The paired exact-match gap versus B4 is $+0.286$ $[+0.182,+0.390]$, $p=2.98\times 10^{-6}$.
+Adaptive-Fast copies the Adaptive answer scores.
+
+On the six-entity test the windowed policy is ahead of the fair fixed filter and far ahead of decay.
+Exact match is 0.762, 0.684, and 0.358.
+Containment versus B3 is $+0.052$ $[+0.021,+0.083]$, $p=0.002$.
+Versus B4 it is $+0.378$ $[+0.290,+0.466]$, $p=4.80\times 10^{-14}$.
+The entity-cut ablation is the templated change that a paired test supports: held-out exact match falls to 0.699, difference $+0.062$ $[+0.031,+0.098]$, $p=4.88\times 10^{-4}$.
+Router off, window off, sufficiency off, and sentence-selector off leave held-out exact match at 0.762.
+
+On TimeQA, exact match is 0.008 for Adaptive, 0.010 for B3 and for B4, and 0.006 for B2.
+None of those exact-match gaps is significant ($p=1.000$).
+Containment is 0.296, 0.270, 0.234, and 0.260.
+Versus B3 the interval includes zero ($+0.026$ $[-0.004,+0.056]$, $p=0.117$).
+Versus B4 it does not ($+0.062$ $[+0.028,+0.096]$, $p=5.39\times 10^{-4}$).
+The sentence selector is the large TimeQA ablation: containment 0.168 against 0.296, difference $+0.128$ $[+0.084,+0.172]$, $p=2.89\times 10^{-8}$.
+Entity-cut off falls to 0.252 ($p=1.13\times 10^{-4}$).
+Window off falls to 0.272 ($p=0.134$).
+Sufficiency off is 0.298 against 0.296, one extra contained answer for the system without the loop, $p=1.000$, and exact match is unchanged.
+That is a negative result for the repair loop.
+The four-system Adaptive mean on this file is 8.736\,s.
+The sufficiency-off ablation mean is 3.184\,s.
+Those two clocks are different runs.
+The direction is the finding: the loop does not buy answers.
+
+\begin{table*}[t]
+\caption{Paired tests, Adaptive minus the named system.
+The interval is a 10{,}000-resample bootstrap, seed 0.
+$p$ is an exact two-sided McNemar test.
+The full grid is \texttt{artifacts/significance.json}.}
+\label{tab:sig}
+\begin{tabular}{llccr}
+\toprule
+Data & Comparison & Metric & A$-$B 95\% CI & $p$ \\
+\midrule
+Templated & B3 & EM & $+0.013$ $[+0.000,+0.039]$ & 1.000 \\
+Templated & B3 & Cont & $+0.000$ $[+0.000,+0.000]$ & 1.000 \\
+Templated & B4 & EM & $+0.286$ $[+0.182,+0.390]$ & $2.98\times 10^{-6}$ \\
+Held-out & B3 & EM & $+0.078$ $[+0.041,+0.119]$ & $6.10\times 10^{-5}$ \\
+Held-out & B3 & Cont & $+0.052$ $[+0.021,+0.083]$ & 0.002 \\
+Held-out & B4 & EM & $+0.404$ $[+0.316,+0.492]$ & $3.06\times 10^{-15}$ \\
+Held-out & entity cut off & EM & $+0.062$ $[+0.031,+0.098]$ & $4.88\times 10^{-4}$ \\
+TimeQA & B3 & Cont & $+0.026$ $[-0.004,+0.056]$ & 0.117 \\
+TimeQA & B4 & Cont & $+0.062$ $[+0.028,+0.096]$ & $5.39\times 10^{-4}$ \\
+TimeQA & sentence selector off & Cont & $+0.128$ $[+0.084,+0.172]$ & $2.89\times 10^{-8}$ \\
+TimeQA & entity cut off & Cont & $+0.044$ $[+0.024,+0.066]$ & $1.13\times 10^{-4}$ \\
+TimeQA & window off & Cont & $+0.024$ $[-0.004,+0.052]$ & 0.134 \\
+TimeQA & sufficiency off & Cont & $-0.002$ $[-0.006,+0.000]$ & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Limitations}
+
+B4 is a decay formula, not a reproduction of TempRALM.
+Adaptive-RAG is not in the table.
+The router skips retrieval only on a trivia whitelist, on 10 of 77 templated questions and on none of the other two tests.
+The confidence head is untrained.
+TimeQA timestamps are often not the date of the asked fact, so B3's hard window is a weak control there.
+B4's latency is much lower because it does not run the cross-encoder.
+That speed is not a matched comparison with B2 or B3.
+Constants in the window and the decay width were set by hand.
+
+\section{Conclusion}
+
+With a shared reader, the adaptive window does not beat a fixed $\pm 2$ year filter on the templated test, and it does beat that filter on the six-entity test.
+A smooth exponential decay without a cutoff does not replace either window.
+On TimeQA the containment edge over the fixed filter is not significant, the edge over decay is, and exact match does not rank the systems.
+The sufficiency loop, which was meant to decide when context is enough, does not improve these scores.
+Reporting the loop-off row next to the full system is how that negative result stays visible.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

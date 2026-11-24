@@ -1,0 +1,15 @@
+{
+  "n": 193.0,
+  "em": 0.7616580310880829,
+  "token_f1": 0.7655440414507773,
+  "contains": 0.7616580310880829,
+  "precision_at_k": 0.6816062176165788,
+  "recall_at_k": 0.9119170984455959,
+  "temporal_acc": 1.0,
+  "abstain_acc": 1.0,
+  "router_temporal_acc": 1.0,
+  "router_needs_acc": 1.0,
+  "latency_s": 6.628808897424133,
+  "latency_s_median": 4.847880900138989,
+  "retrieval_rate": 1.0
+}

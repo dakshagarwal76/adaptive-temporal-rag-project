@@ -1,0 +1,9 @@
+{
+  "synthetic": {
+    "adaptive_learned100k": 764.3379754999187,
+    "adaptive_fast_learned100k": 13316.100762699964
+  },
+  "heldout": {
+    "adaptive_learned100k": 1279.4146714000963
+  }
+}

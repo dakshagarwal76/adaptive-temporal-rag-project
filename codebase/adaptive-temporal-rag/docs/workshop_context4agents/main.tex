@@ -34,6 +34,7 @@ On 193 questions about six entity names, Adaptive exact match is 0.762 against 0
 On 500 TimeQA questions containment is 0.296 against 0.270 for the fixed filter ($p=0.117$) and 0.234 for B4 ($p=5.39\times 10^{-4}$).
 Exact match stays at 0.008.
 Turning the sufficiency loop off does not lower those scores.
+Swapping in the 100k-question DeBERTa router without the trivia list leaves held-out and TimeQA answers unchanged but lowers templated exact match to 0.740 because it skips retrieval on 26 of 77 questions; its 0.998 test macro-F1 measures agreement with regex silver labels.
 \end{abstract}
 
 \keywords{adaptive retrieval, temporal question answering, context selection, retrieval-augmented generation}
@@ -67,8 +68,12 @@ The index is BGE-small with exact FAISS inner product, plus a MiniLM cross-encod
 \section{Method}
 
 The router predicts retrieval necessity and current, historical, or timeless.
-The confidence head is not in the loss.
+The frozen DistilBERT router's confidence head is not trained.
+The 100k router's head is trained with loss weight 0.3 against labeller confidence but is miscalibrated (ECE 0.198), so class decisions use temperature-scaled probabilities ($T{=}1.5$, temporal ECE 0.0005) and the head affects only the never-triggered 0.55 low-confidence fallback, averaged 50/50 with the maximum class probability.
+That fallback never fired on any of the 770 benchmark questions.
 Retrieval is skipped only when the necessity class is 0 and the string hits a fixed trivia list.
+This is the frozen rule router.
+The learned variant drops the list.
 Historical questions use a cue-dependent window that can grow.
 B3 instead keeps a hard $\pm 2$ year band when a year is present.
 B4 never drops a candidate for being outside a band.
@@ -82,9 +87,15 @@ It is reported from the ablation file, not from a second four-system pass, so it
 The templated test has 77 questions.
 The held-out test has 193 questions that name one of six entities.
 The TimeQA test has 500 questions on chunks of the pages attached to the sampled items, not open Wikipedia.
+TimeQA is treated as an out-of-distribution transfer test.
+Its passages are long Wikipedia-page chunks, unlike the short dated templated passages.
+The 100k router pool has zero overlap with the 500 TimeQA test questions by the dataset leak check.
 Exact match and token F1 use SQuAD normalisation.
 On TimeQA they use a span taken from the selected sentence.
 Containment is 1 when the gold string occurs in the sentence or the sentence occurs in the gold string.
+Containment is the primary TimeQA metric, because the reader returns a sentence and strict span exact match stays at 0.006--0.010 for every retrieving system.
+Of 5{,}931 TimeQA chunks, 662 (11.2\%) carry the 1970-01-01 placeholder timestamp and a further 658 (11.1\%) are stamped with the subject's birth year.
+That makes B3's hard window a weak control on TimeQA.
 Precision and recall at 5 use stored gold document ids.
 Temporal accuracy reads only the top timestamp and is left blank on TimeQA.
 Paired tests are exact two-sided McNemar tests.
@@ -151,16 +162,67 @@ TimeQA & sufficiency off & Cont & $-0.002$ $[-0.006,+0.000]$ & 1.000 \\
 \end{tabular}
 \end{table*}
 
+\subsection{Learned router}
+
+The learned router is DeBERTa-v3-base, trained on 79{,}982 weakly labelled real questions (100{,}000-question pool, synthetic fraction 0), validated on 10{,}077, and tested on 9{,}941.
+Test temporal accuracy is 0.9988 and temporal macro-F1 is 0.997.
+Table~\ref{tab:learned} swaps only this router into frozen Checkpoint B: the same reader, projection, entity cut, and FAISS plus cross-encoder, at most three retrieves or 60 seconds.
+The trivia list is removed, so retrieval is skipped whenever the router predicts no retrieval.
+Learned keeps the sufficiency loop and Learned-Fast turns it off.
+
+\begin{table}[t]
+\caption{Learned router versus frozen rule Adaptive.
+Rule rows are the Adaptive rows of Tables~\ref{tab:syn77}--\ref{tab:timeqa500}.}
+\label{tab:learned}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+System & EM & Cont & P@5 & R@5 & Ret \\
+\midrule
+\multicolumn{6}{@{}l}{Templated, $n{=}77$} \\
+Rule Adaptive & 0.948 & 0.987 & 0.668 & 0.954 & 0.870 \\
+Learned & 0.740 & 0.779 & 0.578 & 0.833 & 0.662 \\
+Learned-Fast & 0.740 & 0.779 & 0.578 & 0.833 & 0.662 \\
+\midrule
+\multicolumn{6}{@{}l}{Held-out, $n{=}193$} \\
+Rule Adaptive & 0.762 & 0.762 & 0.682 & 0.912 & 1.000 \\
+Learned & 0.762 & 0.762 & 0.682 & 0.912 & 1.000 \\
+Learned-Fast & 0.762 & 0.762 & 0.682 & 0.912 & 1.000 \\
+\midrule
+\multicolumn{6}{@{}l}{TimeQA, $n{=}500$} \\
+Rule Adaptive & 0.008 & 0.296 & 0.241 & 0.488 & 1.000 \\
+Learned & 0.008 & 0.296 & 0.242 & 0.489 & 1.000 \\
+Learned-Fast & 0.008 & 0.298 & 0.243 & 0.492 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On the templated test the learned router skips 26 of 77 questions, against 10 of 77 for the rule router, including 16 that the frozen router retrieved for and that frozen Adaptive answered correctly (necessity accuracy 0.909; temporal-class accuracy 1.000).
+Paired exact match and containment versus frozen Adaptive are $-0.208$ $[-0.299,-0.117]$, McNemar $p=3.05\times 10^{-5}$ (16 lost, 0 gained).
+Versus B3, exact match is $-0.195$ $[-0.299,-0.104]$, $p=2.75\times 10^{-4}$.
+Versus B2, exact match is $+0.091$ $[-0.065,+0.247]$, $p=0.337$.
+Learned-Fast has the same scores.
+Routing on the held-out test matches the frozen router on all 193 questions, and every answer is identical.
+Versus B3, exact match is $+0.078$ $[+0.041,+0.119]$, $p=6.10\times 10^{-5}$.
+On TimeQA, routing matches on all 500 questions and every answer matches the frozen run, with one question retrieving a different fifth passage.
+Learned versus B4 containment is $+0.062$ $[+0.028,+0.096]$, $p=5.39\times 10^{-4}$.
+Learned-Fast versus B3 containment is $+0.028$ $[-0.002,+0.058]$, $p=0.0925$.
+Learned and Learned-Fast mean latencies are 0.482\,s and 0.176\,s (templated), 0.347\,s and 0.302\,s (held-out), and 1.267\,s and 0.794\,s (TimeQA), measured on a different CPU host with 8 vCPUs and not comparable to the clocks in Tables~\ref{tab:syn77}--\ref{tab:timeqa500}.
+
+A regex-and-source labeller reproduces all 9{,}941 router test labels: 4{,}953 come from year or cue regexes and 4{,}988 from per-source defaults.
+TimeQA (1{,}629) and SituatedQA (668) test rows are single-class historical, ARC, CommonsenseQA, OpenBookQA, QASC, and SciQ are 92--99\% timeless, and a per-source majority rule reaches only 0.725 accuracy (macro-F1 0.475), so source identity alone does not explain the score; the labelling rules do.
+On 36 hand-written questions labelled by the authors (10 timeless questions containing a year or a word such as today, 10 current questions without a cue word, 10 historical questions without a year, and 6 year-anchored controls), the router agrees with the regex labeller on 35/36 but matches the semantic label on only 12/36 (0.333): 0/10 timeless-with-year, 3/10 current-without-cue, 4/10 historical-without-year, and 5/6 controls.
+
 \section{Limitations}
 
 B4 is a decay formula, not a reproduction of TempRALM.
 Adaptive-RAG is not in the table.
-The router skips retrieval only on a trivia whitelist, on 10 of 77 templated questions and on none of the other two tests.
-The confidence head is untrained.
-TimeQA timestamps are often not the date of the asked fact, so B3's hard window is a weak control there.
-B4's latency is much lower because it does not run the cross-encoder.
-That speed is not a matched comparison with B2 or B3.
+The frozen rule router skips retrieval only on a trivia whitelist, on 10 of 77 templated questions and on none of the other two tests.
+B4 does not run the cross-encoder, so its 0.031\,s, 0.040\,s, and 0.062\,s latency (templated, held-out, and TimeQA) is not matched to B2, B3, or Adaptive.
 Constants in the window and the decay width were set by hand.
+The router labels are regex silver labels, and the 36-question probe is small and author-labelled.
 
 \section{Conclusion}
 
@@ -169,6 +231,7 @@ A smooth exponential decay without a cutoff does not replace either window.
 On TimeQA the containment edge over the fixed filter is not significant, the edge over decay is, and exact match does not rank the systems.
 The sufficiency loop, which was meant to decide when context is enough, does not improve these scores.
 Reporting the loop-off row next to the full system is how that negative result stays visible.
+The learned router leaves held-out and TimeQA answers unchanged and lowers templated exact match to 0.740 by skipping retrieval on 26 of 77 questions.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}

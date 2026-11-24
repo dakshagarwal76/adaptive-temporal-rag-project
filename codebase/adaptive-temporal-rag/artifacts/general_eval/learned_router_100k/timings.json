@@ -1,0 +1,14 @@
+{
+  "synthetic": {
+    "adaptive_learned100k": 37.136130313998365,
+    "adaptive_fast_learned100k": 13.571703040999637
+  },
+  "heldout": {
+    "adaptive_learned100k": 67.06659814399973,
+    "adaptive_fast_learned100k": 58.34096183499969
+  },
+  "timeqa": {
+    "adaptive_learned100k": 633.5498565729995,
+    "adaptive_fast_learned100k": 397.1503053970009
+  }
+}

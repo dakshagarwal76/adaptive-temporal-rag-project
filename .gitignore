@@ -45,3 +45,16 @@ cursor-chats/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Hosted demo build output
+web/node_modules/
+web/.next/
+web/.vercel/
+web/.deploy-b64/
+
+# LaTeX build products
+*.aux
+*.out
+*.blg
+*.toc
+*.synctex.gz
