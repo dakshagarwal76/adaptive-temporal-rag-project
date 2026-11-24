@@ -68,3 +68,11 @@ codebase/adaptive-temporal-rag/docs/workshop_context4agents/
 codebase/adaptive-temporal-rag/artifacts/router_large_100k/workshop_backup_before_update/
 codebase/adaptive-temporal-rag/REPORT_SECTIONS.md
 codebase/adaptive-temporal-rag/README_PRESENTATION.md
+
+# Local workshop-paper backups
+codebase/adaptive-temporal-rag/artifacts/router_v2_paper_backup/
+
+# Learned-router training splits (too large; not shipped)
+codebase/adaptive-temporal-rag/router_v2/data/train.jsonl
+codebase/adaptive-temporal-rag/router_v2/data/val.jsonl
+codebase/adaptive-temporal-rag/router_v2/data/test.jsonl

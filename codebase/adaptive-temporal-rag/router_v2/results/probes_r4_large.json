@@ -1,0 +1,1114 @@
+{
+ "probe36": {
+  "n": 36,
+  "temporal_correct": 33,
+  "needs_correct": 30,
+  "both_correct": 29,
+  "by_category_temporal": {
+   "A_timeless_with_year_or_time_word": [
+    8,
+    10
+   ],
+   "B_current_without_explicit_cue": [
+    10,
+    10
+   ],
+   "C_historical_without_year": [
+    10,
+    10
+   ],
+   "D_year_anchored_control": [
+    5,
+    6
+   ]
+  },
+  "rows": [
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "How does carbon-14 dating measure artifacts from 2000 BC?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9333
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "Why does the year 2024 have 366 days?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9668
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "What is the square root of 1600?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9587
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "How many minutes are in 1440 seconds?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9591
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "Is 2027 a prime number?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9596
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "How do leap years work, for example in 2028?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9175
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "What does the word today mean in English grammar?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9856
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "What is meant by the most recent common ancestor in biology?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9874
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "Which planet is the largest in our solar system today?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9748
+   },
+   {
+    "category": "A_timeless_with_year_or_time_word",
+    "query": "What is 1999 plus 1?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.959
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Who leads the Federal Reserve?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9712
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Who is the chief executive of Microsoft?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9717
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "What is the price of Bitcoin?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.973
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Which team holds the NBA championship title?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9735
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "What is the population of India?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9748
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Who is Japan's prime minister?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9723
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "What is the inflation rate in the United States?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9716
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Who coaches Manchester United?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9724
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Which country tops the FIFA men's world ranking?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9736
+   },
+   {
+    "category": "B_current_without_explicit_cue",
+    "query": "Who is the reigning Wimbledon men's singles champion?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9725
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who won the first FIFA World Cup?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.992
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who was the British prime minister when the Berlin Wall fell?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9927
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who was UN Secretary-General before Kofi Annan?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9926
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Which team won the World Cup final held in South Africa?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9909
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who was Apple's CEO before Tim Cook?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9926
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "What was the capital of West Germany before reunification?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9926
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who did Barack Obama defeat in his re-election campaign?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9896
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who was the Soviet leader during the Cuban Missile Crisis?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9927
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Who was Germany's chancellor at the end of the Cold War?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9929
+   },
+   {
+    "category": "C_historical_without_year",
+    "query": "Which country hosted the Summer Olympics right after the Beijing Games?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9915
+   },
+   {
+    "category": "D_year_anchored_control",
+    "query": "Who was the President of France in 1995?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9918
+   },
+   {
+    "category": "D_year_anchored_control",
+    "query": "Who won the Nobel Prize in Literature in 2016?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9917
+   },
+   {
+    "category": "D_year_anchored_control",
+    "query": "Who was the UK prime minister in 2010?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9919
+   },
+   {
+    "category": "D_year_anchored_control",
+    "query": "Who won the Super Bowl in 1990?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9918
+   },
+   {
+    "category": "D_year_anchored_control",
+    "query": "Which countries are hosting the 2026 FIFA World Cup?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9725
+   },
+   {
+    "category": "D_year_anchored_control",
+    "query": "Who won the 2025 German federal election?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9919
+   }
+  ]
+ },
+ "challenge_v2": {
+  "n": 72,
+  "temporal_correct": 69,
+  "needs_correct": 68,
+  "both_correct": 66,
+  "by_category_temporal": {
+   "CA_timeless_numeric_or_timeword_selfcontained": [
+    9,
+    10
+   ],
+   "CA2_timeless_timeword_needs_evidence": [
+    8,
+    10
+   ],
+   "CB_current_implicit": [
+    12,
+    12
+   ],
+   "CC_historical_implicit": [
+    12,
+    12
+   ],
+   "CD_year_anchored": [
+    6,
+    6
+   ],
+   "CD2_recent_year_current": [
+    2,
+    2
+   ],
+   "CE_closed_book_trivial": [
+    10,
+    10
+   ],
+   "CF_timeless_factual": [
+    10,
+    10
+   ]
+  },
+  "rows": [
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "What is 1850 divided by 2?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch000",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9593
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "Is 1987 an odd number?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch001",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9592
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "What do you get when you subtract 1914 from 2000?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch002",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9591
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "How many weeks are in 364 days?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch003",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.959
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "Is 2031 divisible by 3?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch004",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9588
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "Add 1776 and 224.",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch005",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9594
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "How many centimetres are in 1905 millimetres?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch006",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9591
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "What is half of 2012?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch007",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9925
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "How many grams are in 3 kilograms?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch008",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.959
+   },
+   {
+    "category": "CA_timeless_numeric_or_timeword_selfcontained",
+    "query": "What is the remainder when 1999 is divided by 10?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch009",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9596
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "Why do we have a leap second occasionally added to clocks?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch010",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9852
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "What does the adverb 'nowadays' mean?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch011",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9827
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "In chemistry, what is a current of electrons called?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch012",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9847
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "What is the latest stage of mitosis called?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch013",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9855
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "Which is the deepest ocean trench on Earth?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch014",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9873
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "How does radiocarbon dating estimate the age of bones from 3000 BC?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch015",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9499
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "What is the boiling point of water at sea level in 2024 units of Celsius?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch016",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9841
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "What does the prefix 'pre-' mean in the word 'prehistoric'?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch017",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9851
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "Which gas makes up most of the atmosphere today?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch018",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9755
+   },
+   {
+    "category": "CA2_timeless_timeword_needs_evidence",
+    "query": "What is the modern scientific name for the domestic dog?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch019",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9841
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who runs the European Space Agency?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch020",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9739
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who is the head of the World Health Organization?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch021",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9724
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "What is the unemployment rate in Canada?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch022",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9719
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who chairs the board of Samsung Electronics?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch023",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9726
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who is Australia's governor-general?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch024",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.974
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "What is the exchange rate of the euro to the yen?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch025",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9747
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who manages Real Madrid's first team?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch026",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9728
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Which club tops the Bundesliga table?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch027",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9736
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who is the reigning world chess champion?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch028",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9724
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "What is the population of Nigeria?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch029",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9744
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who is the mayor of Paris?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch030",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9721
+   },
+   {
+    "category": "CB_current_implicit",
+    "query": "Who heads the International Monetary Fund?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch031",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9721
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who led the Soviet Union before Gorbachev?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch032",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9928
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Which country won the very first Eurovision Song Contest?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch033",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9921
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who was Microsoft's chief executive before Satya Nadella?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch034",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9927
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who was the US president when the Apollo 11 mission landed?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch035",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9926
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who won the first ever Tour de France?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch036",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.992
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "What was the capital of Brazil before Brasilia?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch037",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9918
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who was the British monarch during the Battle of Waterloo?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch038",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9925
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who ruled Egypt when the Suez Canal was nationalised?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch039",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9926
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Which nation hosted the Olympics immediately before the London Games of the twenty-first century?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch040",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9918
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who directed Disney's first full-length animated feature?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch041",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9636
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who preceded Angela Merkel as German chancellor?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch042",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9929
+   },
+   {
+    "category": "CC_historical_implicit",
+    "query": "Who was Pope before Benedict XVI?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch043",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9926
+   },
+   {
+    "category": "CD_year_anchored",
+    "query": "Who won the Ballon d'Or in 2008?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch044",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9917
+   },
+   {
+    "category": "CD_year_anchored",
+    "query": "Which film won the Palme d'Or in 1994?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch045",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9916
+   },
+   {
+    "category": "CD_year_anchored",
+    "query": "Who was the Canadian prime minister in 1985?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch046",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9918
+   },
+   {
+    "category": "CD_year_anchored",
+    "query": "Who won the Booker Prize in 2002?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch047",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9918
+   },
+   {
+    "category": "CD_year_anchored",
+    "query": "Which team won the Stanley Cup in 1999?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch048",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9917
+   },
+   {
+    "category": "CD_year_anchored",
+    "query": "Who was Secretary-General of NATO in 2012?",
+    "gold_temporal": "historical",
+    "gold_needs": 1,
+    "id": "ch049",
+    "pred_temporal": "historical",
+    "pred_needs": 1,
+    "confidence": 0.9919
+   },
+   {
+    "category": "CD2_recent_year_current",
+    "query": "Who is expected to host the 2027 Rugby World Cup?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch050",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9622
+   },
+   {
+    "category": "CD2_recent_year_current",
+    "query": "Which city will host the 2030 Winter Olympics?",
+    "gold_temporal": "current",
+    "gold_needs": 1,
+    "id": "ch051",
+    "pred_temporal": "current",
+    "pred_needs": 1,
+    "confidence": 0.9626
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "What is nine multiplied by six?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch052",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9586
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "How many seconds are in a minute?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch053",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.964
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "What is the opposite of tall?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch054",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9799
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "How many months are in a year?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch055",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9648
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "What is 15 minus 6?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch056",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9588
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "How many legs does a spider have?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch057",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9817
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "Spell the word 'cat' backwards.",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch058",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.98
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "What is 100 divided by 4?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch059",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9586
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "How many sides does a triangle have?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch060",
+    "pred_temporal": "timeless",
+    "pred_needs": 0,
+    "confidence": 0.9678
+   },
+   {
+    "category": "CE_closed_book_trivial",
+    "query": "Is fire hot or cold?",
+    "gold_temporal": "timeless",
+    "gold_needs": 0,
+    "id": "ch061",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9806
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "Who wrote the novel Middlemarch?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch062",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9835
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "What is the chemical symbol for tungsten?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch063",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9821
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "Define the term photosphere.",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch064",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.985
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "Explain what a binary search tree is.",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch065",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9858
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "What is the function of the pancreas?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch066",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9846
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "Which composer wrote The Rite of Spring?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch067",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9879
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "What is the atomic number of neon?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch068",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9834
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "Give a brief definition of inflation in economics.",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch069",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9881
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "What is a prime number?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch070",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9787
+   },
+   {
+    "category": "CF_timeless_factual",
+    "query": "Who painted The Night Watch?",
+    "gold_temporal": "timeless",
+    "gold_needs": 1,
+    "id": "ch071",
+    "pred_temporal": "timeless",
+    "pred_needs": 1,
+    "confidence": 0.9873
+   }
+  ]
+ }
+}

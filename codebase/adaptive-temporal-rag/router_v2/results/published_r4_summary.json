@@ -1,0 +1,179 @@
+{
+  "description": "Verified r4 learned-router numbers. Raw values from eval JSON and bundle metadata. Display rounding is noted separately.",
+  "data_splits": {
+    "train": 80145,
+    "val": 10018,
+    "test": 9901
+  },
+  "year_rule": {
+    "policy": "A real question anchored to an explicit past year <= 2024 (reference year 2026 minus 2) is labelled historical. Years used as quantities or maths operands are ignored.",
+    "train_labels_changed": 3810,
+    "labels_changed_all_splits": 4855,
+    "train_breakdown": {
+      "current->historical": 3520,
+      "timeless->historical": 290
+    },
+    "all_splits_breakdown": {
+      "train:current->historical": 3520,
+      "train:timeless->historical": 290,
+      "val:current->historical": 513,
+      "val:timeless->historical": 29,
+      "test:current->historical": 465,
+      "test:timeless->historical": 38
+    },
+    "aug_r4_pairs_added_to_train": 274
+  },
+  "display_rounding": {
+    "templated_em": "0.9480519... -> 0.948",
+    "heldout_em": "0.7616580... -> 0.762",
+    "timeqa_contains": "0.296 (exact at three decimals)",
+    "ece_r4_base": "0.0559357... -> 0.0559",
+    "ece_r4_large": "0.0477946... -> 0.0478",
+    "train_seconds_r4_base": "171.4 s -> 2 min 51 s (training loop only, from analyzer_meta.json)",
+    "train_seconds_r4_large": "406.5 s -> 6 min 47 s (training loop only, from analyzer_meta.json)"
+  },
+  "r4_base": {
+    "templated_em_raw": 0.948051948051948,
+    "heldout_em_raw": 0.7616580310880829,
+    "timeqa_contains_raw": 0.296,
+    "vs_frozen_adaptive": {
+      "synthetic_em": {
+        "n": 77,
+        "mean_a": 0.948051948051948,
+        "mean_b": 0.948051948051948,
+        "diff_a_minus_b": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "n_a_only": 0,
+        "n_b_only": 0,
+        "mcnemar_p": 1.0,
+        "bootstrap_resamples": 10000,
+        "seed": 0
+      },
+      "heldout_em": {
+        "n": 193,
+        "mean_a": 0.7616580310880829,
+        "mean_b": 0.7616580310880829,
+        "diff_a_minus_b": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "n_a_only": 0,
+        "n_b_only": 0,
+        "mcnemar_p": 1.0,
+        "bootstrap_resamples": 10000,
+        "seed": 0
+      },
+      "timeqa_contains": {
+        "n": 500,
+        "mean_a": 0.296,
+        "mean_b": 0.296,
+        "diff_a_minus_b": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "n_a_only": 0,
+        "n_b_only": 0,
+        "mcnemar_p": 1.0,
+        "bootstrap_resamples": 10000,
+        "seed": 0
+      }
+    },
+    "probe36": {
+      "n": 36,
+      "temporal_correct": 32,
+      "needs_correct": 30,
+      "both_correct": 29
+    },
+    "challenge_v2": {
+      "n": 72,
+      "temporal_correct": 69,
+      "needs_correct": 67,
+      "both_correct": 65
+    },
+    "ece_conf_head_vs_both_correct_test": 0.05593579562670444,
+    "training": {
+      "model_name": "microsoft/deberta-v3-base",
+      "temperature": 1.6,
+      "train_n": 80145,
+      "epochs": 3.0,
+      "lr": 3e-05,
+      "bs": 64,
+      "seed": 13,
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "train_seconds": 171.42584562301636,
+      "label_schema": "v2+llm_temporal"
+    },
+    "analyzer_pt_sha256": "21988c60593b2d1ce34b8be5bd9060a30691c94e07fb84226aa1394400fb51aa"
+  },
+  "r4_large": {
+    "templated_em_raw": 0.948051948051948,
+    "heldout_em_raw": 0.7616580310880829,
+    "timeqa_contains_raw": 0.296,
+    "vs_frozen_adaptive": {
+      "synthetic_em": {
+        "n": 77,
+        "mean_a": 0.948051948051948,
+        "mean_b": 0.948051948051948,
+        "diff_a_minus_b": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "n_a_only": 0,
+        "n_b_only": 0,
+        "mcnemar_p": 1.0,
+        "bootstrap_resamples": 10000,
+        "seed": 0
+      },
+      "heldout_em": {
+        "n": 193,
+        "mean_a": 0.7616580310880829,
+        "mean_b": 0.7616580310880829,
+        "diff_a_minus_b": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "n_a_only": 0,
+        "n_b_only": 0,
+        "mcnemar_p": 1.0,
+        "bootstrap_resamples": 10000,
+        "seed": 0
+      },
+      "timeqa_contains": {
+        "n": 500,
+        "mean_a": 0.296,
+        "mean_b": 0.296,
+        "diff_a_minus_b": 0.0,
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "n_a_only": 0,
+        "n_b_only": 0,
+        "mcnemar_p": 1.0,
+        "bootstrap_resamples": 10000,
+        "seed": 0
+      }
+    },
+    "probe36": {
+      "n": 36,
+      "temporal_correct": 33,
+      "needs_correct": 30,
+      "both_correct": 29
+    },
+    "challenge_v2": {
+      "n": 72,
+      "temporal_correct": 69,
+      "needs_correct": 68,
+      "both_correct": 66
+    },
+    "ece_conf_head_vs_both_correct_test": 0.0477946514240986,
+    "training": {
+      "model_name": "microsoft/deberta-v3-large",
+      "temperature": 1.4,
+      "train_n": 80145,
+      "epochs": 2.0,
+      "lr": 1e-05,
+      "bs": 32,
+      "seed": 13,
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "train_seconds": 406.5359356403351,
+      "label_schema": "v2+llm_temporal"
+    },
+    "analyzer_pt_sha256": "fc4950cd1b051cfffb35566fbdfe78b020b21a012d144a25ed4ba3664f19dc0c"
+  }
+}

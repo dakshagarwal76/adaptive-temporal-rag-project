@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "router_bundle": "router_v2/bundles/r4_base_fix",
+    "analyzer_pt_sha256": "21988c60593b2d1ce34b8be5bd9060a30691c94e07fb84226aa1394400fb51aa",
+    "model_name": "microsoft/deberta-v3-base",
+    "temperature": 1.6,
+    "config_path": "configs/final.yaml",
+    "device": "cpu",
+    "python": "3.13.5",
+    "torch": "2.14.1+cpu",
+    "transformers": "5.20.2",
+    "timestamp": "2026-11-24T13:06:44.367556+00:00",
+    "limit": 0
+  },
+  "datasets": {
+    "synthetic": {
+      "adaptive_learned100k": {
+        "n": 77,
+        "summary": {
+          "n": 77.0,
+          "em": 0.948051948051948,
+          "token_f1": 0.9603502558048014,
+          "contains": 0.987012987012987,
+          "precision_at_k": 0.6681034482758621,
+          "recall_at_k": 0.9540229885057472,
+          "temporal_acc": 1.0,
+          "abstain_acc": 1.0,
+          "router_temporal_acc": 1.0,
+          "router_needs_acc": 0.8441558441558441,
+          "latency_s": 0.7541929207532062,
+          "latency_s_median": 0.675472904000344,
+          "retrieval_rate": 0.9090909090909091
+        },
+        "wall_clock_s": null,
+        "routing_agreement": {
+          "n_routing_differs": 11,
+          "n_did_retrieve_differs": 3,
+          "n_pred_temporal_differs": 0,
+          "n_skip_learned": 7,
+          "n_skip_frozen": 10,
+          "learned_policy_counts": {
+            "current": 36,
+            "historical_adaptive_window": 15,
+            "no_retrieval": 7,
+            "timeless_semantic": 19
+          },
+          "frozen_policy_counts": {
+            "current": 36,
+            "historical_adaptive_window": 15,
+            "no_retrieval": 10,
+            "soft_retrieve_timeless": 8,
+            "timeless_semantic": 8
+          }
+        },
+        "router_temporal_acc": 1.0,
+        "router_needs_acc": 0.8441558441558441,
+        "timed_out": 0.0,
+        "capped": 0.03896103896103896
+      }
+    }
+  }
+}

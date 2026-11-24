@@ -41,3 +41,7 @@ docs/                    diagrams and run notes
 - Analyzer: `distilbert-base-uncased`
 - Retrieval depth `k = 5`, blend `α = 0.6`, confidence and sufficiency thresholds `0.55`
 - Offline generator: extractive. API answers are optional via `.env.example`
+
+## Learned router
+
+The r4 learned router lives in [router_v2/](router_v2/). A presentable Colab notebook is [notebooks/train_learned_router.ipynb](notebooks/train_learned_router.ipynb). On the frozen eval it ties the rule-based Adaptive system (templated EM 0.948, held-out 0.762, TimeQA Contains 0.296). See [router_v2/README.md](router_v2/README.md) for the full table and how to retrain.

@@ -39,6 +39,12 @@ Same Checkpoint B configuration for every row. Source: `artifacts/general_eval/f
 
 On the six-entity held-out split (n = 193), Adaptive exact match is 0.762 against 0.684 for the fixed window. On the TimeQA subset (n = 500), exact match stays near zero for every system; Adaptive containment is 0.296 against 0.270 for the fixed window. Full tables, latency, and ablations: `artifacts/final_results.md`.
 
+## Learned router
+
+Round 4 trains a DeBERTa router that decides whether to retrieve and which temporal class a question has. On the same frozen eval it ties the Adaptive rules: templated exact match 0.948, held-out exact match 0.762, TimeQA containment 0.296, with 0/0 discordant answers and McNemar *p* = 1. It does not beat the rules.
+
+Colab training notebook: [notebooks/train_learned_router.ipynb](codebase/adaptive-temporal-rag/notebooks/train_learned_router.ipynb). Scripts, bundle metadata, and result JSON files: [router_v2/](codebase/adaptive-temporal-rag/router_v2/). Checkpoints and the 80k-row training splits are not in git.
+
 ## Data
 
 The main file is generated from timelines of office holders, executives, sports winners, awards, and a few laws.
