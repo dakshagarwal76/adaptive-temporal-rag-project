@@ -149,6 +149,7 @@ export function AskPanel() {
               <span className="chip" key={item}>{sourceLabel(item)}</span>
             ))}
             <span className="chip">{labelFor(result.system)}</span>
+            <span className="chip">{backendLabel(result.backend)}</span>
             <span className="chip">{result.didRetrieve ? "Retrieved" : "No retrieval"}</span>
             {result.analyzer ? <span className="chip">{result.analyzer.temporalClass}</span> : null}
             <span className="chip">{result.latencyMs} ms</span>
@@ -211,6 +212,11 @@ export function AskPanel() {
       ) : null}
     </>
   );
+}
+
+function backendLabel(backend: string) {
+  const match = backend.match(/^api:([^:]+):(.+)$/);
+  return match ? `${match[1]} · ${match[2]}` : backend;
 }
 
 function labelFor(system: SystemId) {

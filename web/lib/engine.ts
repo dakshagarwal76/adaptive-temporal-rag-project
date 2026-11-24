@@ -37,7 +37,7 @@ export type AskResult = {
   answer: string;
   didRetrieve: boolean;
   latencyMs: number;
-  backend: "extractive";
+  backend: string;
   analyzer: {
     needsRetrieval: boolean;
     temporalClass: "current" | "historical" | "timeless";

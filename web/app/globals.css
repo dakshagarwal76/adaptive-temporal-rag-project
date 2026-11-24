@@ -287,7 +287,13 @@ a { color: inherit; }
 
 .card a { text-underline-offset: 2px; }
 
-.card p { margin: 8px 0 0; }
+.card p {
+  margin: 8px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 .empty {
   color: var(--muted);

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ask, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
+import { generateAnswer } from "@/lib/generate";
 import { askGdelt } from "@/lib/gdelt";
 import { askWikipedia } from "@/lib/wikipedia";
 
@@ -25,7 +26,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a question." }, { status: 400 });
   }
   if (system === "closed") {
-    return NextResponse.json(finish(ask(query, "closed"), sources, 0));
+    const closed = finish(ask(query, "closed"), sources, 0);
+    return NextResponse.json(await withModel(closed));
   }
 
   const started = performance.now();
@@ -42,7 +44,14 @@ export async function POST(request: Request) {
   if (ready.length === 0) {
     return NextResponse.json({ error: failed.map((item) => item.message).join(" ") }, { status: 502 });
   }
-  return NextResponse.json(combine(ready, failed, sources, Math.max(1, Math.round(performance.now() - started))));
+  const combined = combine(ready, failed, sources, Math.max(1, Math.round(performance.now() - started)));
+  return NextResponse.json(await withModel(combined));
+}
+
+async function withModel(result: AskResult): Promise<AskResult> {
+  const generated = await generateAnswer(result.query, result.evidence);
+  if (!generated) return result;
+  return { ...result, answer: generated.answer, answers: undefined, backend: generated.backend };
 }
 
 function parseSources(body: { source?: unknown; sources?: unknown }): SourceId[] {
