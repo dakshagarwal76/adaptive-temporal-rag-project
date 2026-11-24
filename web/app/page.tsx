@@ -6,7 +6,7 @@ export default function HomePage() {
       <div className="lede">
         <h1>When and what to retrieve.</h1>
         <p>
-          Select corpus.jsonl, Wikipedia, GDELT, or any combination. The configured model writes the answer from the evidence that was retrieved. Adaptive retrieval skips trivia, keeps a window around a past year, and prefers the latest passage for a current office.
+          Select corpus.jsonl, Wikipedia, Wikidata, GDELT, or any combination. The configured model writes the answer from the evidence that was retrieved. Adaptive retrieval skips trivia, keeps a window around a past year, and prefers the latest passage for a current office.
         </p>
       </div>
       <AskPanel />

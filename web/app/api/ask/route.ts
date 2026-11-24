@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { ask, type AskResult, type SourceId, type SystemId } from "@/lib/engine";
 import { fallbackAnswer, generateAnswer } from "@/lib/generate";
 import { askGdelt } from "@/lib/gdelt";
+import { askWikidata } from "@/lib/wikidata";
 import { askWikipedia } from "@/lib/wikipedia";
 
 const SYSTEMS = new Set<SystemId>(["adaptive", "standard", "fixed", "closed"]);
-const ORDER: SourceId[] = ["corpus", "wikipedia", "gdelt"];
+const ORDER: SourceId[] = ["corpus", "wikipedia", "wikidata", "gdelt"];
 const SOURCE_SET = new Set<SourceId>(ORDER);
 
 export const maxDuration = 30;
@@ -71,6 +72,7 @@ function parseSources(body: { source?: unknown; sources?: unknown }): SourceId[]
 
 async function askOne(query: string, system: SystemId, source: SourceId): Promise<AskResult> {
   if (source === "wikipedia") return askWikipedia(query, system);
+  if (source === "wikidata") return askWikidata(query, system);
   if (source === "gdelt") return askGdelt(query, system);
   return ask(query, system);
 }
