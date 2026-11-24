@@ -4,11 +4,30 @@
   --muted: #6a645b;
   --line: #e2dbd0;
   --card: #fffcf7;
+  --field: #fff;
   --accent: #1e4d42;
   --accent-ink: #f4faf7;
   --soft: #e7f0ec;
+  --on: #c9ddd4;
+  --hover: #cfc6b8;
   --warn: #8a4b12;
   color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #141210;
+  --ink: #f3efe8;
+  --muted: #b3aa9e;
+  --line: #3a342c;
+  --card: #1e1b17;
+  --field: #171410;
+  --accent: #8fcebb;
+  --accent-ink: #10241e;
+  --soft: #24332e;
+  --on: #3d5c52;
+  --hover: #5c5348;
+  --warn: #e0a06a;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -49,6 +68,12 @@ a { color: inherit; }
   letter-spacing: -0.02em;
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
 .nav {
   display: flex;
   gap: 18px;
@@ -62,6 +87,29 @@ a { color: inherit; }
 
 .nav a[data-active="true"] {
   color: var(--ink);
+  font-weight: 600;
+}
+
+.theme {
+  display: flex;
+  gap: 4px;
+}
+
+.theme button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.theme button[aria-pressed="true"] {
+  background: var(--soft);
+  border-color: var(--on);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -120,7 +168,7 @@ a { color: inherit; }
   height: 46px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--field);
   padding: 0 14px;
   font: inherit;
   color: var(--ink);
@@ -169,7 +217,7 @@ a { color: inherit; }
 
 .systems button[data-on="true"] {
   background: var(--soft);
-  border-color: #c9ddd4;
+  border-color: var(--on);
   color: var(--accent);
   font-weight: 600;
 }
@@ -188,7 +236,7 @@ a { color: inherit; }
   background: transparent;
 }
 
-.examples button:hover { color: var(--ink); border-color: #cfc6b8; }
+.examples button:hover { color: var(--ink); border-color: var(--hover); }
 
 .error {
   margin: 14px 2px 0;
@@ -235,7 +283,7 @@ a { color: inherit; }
   font-size: 12px;
   letter-spacing: 0.02em;
   color: var(--muted);
-  background: #fff;
+  background: var(--field);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 4px 10px;
@@ -347,6 +395,8 @@ tbody tr[data-ours="true"] { background: var(--soft); }
 }
 
 @media (max-width: 640px) {
+  .top { flex-wrap: wrap; align-items: center; }
+  .top-actions { width: 100%; justify-content: space-between; }
   .lede h1 { font-size: 32px; }
   .answer { font-size: 26px; }
   .ask-row { flex-direction: column; }
