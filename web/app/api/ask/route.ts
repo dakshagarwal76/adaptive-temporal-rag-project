@@ -30,8 +30,7 @@ export async function POST(request: Request) {
   if (system === "adaptive") {
     const local = ask(query, system);
     if (!local.didRetrieve && local.analyzer?.policy === "no_retrieval") {
-      const latencyMs = Math.max(1, Math.round(performance.now() - started));
-      return NextResponse.json(finish(local, sources, latencyMs));
+      return NextResponse.json(await timed(finish(local, sources, 0), started, modelChoice(body.model)));
     }
   }
   if (system === "closed") {
@@ -66,16 +65,36 @@ async function timed(result: AskResult, started: number, model = "auto"): Promis
 }
 
 async function withModel(result: AskResult, model = "auto"): Promise<AskResult> {
-  const generated = await generateAnswer(result.query, result.evidence, model);
-  const pooled = fallbackAnswer(result.query, result.evidence);
+  const timeless = result.analyzer?.temporalClass === "timeless";
+  const evidence = timeless ? result.evidence.filter((item) => onTopic(result.query, item)) : result.evidence;
+  const generated = await generateAnswer(result.query, evidence, model, timeless);
+  const pooled = fallbackAnswer(result.query, evidence);
+  const answer = generated?.answer || pooled || result.answer;
   const warnings = [...(result.warnings ?? [])];
-  if (generated?.error) warnings.push(generated.error);
+  if (generated?.error && !generated.answer && (!timeless || !answer)) warnings.push(generated.error);
   return {
     ...result,
-    answer: generated?.answer || pooled || result.answer,
+    evidence,
+    answer,
     backend: generated?.answer ? generated.backend : result.backend,
     warnings: warnings.length > 0 ? warnings : undefined,
   };
+}
+
+const TOPIC_STOP = new Set(["the", "and", "for", "who", "what", "which", "when", "where", "was", "were", "are", "you", "how", "can", "about", "from", "with", "that", "this"]);
+const TOPIC_FUNCTION = new Set(["a", "an", "the", "of", "and", "for", "in", "on", "to"]);
+
+function onTopic(query: string, item: { title: string; text: string }): boolean {
+  const terms = query.toLowerCase().replace(/[^a-z0-9]+/g, " ").split(/\s+/).filter((term) => term.length > 2 && !TOPIC_STOP.has(term));
+  if (terms.length === 0) return true;
+  const title = item.title.toLowerCase();
+  const words = title.replace(/[^a-z0-9]+/g, " ").split(/\s+/).filter((word) => word.length > 2 && !TOPIC_FUNCTION.has(word));
+  const head = words[0] ?? "";
+  const titleHasTerm = terms.some((term) => title.includes(term));
+  const headIsTerm = terms.some((term) => head.includes(term) || term.includes(head));
+  if (titleHasTerm && !headIsTerm) return false;
+  const blob = `${title} ${item.text}`.toLowerCase();
+  return terms.every((term) => blob.includes(term));
 }
 
 function parseSources(body: { source?: unknown; sources?: unknown }): SourceId[] {

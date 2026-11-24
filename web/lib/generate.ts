@@ -15,7 +15,9 @@ export type Generation = {
 };
 
 const SYSTEM = "You are a concise factual assistant. The evidence is one combined collection, even when the passages come from different sources. Write one answer in one or two complete sentences, grounded in that evidence, and include the passage date. If a passage names the person or fact and its date is near the year in the question, answer from that passage. Do not say the evidence is missing in that case.";
+const SYSTEM_TIMELESS = "You are a concise factual assistant. This question does not depend on a date. Answer it in one or two complete sentences. Use a passage only when it answers the question. If every passage is about something else, ignore the passages and answer the question yourself.";
 const SYSTEM_OPEN = "You are a concise factual assistant. No passages were retrieved. Answer the question in one or two complete sentences.";
+const downHosts = new Set<string>();
 const STOP = new Set(["who", "what", "which", "when", "where", "whom", "whose", "the", "a", "an", "of", "is", "are", "was", "were", "did", "does", "how", "for", "and", "current", "currently"]);
 
 export function fallbackAnswer(query: string, evidence: Evidence[]): string {
@@ -48,47 +50,47 @@ export function configuredModels(): ModelChoice[] {
   }));
 }
 
-export async function generateAnswer(query: string, evidence: Evidence[], choice?: string): Promise<Generation | null> {
+export async function generateAnswer(query: string, evidence: Evidence[], choice?: string, timeless = false): Promise<Generation | null> {
   const mode = env("GENERATOR_BACKEND").trim().toLowerCase() || "api";
   if (mode === "extractive" || mode === "hf") return null;
-  let providers = loadProviders();
+  let providers = loadProviders().filter((provider) => !downHosts.has(provider.baseUrl));
   if (choice && choice !== "auto") {
-    const preferred = providers.filter((provider) => `${provider.name}:${provider.model}` === choice);
+    const preferred = loadProviders().filter((provider) => `${provider.name}:${provider.model}` === choice);
     if (preferred.length === 0) {
       return { answer: "", backend: "extractive", error: "Model failed. That model is not configured." };
     }
-    const others = providers.filter((provider) => !preferred.some((item) => item.name === provider.name && item.model === provider.model));
-    providers = [...preferred, ...others];
+    const others = loadProviders().filter((provider) => !preferred.some((item) => item.name === provider.name && item.model === provider.model) && !downHosts.has(provider.baseUrl));
+    providers = [...preferred.filter((provider) => !downHosts.has(provider.baseUrl)), ...others];
+    if (providers.length === 0) providers = preferred;
   }
   if (providers.length === 0) {
     return { answer: "", backend: "extractive", error: "Model failed. No provider is configured. A provider needs an API key, base URL, and model." };
   }
+  const lead = choice && choice !== "auto"
+    ? providers.filter((provider) => `${provider.name}:${provider.model}` === choice)
+    : providers.slice(0, 1);
   const errors: string[] = [];
-  let hostDown = evidence.length === 0;
-  const blockedHosts = new Set<string>();
-  const preferred = choice && choice !== "auto" ? providers.filter((provider) => `${provider.name}:${provider.model}` === choice) : providers;
+  let allowRest = evidence.length === 0;
   for (const provider of providers) {
-    const chosen = preferred.some((item) => item.name === provider.name && item.model === provider.model);
-    if (blockedHosts.has(provider.baseUrl)) continue;
-    if (!chosen && !hostDown) break;
+    const isLead = lead.some((item) => item.name === provider.name && item.model === provider.model);
+    if (downHosts.has(provider.baseUrl)) continue;
+    if (!isLead && !allowRest) break;
     try {
-      const result = await complete(provider, query, evidence);
-      if (result.text) {
-        return { answer: result.text, backend: `api:${provider.name}:${provider.model}` };
-      }
-      const reason = result.finish ? ` (${result.finish})` : "";
-      errors.push(`${provider.name} (${provider.model}) stopped before a complete sentence${reason}.`);
-      if (chosen) hostDown = evidence.length === 0;
+      let result = await complete(provider, query, evidence, timeless);
+      if (!result.text && evidence.length > 0) result = await complete(provider, query, [], true);
+      if (result.text) return { answer: result.text, backend: `api:${provider.name}:${provider.model}` };
+      errors.push(`${provider.name} (${provider.model}) returned an empty answer.`);
+      if (timeless && isLead) break;
+      if (isLead) allowRest = evidence.length === 0;
     } catch (error) {
       const detail = messageOf(error);
       errors.push(`${provider.name} (${provider.model}): ${detail}`);
-      if (chosen && (evidence.length === 0 || gatewayFailure(detail))) {
-        hostDown = true;
-        if (gatewayFailure(detail)) blockedHosts.add(provider.baseUrl);
-      }
+      if (gatewayFailure(detail)) downHosts.add(provider.baseUrl);
+      if (timeless && isLead) break;
+      if (isLead) allowRest = evidence.length === 0 || gatewayFailure(detail);
     }
   }
-  return { answer: "", backend: "extractive", error: `Model failed. ${errors.join(" ")}` };
+  return { answer: "", backend: "extractive", error: errors.length > 0 ? `Model failed. ${errors.join(" ")}` : "Model failed." };
 }
 
 function loadProviders(): Provider[] {
@@ -135,9 +137,9 @@ function env(name: string): string {
   return process.env[name] || "";
 }
 
-async function complete(provider: Provider, query: string, evidence: Evidence[]): Promise<{ text: string; finish: string }> {
+async function complete(provider: Provider, query: string, evidence: Evidence[], timeless = false): Promise<{ text: string; finish: string }> {
   const messages = [
-    { role: "system", content: evidence.length === 0 ? SYSTEM_OPEN : SYSTEM },
+    { role: "system", content: instructions(evidence, timeless) },
     { role: "user", content: prompt(query, evidence) },
   ];
   let budget = numberEnv("LLM_MAX_TOKENS", 512);
@@ -208,13 +210,19 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function instructions(evidence: Evidence[], timeless: boolean): string {
+  if (evidence.length === 0) return SYSTEM_OPEN;
+  return timeless ? SYSTEM_TIMELESS : SYSTEM;
+}
+
 function messageText(message: { content?: unknown; reasoning?: unknown } | undefined): string {
   const content = textOf(message?.content);
   if (content) return content;
   const reasoning = textOf(message?.reasoning);
-  const sentences = reasoning.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter(Boolean);
-  const last = sentences[sentences.length - 1] ?? "";
-  return last.length > 0 && last.length <= 400 ? last : "";
+  if (!reasoning) return "";
+  const lines = reasoning.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const last = lines[lines.length - 1] || reasoning.trim();
+  return last.length <= 500 ? last : last.slice(-500).replace(/^\S*\s/, "");
 }
 
 function textOf(content: unknown): string {
