@@ -201,10 +201,10 @@ a { color: inherit; }
 .answer {
   margin: 0;
   font-family: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
+  letter-spacing: -0.02em;
+  line-height: 1.45;
 }
 
 .meta {

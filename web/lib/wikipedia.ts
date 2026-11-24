@@ -2,12 +2,14 @@ import { ask, type AskResult, type Evidence, type SystemId } from "@/lib/engine"
 
 const API = "https://en.wikipedia.org/w/api.php";
 const AGENT = "AdaptiveTemporalRAG/1.0 (https://adaptive-temporal-rag.vercel.app)";
+const STOP = new Set(["who", "what", "which", "when", "where", "whom", "whose", "whos", "the", "a", "an", "of", "is", "are", "was", "were", "did", "does", "how", "for", "and"]);
 
 type WikiPage = {
   pageid: number;
   title: string;
   extract: string;
   timestamp: string;
+  score: number;
 };
 
 export async function askWikipedia(query: string, system: SystemId): Promise<AskResult> {
@@ -18,19 +20,22 @@ export async function askWikipedia(query: string, system: SystemId): Promise<Ask
   }
 
   const pages = await searchPages(query);
-  const evidence = pages.map((page, index) => toEvidence(page, index, pages.length));
+  const terms = queryTerms(query);
+  const ranked = pages
+    .map((page) => ({ ...page, score: relevance(terms, page.title, page.extract) }))
+    .sort((a, b) => b.score - a.score || titlePrecision(terms, b.title) - titlePrecision(terms, a.title));
   return {
     query,
     system,
     source: "wikipedia",
-    answer: answerFrom(query, pages),
-    didRetrieve: evidence.length > 0,
+    answer: answerFrom(query, terms, ranked),
+    didRetrieve: ranked.length > 0,
     latencyMs: Math.max(1, Math.round(performance.now() - started)),
     backend: "extractive",
     analyzer: null,
     window: null,
-    sufficiency: evidence.length > 0 ? { sufficient: true, score: 1 } : { sufficient: false, score: 0 },
-    evidence,
+    sufficiency: ranked.length > 0 ? { sufficient: ranked[0].score >= 0.34, score: ranked[0]?.score ?? 0 } : { sufficient: false, score: 0 },
+    evidence: ranked.map(toEvidence),
   };
 }
 
@@ -39,7 +44,7 @@ async function searchPages(query: string): Promise<WikiPage[]> {
   search.searchParams.set("action", "query");
   search.searchParams.set("list", "search");
   search.searchParams.set("srsearch", query);
-  search.searchParams.set("srlimit", "4");
+  search.searchParams.set("srlimit", "50");
   search.searchParams.set("srnamespace", "0");
   search.searchParams.set("format", "json");
   search.searchParams.set("utf8", "1");
@@ -47,37 +52,40 @@ async function searchPages(query: string): Promise<WikiPage[]> {
   const hits = (found.query?.search ?? []) as Array<{ pageid: number; title: string; timestamp?: string }>;
   if (hits.length === 0) return [];
 
-  const detail = new URL(API);
-  detail.searchParams.set("action", "query");
-  detail.searchParams.set("prop", "extracts");
-  detail.searchParams.set("pageids", hits.map((hit) => String(hit.pageid)).join("|"));
-  detail.searchParams.set("explaintext", "1");
-  detail.searchParams.set("exintro", "1");
-  detail.searchParams.set("format", "json");
-  detail.searchParams.set("utf8", "1");
-  const body = await wikiGet(detail);
-  const pages = body.query?.pages ?? {};
-  const order = new Map(hits.map((hit, index) => [hit.pageid, index]));
-  return hits
-    .map((hit) => {
-      const page = pages[String(hit.pageid)];
+  const pages: WikiPage[] = [];
+  for (let start = 0; start < hits.length; start += 20) {
+    const batch = hits.slice(start, start + 20);
+    const detail = new URL(API);
+    detail.searchParams.set("action", "query");
+    detail.searchParams.set("prop", "extracts");
+    detail.searchParams.set("pageids", batch.map((hit) => String(hit.pageid)).join("|"));
+    detail.searchParams.set("explaintext", "1");
+    detail.searchParams.set("exintro", "1");
+    detail.searchParams.set("format", "json");
+    detail.searchParams.set("utf8", "1");
+    const body = await wikiGet(detail);
+    const byId = body.query?.pages ?? {};
+    for (const hit of batch) {
+      const page = byId[String(hit.pageid)];
       const extract = (page?.extract ?? "").replace(/\s+/g, " ").trim();
-      return {
+      if (!extract || /may refer to:/i.test(extract)) continue;
+      pages.push({
         pageid: hit.pageid,
         title: page?.title || hit.title,
         extract,
         timestamp: (hit.timestamp ?? "").slice(0, 10),
-      };
-    })
-    .filter((page) => page.extract && !/may refer to:/i.test(page.extract))
-    .sort((a, b) => (order.get(a.pageid) ?? 99) - (order.get(b.pageid) ?? 99));
+        score: 0,
+      });
+    }
+  }
+  return pages;
 }
 
 async function wikiGet(url: URL): Promise<{ error?: { info?: string }; query?: { search?: unknown[]; pages?: Record<string, { title?: string; extract?: string }> } }> {
   const response = await fetch(url, {
     headers: { "User-Agent": AGENT, Accept: "application/json" },
     cache: "no-store",
-    signal: AbortSignal.timeout(8000),
+    signal: AbortSignal.timeout(20000),
   });
   if (!response.ok) throw new Error(`Wikipedia returned ${response.status}`);
   const body = await response.json();
@@ -85,57 +93,51 @@ async function wikiGet(url: URL): Promise<{ error?: { info?: string }; query?: {
   return body;
 }
 
-function toEvidence(page: WikiPage, index: number, total: number): Evidence {
+function toEvidence(page: WikiPage): Evidence {
   return {
     docId: `wiki-${page.pageid}`,
     timestamp: page.timestamp,
     title: page.title,
     entity: "Wikipedia",
-    text: page.extract.length > 700 ? `${page.extract.slice(0, 697).trim()}…` : page.extract,
-    score: Number((1 - index / Math.max(total, 1)).toFixed(3)),
+    text: page.extract,
+    score: page.score,
     url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, "_"))}`,
   };
 }
 
-function answerFrom(query: string, pages: WikiPage[]): string {
+function answerFrom(query: string, terms: string[], pages: WikiPage[]): string {
   if (pages.length === 0) return `No Wikipedia page matched “${query}”.`;
-  const words = query
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .split(/\s+/)
-    .filter((term) => term.length > 2 && !["who", "what", "the", "was", "were", "how", "did", "does"].includes(term));
-  const topic = words.filter((term) => term !== "current" && term !== "currently");
-  const whoNow = /\bwho(?:'s|s)?\b/i.test(query) && !/\b(was|were|in \d{4})\b/i.test(query);
-  const primary = pages.reduce((best, page, index) => {
-    const score = titleScore(page.title, topic);
-    if (score > best.score || (score === best.score && index < best.index)) return { score, index };
-    return best;
-  }, { score: -1, index: 0 });
-  const ranked = sentences(pages[primary.index].extract).map((sentence) => ({
-    sentence,
-      score: overlap(words, sentence) - (whoNow && /\b(?:(?:was|were) the|former|until|succeeded)\b/i.test(sentence) ? 3 : 0),
-  }));
-  ranked.sort((a, b) => b.score - a.score);
-  const best = ranked[0]?.sentence || sentences(pages[0].extract)[0] || pages[0].extract;
-  return best.length > 420 ? `${best.slice(0, 417).trim()}…` : best;
+  const page = pages[0];
+  const parts = sentences(page.extract).filter((sentence) => overlap(terms, sentence) > 0);
+  const chosen = parts.length > 0 ? parts : sentences(page.extract).slice(0, 2);
+  return chosen.join(" ") || page.extract;
 }
 
 function sentences(extract: string): string[] {
   return extract
-    .split(/(?<=[.!?])\s+/)
+    .split(/(?<!\b[A-Z])(?<=[.!?])\s+(?=[A-Z])/)
     .map((sentence) => sentence.trim())
     .filter((sentence) => sentence.length > 40);
 }
 
-function titleScore(title: string, terms: string[]): number {
-  const words = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .split(/\s+/)
-    .filter((word) => word.length > 2 && !["the", "and", "for"].includes(word));
-  if (words.length === 0 || terms.length === 0) return 0;
-  const hits = words.filter((word) => terms.includes(word)).length;
+function queryTerms(query: string): string[] {
+  return [...new Set(query.toLowerCase().replace(/[^a-z0-9]+/g, " ").split(/\s+/).filter((term) => term.length > 2 && !STOP.has(term)))];
+}
+
+function titlePrecision(terms: string[], title: string): number {
+  const words = title.toLowerCase().replace(/[^a-z0-9]+/g, " ").split(/\s+/).filter((word) => word.length > 2 && !STOP.has(word));
+  if (words.length === 0) return 0;
+  const hits = words.filter((word) => terms.some((term) => word.includes(term))).length;
   return hits / words.length;
+}
+
+function relevance(terms: string[], title: string, text: string): number {
+  if (terms.length === 0) return 0;
+  const blob = `${title} ${text}`.toLowerCase();
+  const titleText = title.toLowerCase();
+  const hits = terms.filter((term) => blob.includes(term)).length;
+  const titleHits = terms.filter((term) => titleText.includes(term)).length;
+  return Number(((0.7 * hits + 0.3 * titleHits) / terms.length).toFixed(3));
 }
 
 function overlap(terms: string[], sentence: string): number {

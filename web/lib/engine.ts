@@ -53,7 +53,7 @@ export type AskResult = {
 
 const DOCS = [...part0, ...part1, ...part2, ...part3] as Doc[];
 const REFERENCE = new Date(Date.UTC(2025, 9, 1));
-const TOP_K = 5;
+const TOP_K = 20;
 
 const STOP = new Set([
   "the", "and", "for", "who", "what", "which", "when", "where", "whom", "whose",
@@ -425,7 +425,7 @@ function readAnswer(query: string, docs: Doc[]): string {
   if (identified) return identified[1].trim();
   const assumed = text.match(/([A-Z][\w .'-]+?)\s+assumed office\b/);
   if (assumed) return assumed[1].trim();
-  return project(query, text.length > 280 ? `${text.slice(0, 277).trim()}…` : text);
+  return project(query, text);
 }
 
 function sufficiency(query: string, docs: Doc[], mode: string): { sufficient: boolean; score: number } {
@@ -445,14 +445,13 @@ function sufficiency(query: string, docs: Doc[], mode: string): { sufficient: bo
 }
 
 function pack(rows: Scored[]): Evidence[] {
-  const top = Math.max(...rows.map((row) => row.score), 1);
   return rows.map((row) => ({
     docId: row.doc.doc_id,
     timestamp: row.doc.timestamp,
     title: row.doc.title || row.doc.entity,
     entity: row.doc.entity,
     text: row.doc.text,
-    score: Number((row.score / top).toFixed(3)),
+    score: Number(row.score.toFixed(3)),
   }));
 }
 
