@@ -1,4 +1,4 @@
-# How to Run This Project (Beginner Guide)
+# How to Run This Project (Beginner Guide):
 
 This guide assumes you are on **Windows** and have never run this project before.
 
